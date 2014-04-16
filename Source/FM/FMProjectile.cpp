@@ -24,6 +24,7 @@ AFMProjectile::AFMProjectile(const class FPostConstructInitializeProperties& PCI
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
 	ProjectileMovement->Bounciness = 0.3f;
+	ProjectileMovement->BounceVelocityStopSimulatingThreshold = 0.1f;
 
 	// set actor lifespan
 	InitialLifeSpan = 3.0f;
@@ -40,7 +41,8 @@ void AFMProjectile::InitVelocity(const FVector& ShootDirection){
 
 void AFMProjectile::OnHit(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit){
 	if (OtherActor && (OtherActor != this) && OtherComp){
-		OtherComp->AddImpulseAtLocation(ProjectileMovement->Velocity + 100.0f, Hit.ImpactPoint);
+		OtherComp->AddImpulseAtLocation(ProjectileMovement->Velocity + 1000.0f, Hit.ImpactPoint);
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, OtherActor->GetName());
 	}
 }
 
