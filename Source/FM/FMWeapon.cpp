@@ -7,12 +7,56 @@
 AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
+	/*
+	Mesh1P = PCIP.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("WeaponMesh1P"));
+	Mesh1P->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered;
+	Mesh1P->bChartDistanceFactor = false;
+	Mesh1P->bReceivesDecals = false;
+	Mesh1P->CastShadow = false;
+	Mesh1P->SetCollisionObjectType(ECC_WorldDynamic);
+	Mesh1P->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Mesh1P->SetCollisionResponseToAllChannels(ECR_Ignore);
+	RootComponent = Mesh1P;
 
+	Mesh3P = PCIP.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("WeaponMesh3P"));
+	Mesh3P->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered;
+	Mesh3P->bChartDistanceFactor = true;
+	Mesh3P->bReceivesDecals = false;
+	Mesh3P->CastShadow = true;
+	Mesh3P->SetCollisionObjectType(ECC_WorldDynamic);
+	Mesh3P->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Mesh3P->SetCollisionResponseToAllChannels(ECR_Ignore);
+//	Mesh3P->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Block);
+	Mesh3P->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	Mesh3P->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Block);
+	Mesh3P->AttachParent = Mesh1P;
+
+//	bLoopedMuzzleFX = false;
+//	bLoopedFireAnim = false;
+//	bPlayingFireAnim = false;
+	bIsEquipped = false;
+	bWantsToUse = false;
+	bPendingCooldown = false;
+	bPendingEquip = false;
+	CurrentState = EWeaponState::Idle;
+
+	StaminaCost = 25.0f;
+	LastFireTime = 0.0f;
+
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickGroup = TG_PrePhysics;
+	SetRemoteRoleForBackwardsCompat(ROLE_SimulatedProxy);
+	bReplicates = true;
+	bReplicateInstigator = true;
+	bNetUseOwnerRelevancy = true;
+	*/
 }
+
+/*
 
 void AFMWeapon::PostInitializeComponents(){
 	Super::PostInitializeComponents();
-	/*
+	
 	if (WeaponConfig.InitialClips > 0)
 	{
 		CurrentAmmoInClip = WeaponConfig.AmmoPerClip;
@@ -20,12 +64,12 @@ void AFMWeapon::PostInitializeComponents(){
 	}
 
 	DetachMeshFromPawn();
-	*/
+	
 }
-
+*/
 //////////////////////////////////////////////////////////////////////////
 // Input
-
+/*
 void AFMWeapon::StartUseWeapon(){
 	if (Role < ROLE_Authority){
 		ServerStartUseWeapon();
@@ -36,7 +80,7 @@ void AFMWeapon::StartUseWeapon(){
 		DetermineWeaponState();
 	}
 }
-
+/*
 void AFMWeapon::StopUseWeapon(){
 	if (Role < ROLE_Authority){
 		ServerStopUseWeapon();
@@ -47,12 +91,12 @@ void AFMWeapon::StopUseWeapon(){
 		DetermineWeaponState();
 	}
 }
-
+/*
 void AFMWeapon::StartCooldown(bool bFromReplication){
 	if (!bFromReplication && Role < ROLE_Authority){
 		ServerStartCooldown();
 	}
-	/*
+	
 	if (bFromReplication || CanReload())
 	{
 		bPendingReload = true;
@@ -74,58 +118,68 @@ void AFMWeapon::StartCooldown(bool bFromReplication){
 		{
 			PlayWeaponSound(ReloadSound);
 		}
-	}*/
+	}
 }
-
+*/
+/*
 void AFMWeapon::StopCooldown(){
-/*	if (CurrentState == EWeaponState::Reloading){
+	if (CurrentState == EWeaponState::Reloading){
 		bPendingReload = false;
 		DetermineWeaponState();
 		StopWeaponAnimation(ReloadAnim);
-	}*/
+	}
 }
-
+*/
+/*
 bool AFMWeapon::ServerStartUseWeapon_Validate(){
 	return true;
 }
-
+*/
+/*
 void AFMWeapon::ServerStartUseWeapon_Implementation(){
 	StartUseWeapon();
 }
-
+*/
+/*
 bool AFMWeapon::ServerStopUseWeapon_Validate(){
 	return true;
 }
-
+*/
+/*
 void AFMWeapon::ServerStopUseWeapon_Implementation(){
 	StopUseWeapon();
 }
-
+*/
+/*
 bool AFMWeapon::ServerStartCooldown_Validate(){
 	return true;
 }
-
+*/
+/*
 void AFMWeapon::ServerStartCooldown_Implementation(){
 	StartCooldown();
 }
-
+*/
+/*
 bool AFMWeapon::ServerStopCooldown_Validate(){
 	return true;
 }
-
+*/
+/*
 void AFMWeapon::ServerStopCooldown_Implementation(){
 	StopCooldown();
 }
-
+*/
+/*
 void AFMWeapon::ClientStartCooldown_Implementation(){
 	StartCooldown();
 }
-
+*/
 //////////////////////////////////////////////////////////////////////////
 // Weapon usage
-
+/*
 void AFMWeapon::GiveStamina(int AddAmount){
-	/*
+	
 	const int32 MissingAmmo = FMath::Max(0, WeaponConfig.MaxAmmo - CurrentAmmo);
 	AddAmount = FMath::Min(AddAmount, MissingAmmo);
 	CurrentAmmo += AddAmount;
@@ -143,11 +197,12 @@ void AFMWeapon::GiveStamina(int AddAmount){
 	{
 		ClientStartReload();
 	}
-	*/
+	
 }
-
+*/
+/*
 void AFMWeapon::UseStamina(){
-	/*
+	
 	if (!HasInfiniteAmmo())
 	{
 		CurrentAmmoInClip--;
@@ -163,11 +218,12 @@ void AFMWeapon::UseStamina(){
 	{
 		BotAI->CheckAmmo(this);
 	}
-	*/
+	
 }
-
+*/
+/*
 void AFMWeapon::HandleUseWeapon(){
-	/*
+	
 	if ((CurrentAmmoInClip > 0 || HasInfiniteClip() || HasInfiniteAmmo()) && CanFire())
 	{
 		if (GetNetMode() != NM_DedicatedServer)
@@ -232,15 +288,17 @@ void AFMWeapon::HandleUseWeapon(){
 	}
 
 	LastFireTime = GetWorld()->GetTimeSeconds();
-	*/
+	
 }
-
+*/
+/*
 bool AFMWeapon::ServerHandleUseWeapon_Validate(){
 	return true;
 }
-
+*/
+/*
 void AFMWeapon::ServerHandleUseWeapon_Implementation(){
-	/*
+	
 	const bool bShouldUpdateAmmo = (CurrentAmmoInClip > 0 && CanFire());
 
 	HandleFiring();
@@ -253,11 +311,12 @@ void AFMWeapon::ServerHandleUseWeapon_Implementation(){
 		// update firing FX on remote clients
 		BurstCounter++;
 	}
-	*/
+	
 }
-
+*/
+/*
 void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
-	/*
+	
 	const EWeaponState::Type PrevState = CurrentState;
 
 	if (PrevState == EWeaponState::Firing && NewState != EWeaponState::Firing)
@@ -271,11 +330,12 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 	{
 		OnBurstStarted();
 	}
-	*/
+	
 }
-
+*/
+/*
 void AFMWeapon::DetermineWeaponState(){
-	/*
+	
 	EWeaponState::Type NewState = EWeaponState::Idle;
 
 	if (bIsEquipped)
@@ -302,23 +362,24 @@ void AFMWeapon::DetermineWeaponState(){
 	}
 
 	SetWeaponState(NewState);
-	*/
+	
 }
-
+*/
+/*
 void AFMWeapon::SetOwningPawn(AFMCharacter* NewOwner){
-	/*
+	
 	if (MyPawn != NewOwner){
 		Instigator = NewOwner;
 		MyPawn = NewOwner;
 		// net owner for RPC calls
 		SetOwner(NewOwner);
 	}
-	*/
+	
 }
-
+*/
 /////////////////////////////////////////////////////////////////////////
 // Replication & effects
-
+/*
 void AFMWeapon::OnRep_MyPawn(){
 	if (MyPawn)
 	{
@@ -329,9 +390,10 @@ void AFMWeapon::OnRep_MyPawn(){
 		OnLeaveInventory();
 	}
 }
-
+*/
+/*
 void AFMWeapon::OnRep_Cooldown(){
-	/*
+	
 	if (bPendingReload)
 	{
 		StartReload(true);
@@ -340,11 +402,12 @@ void AFMWeapon::OnRep_Cooldown(){
 	{
 		StopReload();
 	}
-*/
-}
 
+}
+*/
+/*
 void AFMWeapon::SimulateWeaponUse(){
-	/*
+	
 	if (Role == ROLE_Authority && CurrentState != EWeaponState::Firing)
 	{
 		return;
@@ -409,11 +472,12 @@ void AFMWeapon::SimulateWeaponUse(){
 			PC->ClientPlayForceFeedback(FireForceFeedback, false, "Weapon");
 		}
 	}
-	*/
+	
 }
-
+*/
+/*
 void AFMWeapon::StopSimulatingWeaponUse(){
-	/*
+	
 	if (bLoopedMuzzleFX)
 	{
 		if (MuzzlePSC != NULL)
@@ -441,12 +505,13 @@ void AFMWeapon::StopSimulatingWeaponUse(){
 
 		PlayWeaponSound(FireFinishSound);
 	}
-	*/
+	
 }
-
+*/
+/*
 void AFMWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	/*
+	
 	DOREPLIFETIME(AShooterWeapon, MyPawn);
 
 	DOREPLIFETIME_CONDITION(AShooterWeapon, CurrentAmmo, COND_OwnerOnly);
@@ -454,47 +519,55 @@ void AFMWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLife
 
 	DOREPLIFETIME_CONDITION(AShooterWeapon, BurstCounter, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(AShooterWeapon, bPendingReload, COND_SkipOwner);
-	*/
+	
 }
-
+*/
+/*
 USkeletalMeshComponent* AFMWeapon::GetWeaponMesh() const
 {
-	return (MyPawn != NULL /*&& MyPawn->IsFirstPerson()*/) ? Mesh1P : Mesh3P;
+	return (MyPawn != NULL && MyPawn->IsFirstPerson()) ? Mesh1P : Mesh3P;
 }
-
+*/
+/*
 class AFMCharacter* AFMWeapon::GetPawnOwner() const {
 	return MyPawn;
 }
-
+*/
+/*
 bool AFMWeapon::IsEquipped() const {
 	return bIsEquipped;
 }
-
+*/
+/*
 bool AFMWeapon::IsAttachedToPawn() const {
 	return bIsEquipped || bPendingEquip;
 }
-
+*/
+/*
 EWeaponState::Type AFMWeapon::GetCurrentState() const{
 	return CurrentState;
 }
-
+*/
+/*
 int32 AFMWeapon::GetStaminaCost() const {
 	return StaminaCost;
 }
-
+*/
+/*
 float AFMWeapon::GetEquipStartedTime() const {
 	return EquipStartedTime;
 }
-
+*/
+/*
 float AFMWeapon::GetEquipDuration() const {
 	return EquipDuration;
 }
-
+*/
 //////////////////////////////////////////////////////////////////////////
 // Inventory
-
+/*
 void AFMWeapon::OnEquip(){
-	/*
+	
 	AttachMeshToPawn();
 
 	bPendingEquip = true;
@@ -515,11 +588,12 @@ void AFMWeapon::OnEquip(){
 	{
 		PlayWeaponSound(EquipSound);
 	}
-	*/
+	
 }
-
+*/
+/*
 void AFMWeapon::OnEquipFinished(){
-	/*
+	
 	AttachMeshToPawn();
 
 	bIsEquipped = true;
@@ -537,11 +611,12 @@ void AFMWeapon::OnEquipFinished(){
 	}
 
 	DetermineWeaponState();
-	*/
+	
 }
-
+*/
+/*
 void AFMWeapon::OnUnEquip(){
-	/*
+	
 	DetachMeshFromPawn();
 	bIsEquipped = false;
 	StopFire();
@@ -564,17 +639,19 @@ void AFMWeapon::OnUnEquip(){
 	}
 
 	DetermineWeaponState();
-	*/
+	
 }
-
+*/
+/*
 void AFMWeapon::OnEnterInventory(AFMCharacter* NewOwner){
-	/*
+	
 	SetOwningPawn(NewOwner);
-	*/
+	
 }
-
+*/
+/*
 void AFMWeapon::OnLeaveInventory(){
-	/*
+	
 	if (Role == ROLE_Authority)
 	{
 		SetOwningPawn(NULL);
@@ -584,11 +661,12 @@ void AFMWeapon::OnLeaveInventory(){
 	{
 		OnUnEquip();
 	}
-	*/
-}
 
+}
+*/
+/*
 void AFMWeapon::AttachMeshToPawn(){
-	/*
+	
 	if (MyPawn)
 	{
 		// Remove and hide both first and third person meshes
@@ -613,15 +691,17 @@ void AFMWeapon::AttachMeshToPawn(){
 			UseWeaponMesh->SetHiddenInGame(false);
 		}
 	}
-	*/
+	
 }
-
+*/
+/*
 void AFMWeapon::DetachMeshFromPawn(){
-	/*
+	
 	Mesh1P->DetachFromParent();
 	Mesh1P->SetHiddenInGame(true);
 
 	Mesh3P->DetachFromParent();
 	Mesh3P->SetHiddenInGame(true);
-	*/
+	
 }
+*/
