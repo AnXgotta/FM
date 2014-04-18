@@ -24,7 +24,7 @@ AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 	// END FIRST PERSON MESH BS #######################################################
 
 	// Create 3d person mesh component to be assigned in Blueprint later for this weapon
-	//Mesh3P = PCIP.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("WeaponMesh3P"));
+	Mesh3P = PCIP.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("WeaponMesh3P"));
 
 	// USkinnedMeshComponent
 	// "This is update frequency flag even when our Owner has not been rendered recently." 
@@ -446,18 +446,31 @@ void AFMWeapon::SetOwningPawn(AFMCharacter* NewOwner){
 */
 /////////////////////////////////////////////////////////////////////////
 // Replication & effects
-/*
+
 void AFMWeapon::OnRep_MyPawn(){
 	if (MyPawn)
 	{
-		OnEnterInventory(MyPawn);
+		//OnEnterInventory(MyPawn);
 	}
 	else
 	{
-		OnLeaveInventory();
+		//OnLeaveInventory();
 	}
 }
-*/
+
+void AFMWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AFMWeapon, MyPawn);
+
+	//DOREPLIFETIME_CONDITION(AShooterWeapon, CurrentAmmo, COND_OwnerOnly);
+	//DOREPLIFETIME_CONDITION(AShooterWeapon, CurrentAmmoInClip, COND_OwnerOnly);
+
+	//DOREPLIFETIME_CONDITION(AShooterWeapon, BurstCounter, COND_SkipOwner);
+	//DOREPLIFETIME_CONDITION(AShooterWeapon, bPendingReload, COND_SkipOwner);
+
+}
+
 /*
 void AFMWeapon::OnRep_Cooldown(){
 	
@@ -575,20 +588,9 @@ void AFMWeapon::StopSimulatingWeaponUse(){
 	
 }
 */
-/*
-void AFMWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
-	DOREPLIFETIME(AShooterWeapon, MyPawn);
 
-	DOREPLIFETIME_CONDITION(AShooterWeapon, CurrentAmmo, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterWeapon, CurrentAmmoInClip, COND_OwnerOnly);
 
-	DOREPLIFETIME_CONDITION(AShooterWeapon, BurstCounter, COND_SkipOwner);
-	DOREPLIFETIME_CONDITION(AShooterWeapon, bPendingReload, COND_SkipOwner);
-	
-}
-*/
+
 /*
 USkeletalMeshComponent* AFMWeapon::GetWeaponMesh() const
 {

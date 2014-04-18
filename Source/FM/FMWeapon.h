@@ -83,6 +83,16 @@ protected:
 	// detaches weapon mesh from pawn 
 	void DetachMeshFromPawn();
 
+
+
+public:
+	//////////////////////////////////////////////////////////////////////////
+	// Replication & effects
+
+	UFUNCTION()
+		void OnRep_MyPawn();
+
+
 	/*
 	// perform initial setup 
 	virtual void PostInitializeComponents() OVERRIDE;
@@ -354,11 +364,7 @@ public:
 	UFUNCTION(reliable, server, WithValidation)
 		void ServerStopCooldown();
 
-	//////////////////////////////////////////////////////////////////////////
-	// Replication & effects
-
-	UFUNCTION()
-		void OnRep_MyPawn();
+	
 
 
 	UFUNCTION()
