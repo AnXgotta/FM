@@ -74,7 +74,7 @@ AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
 
 }
 
-/*
+
 void AFMCharacter::BeginPlay(){
 	Super::BeginPlay();
 
@@ -83,7 +83,7 @@ void AFMCharacter::BeginPlay(){
 	}
 
 }
-*/
+
 
 
 void AFMCharacter::PostInitializeComponents(){
@@ -838,7 +838,7 @@ void AFMCharacter::OnFire0(){
 		if (RootComponent && CameraBoom){
 			// get boom rotation and RootComponent Location in world coords 
 			FRotator MuzzleRotation = CameraBoom->GetComponentRotation();
-			FVector const MuzzleLocation = RootComponent->GetComponentLocation() + (RootComponent->GetForwardVector() * 50.0f);
+			FVector const MuzzleLocation = RootComponent->GetComponentLocation() + (RootComponent->GetForwardVector() * 100.0f);
 			// skew aim up a tiny bit
 			MuzzleRotation.Pitch += 10.0f;
 			UWorld* const World = GetWorld();

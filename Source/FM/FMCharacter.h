@@ -11,6 +11,8 @@ class AFMCharacter : public ACharacter
 
 	GENERATED_UCLASS_BODY()
 
+	virtual void BeginPlay() OVERRIDE;
+
 	UPROPERTY(VisibleDefaultsOnly, Category = CameraBoom)
 	TSubobjectPtr<USpringArmComponent> CameraBoom;
 
@@ -204,7 +206,7 @@ protected:
 	//  handle mesh visibility and updates
 	void UpdatePawnMeshes();
 
-	virtual void BeginPlay() OVERRIDE;
+	
 
 	//////////////////////////////////////////////////////////////////////////
 	// Damage & death
