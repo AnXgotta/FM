@@ -46,6 +46,19 @@ class AFMCharacter : public ACharacter
 	UFUNCTION()
 		void OnFire0();
 
+
+
+protected:
+	/////////////////////////////////////////////////////////////////////////
+	// INVENTORY
+
+	//  default inventory list
+	UPROPERTY(EditDefaultsOnly, Category = Inventory)
+	TArray<TSubclassOf<class AFMWeapon> > DefaultInventoryClasses;
+
+
+
+
 	/*
 	//  spawn inventory, setup initial variables
 	virtual void PostInitializeComponents() OVERRIDE;
@@ -143,9 +156,7 @@ class AFMCharacter : public ACharacter
 	UPROPERTY(EditDefaultsOnly, Category = Inventory)
 	FName WeaponAttachPoint;
 
-	//  default inventory list
-	UPROPERTY(EditDefaultsOnly, Category = Inventory)
-	TArray<TSubclassOf<class AFMWeapon> > DefaultInventoryClasses;
+	
 
 	//  weapons in inventory
 	UPROPERTY(Transient, Replicated)

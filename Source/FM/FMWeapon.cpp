@@ -7,6 +7,8 @@
 AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
+	// START FIRST PERSON MESH BS #######################################################
+
 	/*
 	Mesh1P = PCIP.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("WeaponMesh1P"));
 	Mesh1P->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered;
@@ -17,39 +19,106 @@ AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 	Mesh1P->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh1P->SetCollisionResponseToAllChannels(ECR_Ignore);
 	RootComponent = Mesh1P;
-
-	Mesh3P = PCIP.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("WeaponMesh3P"));
-	Mesh3P->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered;
-	Mesh3P->bChartDistanceFactor = true;
-	Mesh3P->bReceivesDecals = false;
-	Mesh3P->CastShadow = true;
-	Mesh3P->SetCollisionObjectType(ECC_WorldDynamic);
-	Mesh3P->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Mesh3P->SetCollisionResponseToAllChannels(ECR_Ignore);
-//	Mesh3P->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Block);
-	Mesh3P->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-	Mesh3P->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Block);
-	Mesh3P->AttachParent = Mesh1P;
-
-//	bLoopedMuzzleFX = false;
-//	bLoopedFireAnim = false;
-//	bPlayingFireAnim = false;
-	bIsEquipped = false;
-	bWantsToUse = false;
-	bPendingCooldown = false;
-	bPendingEquip = false;
-	CurrentState = EWeaponState::Idle;
-
-	StaminaCost = 25.0f;
-	LastFireTime = 0.0f;
-
-	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.TickGroup = TG_PrePhysics;
-	SetRemoteRoleForBackwardsCompat(ROLE_SimulatedProxy);
-	bReplicates = true;
-	bReplicateInstigator = true;
-	bNetUseOwnerRelevancy = true;
 	*/
+
+	// END FIRST PERSON MESH BS #######################################################
+
+
+	//Mesh3P = PCIP.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("WeaponMesh3P"));
+
+	// USkinnedMeshComponent
+	// "This is update frequency flag even when our Owner has not been rendered recently." 
+	// (namespace EMeshComponentUpdateFlag( enumType ==> AlwaysTickPoseAndRefreshBones, AlwaysTickPose, OnlyTickPoseWhenRendered)
+	//Mesh3P->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered;
+
+	// USkinnedMeshComponent
+	// "If true, DistanceFactor for this SkinnedMeshComponent will be added to the global chart"
+	//Mesh3P->bChartDistanceFactor = true;
+
+	// UPrimitiveComponent
+	// "Whether the primitive receives decals."
+	//Mesh3P->bReceivesDecals = false;
+
+	// UPrimitiveComponent
+	// "Whether the primitive should cast a shadow or not."
+	//Mesh3P->CastShadow = true;
+
+	// UPrimitiveComponent
+	// "Changes the collision channel that this object uses when it moves."
+	// (enum ECollisionChannel ==> there are a shitload of possible values)
+	//Mesh3P->SetCollisionObjectType(ECC_WorldDynamic);
+
+	// UPrimitiveComponent
+	// "Controls what kind of collision is enabled for this body."
+	// (namespace ECollisionEnabled{ enum Type ==> NoCollision, QueryOnly, QueryAndPhysics)
+	//Mesh3P->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// UPrimitiveComponent
+	// "Changes all ResponseToChannels container for this PrimitiveComponent."
+	// (enum ECollisionResponse => ECR_Ignore, ECR_Overlap, ECR_Block, ECR_MAX)
+	//Mesh3P->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	// UPrimitiveComponent
+	// "Changes a member of the ResponseToChannels container for this PrimitiveComponent."
+	// (enum ECollisionResponse => ECR_Ignore, ECR_Overlap, ECR_Block, ECR_MAX)
+	//Mesh3P->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Block);
+
+	// UPrimitiveComponent
+	// "Changes a member of the ResponseToChannels container for this PrimitiveComponent."
+	// (enum ECollisionResponse => ECR_Ignore, ECR_Overlap, ECR_Block, ECR_MAX)
+	//Mesh3P->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+
+	// UPrimitiveComponent
+	// "Changes a member of the ResponseToChannels container for this PrimitiveComponent."
+	// (enum ECollisionResponse => ECR_Ignore, ECR_Overlap, ECR_Block, ECR_MAX)
+	//Mesh3P->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Block);
+
+	// From Up the inherited hierarchy, USceneComponent
+	// "What we are currently attached to."
+	//Mesh3P->AttachParent = Mesh1P;
+
+
+
+	// XXX: START WEAPON CLASS VARIABLES ####################################
+
+	//bIsEquipped = false;
+	//bWantsToUse = false;
+	//bPendingCooldown = false;
+	//bPendingEquip = false;
+	//CurrentState = EWeaponState::Idle;
+
+	//StaminaCost = 25.0f;
+	//LastFireTime = 0.0f;
+
+	// XXX: END WEAPON CLASS VARIABLES #######################################
+
+	// AActor
+	// "Primary Actor tick function"."If false, this tick function will never be registered and will never tick."
+	//PrimaryActorTick.bCanEverTick = true;
+
+	// AActor
+	// "Primary Actor tick function"."Defines the minimum tick group for this tick function; given prerequisites, it can be delayed."
+	//(enum ETickingGroup => G_PrePhysics, TG_StartPhysics, TG_DuringPhysics, TG_EndPhysics,TG_PostPhysics, TG_PostUpdateWork, TG_NewlySpawned, TG_MAX)
+	//PrimaryActorTick.TickGroup = TG_PrePhysics;
+
+	// AActor
+	// No description in documentation -- looks like replication role for networking
+	// (enum ENetRole => ROLE_None, ROLE_SimulatedProxy, ROLE_AutonomousProxy, ROLE_Authority, ROLE_MAX)
+	//SetRemoteRoleForBackwardsCompat(ROLE_SimulatedProxy);
+
+	// AActor
+	// No description in documentation -- looks like replication boolean to confirm that it should be replicated
+	//bReplicates = true;
+
+	// AActor
+	// "Replicate instigator to client (used by bNetTemporary projectiles for example)."
+	//bReplicateInstigator = true;
+
+	// AActor
+	// "If actor has valid Owner, call Owner's IsNetRelevantFor and GetNetPriority."
+	// --Notes: I think thie means assume network role of owner... for a weapon class, this is what you want
+	//bNetUseOwnerRelevancy = true;
+
 }
 
 /*
@@ -678,9 +747,9 @@ void AFMWeapon::AttachMeshToPawn(){
 		{
 			USkeletalMeshComponent* PawnMesh1p = MyPawn->GetSpecifcPawnMesh(true);
 			USkeletalMeshComponent* PawnMesh3p = MyPawn->GetSpecifcPawnMesh(false);
-			Mesh1P->SetHiddenInGame(false);
+			//Mesh1P->SetHiddenInGame(false);
 			Mesh3P->SetHiddenInGame(false);
-			Mesh1P->AttachTo(PawnMesh1p, AttachPoint);
+			//Mesh1P->AttachTo(PawnMesh1p, AttachPoint);
 			Mesh3P->AttachTo(PawnMesh3p, AttachPoint);
 		}
 		else
@@ -697,8 +766,8 @@ void AFMWeapon::AttachMeshToPawn(){
 /*
 void AFMWeapon::DetachMeshFromPawn(){
 	
-	Mesh1P->DetachFromParent();
-	Mesh1P->SetHiddenInGame(true);
+	//Mesh1P->DetachFromParent();
+	//Mesh1P->SetHiddenInGame(true);
 
 	Mesh3P->DetachFromParent();
 	Mesh3P->SetHiddenInGame(true);

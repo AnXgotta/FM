@@ -504,7 +504,7 @@ void AFMCharacter::TornOff()
 */
 
 //////////////////////////////////////////////////////////////////////////
-// Inventory
+// INVENTORY
 /*
 void AFMCharacter::SpawnDefaultInventory(){
 	if (Role < ROLE_Authority)
@@ -512,9 +512,7 @@ void AFMCharacter::SpawnDefaultInventory(){
 		return;
 	}
 
-	// #ttp 321024 - GDC: SHOOTERGAME: Disable secondary weapon (temp)
-	// Temporary hack for GDC - add only the first weapon (rifle) thereby disabling the rocket launcher
-	int32 NumWeaponClasses = 1;	//DefaultInventoryClasses.Num();	
+	int32 NumWeaponClasses = DefaultInventoryClasses.Num();	
 	for (int32 i = 0; i < NumWeaponClasses; i++)
 	{
 		if (DefaultInventoryClasses[i])
