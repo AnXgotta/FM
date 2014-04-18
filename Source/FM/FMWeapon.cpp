@@ -73,10 +73,10 @@ AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 	// (enum ECollisionResponse => ECR_Ignore, ECR_Overlap, ECR_Block, ECR_MAX)
 	//Mesh3P->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Block);
 
-	// From Up the inherited hierarchy, USceneComponent
+	// USceneComponent
 	// "What we are currently attached to."
+	// I want 3d person mesh as primary... it should be primary.. not attached to 1st person
 	//Mesh3P->AttachParent = Mesh1P;
-
 
 
 	// XXX: START WEAPON CLASS VARIABLES ####################################
@@ -121,21 +121,19 @@ AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 
 }
 
-/*
+
 
 void AFMWeapon::PostInitializeComponents(){
 	Super::PostInitializeComponents();
 	
-	if (WeaponConfig.InitialClips > 0)
-	{
-		CurrentAmmoInClip = WeaponConfig.AmmoPerClip;
-		CurrentAmmo = WeaponConfig.AmmoPerClip * WeaponConfig.InitialClips;
-	}
-
-	DetachMeshFromPawn();
+	//if (WeaponConfig.InitialClips > 0)
+	//{
+	//	CurrentAmmoInClip = WeaponConfig.AmmoPerClip;
+	//	CurrentAmmo = WeaponConfig.AmmoPerClip * WeaponConfig.InitialClips;
+	//}
 	
 }
-*/
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 /*
@@ -314,7 +312,7 @@ void AFMWeapon::HandleUseWeapon(){
 	{
 		StartReload();
 	}
-	else if (MyPawn && MyPawn->IsLocallyControlled())
+	else if (MyPawn && MyPawn->IsLocallyControlled()) // [AActor->IsLocallyControlled ==> true if controlled by a local (not network) Controller
 	{
 		if (GetCurrentAmmo() == 0 && !bRefiring)
 		{
@@ -632,34 +630,47 @@ float AFMWeapon::GetEquipDuration() const {
 	return EquipDuration;
 }
 */
+
+
 //////////////////////////////////////////////////////////////////////////
 // Inventory
+
 /*
 void AFMWeapon::OnEquip(){
 	
 	AttachMeshToPawn();
 
-	bPendingEquip = true;
-	DetermineWeaponState();
+	//bPendingEquip = true;
+	//DetermineWeaponState();
 
-	float Duration = PlayWeaponAnimation(EquipAnim);
-	if (Duration <= 0.0f)
-	{
+	// START NO ANIMS
+	//float Duration = PlayWeaponAnimation(EquipAnim);
+	if (Duration <= 0.0f) {
 		// failsafe
 		Duration = 0.5f;
 	}
+
+	// START NO ANIMS
+
+	// Local variable to track time of start equip time
 	EquipStartedTime = GetWorld()->GetTimeSeconds();
+
+	// local variable to equip weapon
 	EquipDuration = Duration;
 
-	GetWorldTimerManager().SetTimer(this, &AShooterWeapon::OnEquipFinished, Duration, false);
+	// "Class to globally manage timers"."Version that takes any generic delegate."
+	// SET A TIMER TO CALL A FUNCTION VIA FUNCTION POINTER AFTER SET AMOUNT OF TIME
+	GetWorldTimerManager().SetTimer(this, &AFMWeapon::OnEquipFinished, Duration, false);
 
-	if (MyPawn && MyPawn->IsLocallyControlled())
-	{
-		PlayWeaponSound(EquipSound);
-	}
+	// DONT CARE ABOUT SOUND NOW
+	// Play equip sound locally
+	//if (MyPawn && MyPawn->IsLocallyControlled()){ // [APawn->IsLocallyControlled ==> true if controlled by a local (not network) Controller
+	//	PlayWeaponSound(EquipSound);
+	//}
 	
 }
 */
+
 /*
 void AFMWeapon::OnEquipFinished(){
 	
@@ -668,13 +679,9 @@ void AFMWeapon::OnEquipFinished(){
 	bIsEquipped = true;
 	bPendingEquip = false;
 
-	if (MyPawn)
-	{
+	if (MyPawn) {
 		// try to reload empty clip
-		if (MyPawn->IsLocallyControlled() &&
-			CurrentAmmoInClip <= 0 &&
-			CanReload())
-		{
+		if (MyPawn->IsLocallyControlled() && CurrentAmmoInClip <= 0 && CanReload()) {
 			StartReload();
 		}
 	}
@@ -736,24 +743,31 @@ void AFMWeapon::OnLeaveInventory(){
 /*
 void AFMWeapon::AttachMeshToPawn(){
 	
-	if (MyPawn)
-	{
+	if (MyPawn){
 		// Remove and hide both first and third person meshes
+		// in current case, only 3rd person mesh
 		DetachMeshFromPawn();
 
-		// For locally controller players we attach both weapons and let the bOnlyOwnerSee, bOwnerNoSee flags deal with visibility.
-		FName AttachPoint = MyPawn->GetWeaponAttachPoint();
-		if (MyPawn->IsLocallyControlled() == true)
-		{
-			USkeletalMeshComponent* PawnMesh1p = MyPawn->GetSpecifcPawnMesh(true);
+		// NO-> For locally controller players we attach weapons and let the bOnlyOwnerSee, bOwnerNoSee flags deal with visibility.
+		// NO-> FName AttachPoint = MyPawn->GetWeaponAttachPoint();
+		// WE NEED TO ATTACH WEAPON WHERE IT BELONGS, THIS MIGHT BE ASSUMING ATTACH TO CURRENTLY EQUIPPED WEAPON
+		// DEPENDING ON WEAPON, IT WILL BE ATTACHED DIFFERENTLY.  [TWO HAND, ONE HAND, ETC]
+		// MUST CUSTOMIZE
+
+
+		if (MyPawn->IsLocallyControlled() == true){
+			// MyPawn->GetSpecificPawnMesh(bool WantFirstPerson) is a custom Caracter class
+			//USkeletalMeshComponent* PawnMesh1p = MyPawn->GetSpecifcPawnMesh(true);
 			USkeletalMeshComponent* PawnMesh3p = MyPawn->GetSpecifcPawnMesh(false);
+
+			// hide visibility?
 			//Mesh1P->SetHiddenInGame(false);
 			Mesh3P->SetHiddenInGame(false);
+
+			// call Weapon method to attach to pawn where you want
 			//Mesh1P->AttachTo(PawnMesh1p, AttachPoint);
 			Mesh3P->AttachTo(PawnMesh3p, AttachPoint);
-		}
-		else
-		{
+		}else{
 			USkeletalMeshComponent* UseWeaponMesh = GetWeaponMesh();
 			USkeletalMeshComponent* UsePawnMesh = MyPawn->GetPawnMesh();
 			UseWeaponMesh->AttachTo(UsePawnMesh, AttachPoint);
@@ -763,14 +777,19 @@ void AFMWeapon::AttachMeshToPawn(){
 	
 }
 */
-/*
+
 void AFMWeapon::DetachMeshFromPawn(){
-	
+	// not worried about 1st person right now
 	//Mesh1P->DetachFromParent();
 	//Mesh1P->SetHiddenInGame(true);
 
+	// USceneComponenet
+	// "Detach this component from whatever it is attached to"
 	Mesh3P->DetachFromParent();
+
+	// USceneComponenet
+	// "Changes the value of HiddenGame"
+	// [Whether to completely hide the primitive in the game; if true, the primitive is not drawn, does not cast a shadow, and does not affect voxel lighting.]
 	Mesh3P->SetHiddenInGame(true);
 	
 }
-*/

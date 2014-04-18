@@ -58,6 +58,31 @@ class AFMWeapon : public AActor
 {
 	GENERATED_UCLASS_BODY()
 
+	// perform initial setup 
+	// called after all components of object have been established
+	virtual void PostInitializeComponents() OVERRIDE;
+
+
+
+protected:
+	// pawn owner of this object
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_MyPawn)
+	class AFMCharacter* MyPawn;
+
+
+	//////////////////////////////////////////////////////
+	// MESH
+
+	// weapon mesh: 3rd person view 
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	TSubobjectPtr<USkeletalMeshComponent> Mesh3P;
+
+	//////////////////////////////////////////////////////
+	// INVENTORY
+
+	// detaches weapon mesh from pawn 
+	void DetachMeshFromPawn();
+
 	/*
 	// perform initial setup 
 	virtual void PostInitializeComponents() OVERRIDE;
@@ -175,14 +200,11 @@ class AFMWeapon : public AActor
 	// attaches weapon mesh to pawn's mesh 
 	void AttachMeshToPawn();
 
-	// detaches weapon mesh from pawn 
-	void DetachMeshFromPawn();
+	
 
 protected:
 
-	// pawn owner 
-	UPROPERTY(Transient, ReplicatedUsing = OnRep_MyPawn)
-	class AFMCharacter* MyPawn;
+	
 
 	// weapon data 
 	UPROPERTY(EditDefaultsOnly, Category = Config)
@@ -192,9 +214,7 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		TSubobjectPtr<USkeletalMeshComponent> Mesh1P;
 
-	// weapon mesh: 3rd person view 
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		TSubobjectPtr<USkeletalMeshComponent> Mesh3P;
+	
 
 	// firing audio (bLoopedFireSound set) 
 //	UPROPERTY(Transient)

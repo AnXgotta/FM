@@ -38,6 +38,9 @@ AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
 	Mesh1P->SetCollisionObjectType(ECC_Pawn);
 	Mesh1P->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh1P->SetCollisionResponseToAllChannels(ECR_Ignore);
+	*/
+	/*
+
 
 	Mesh->bOnlyOwnerSee = false;
 	Mesh->bOwnerNoSee = true;
