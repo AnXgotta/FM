@@ -1,6 +1,7 @@
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
 
-#pragma once
+#ifndef __FM_H__
+#define __FM_H__
 
 #include "Engine.h"
 #include "EngineUserInterfaceClasses.h"
@@ -10,4 +11,11 @@
 #include "Net/UnrealNetwork.h"
 #include "FMClasses.h"
 
+// GAME VARIABLE CONSTANTS
+#define MAX_PLAYER_NAME_LENGTH 14
+
+
+
 #define COLLISION_PROJECTILE ECC_GameTraceChannel1
+
+#endif // __FM_H__

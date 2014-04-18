@@ -77,11 +77,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Inventory)
 	TArray<TSubclassOf<class AFMWeapon> > DefaultInventoryClasses;
 
+	//  weapons in inventory
+	UPROPERTY(Transient, Replicated)
+	TArray<class AFMWeapon*> Inventory;
 
+	//  [server] spawns default inventory
+	void SpawnDefaultInventory();
 
-
-	/*
 	
+	/*
 
 	//  Update the character. (Running, health etc).
 	//virtual void Tick(float DeltaSeconds) OVERRIDE;
@@ -178,9 +182,7 @@ protected:
 
 	
 
-	//  weapons in inventory
-	UPROPERTY(Transient, Replicated)
-	TArray<class AFMWeapon*> Inventory;
+	
 
 	//  currently equipped weapon
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_CurrentWeapon)
@@ -283,8 +285,7 @@ protected:
 	UFUNCTION()
 	void OnRep_CurrentWeapon(class AFMWeapon* LastWeapon);
 
-	//  [server] spawns default inventory
-	void SpawnDefaultInventory();
+	
 
 	//  [server] remove all weapons from inventory and destroy them
 	void DestroyInventory();

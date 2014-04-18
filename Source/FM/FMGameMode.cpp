@@ -8,7 +8,7 @@ AFMGameMode::AFMGameMode(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
 	// set default pawn class to blueprinted character
-	static ConstructorHelpers::FObjectFinder<UBlueprint> PlayerPawnObject(TEXT("Blueprint'/Game/Blueprints/Player/BP_FMCharacter.BP_FMCharacter'"));
+	static ConstructorHelpers::FObjectFinder<UBlueprint> PlayerPawnObject(TEXT("Blueprint'/Game/_Blueprints/Player/BP_FMCharacter.BP_FMCharacter'"));
 	if (PlayerPawnObject.Object != NULL){
 		DefaultPawnClass = (UClass*)PlayerPawnObject.Object->GeneratedClass;
 	}

@@ -1,7 +1,10 @@
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
 
+#pragma once
 #include "FM.h"
 #include "FMWeapon.h"
+#include "FMCharacter.h"
+
 
 
 AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
@@ -578,21 +581,22 @@ USkeletalMeshComponent* AFMWeapon::GetWeaponMesh() const
 	return (MyPawn != NULL && MyPawn->IsFirstPerson()) ? Mesh1P : Mesh3P;
 }
 */
-/*
+
 class AFMCharacter* AFMWeapon::GetPawnOwner() const {
 	return MyPawn;
 }
-*/
-/*
+
+
 bool AFMWeapon::IsEquipped() const {
 	return bIsEquipped;
 }
-*/
-/*
+
+
+
 bool AFMWeapon::IsAttachedToPawn() const {
 	return bIsEquipped || bPendingEquip;
 }
-*/
+
 
 EWeaponState::Type AFMWeapon::GetCurrentState() const{
 	return CurrentState;
@@ -618,16 +622,17 @@ float AFMWeapon::GetEquipDuration() const {
 //////////////////////////////////////////////////////////////////////////
 // Inventory
 
-/*
+
 void AFMWeapon::OnEquip(){
 	
 	AttachMeshToPawn();
 
-	//bPendingEquip = true;
-	//DetermineWeaponState();
+	bPendingEquip = true;
+	DetermineWeaponState();
 
 	// XXX: START NO ANIMATION YET
 	//float Duration = PlayWeaponAnimation(EquipAnim);
+	float Duration = 0.25f; // temp value until animations set
 	if (Duration <= 0.0f) {
 		// failsafe
 		Duration = 0.5f;
@@ -651,9 +656,7 @@ void AFMWeapon::OnEquip(){
 	//}
 	
 }
-*/
 
-/*
 void AFMWeapon::OnEquipFinished(){
 	
 	AttachMeshToPawn();
@@ -663,65 +666,57 @@ void AFMWeapon::OnEquipFinished(){
 
 	if (MyPawn) {
 		// try to reload empty clip
-		if (MyPawn->IsLocallyControlled() && CurrentAmmoInClip <= 0 && CanReload()) {
-			StartReload();
-		}
+		//if (MyPawn->IsLocallyControlled() && CurrentAmmoInClip <= 0 && CanReload()) {
+		//	StartReload();
+		//}
 	}
 
 	DetermineWeaponState();
 	
 }
-*/
-/*
+
 void AFMWeapon::OnUnEquip(){
 	
 	DetachMeshFromPawn();
 	bIsEquipped = false;
-	StopFire();
+	//StopFire();
 
-	if (bPendingReload)
-	{
-		StopWeaponAnimation(ReloadAnim);
-		bPendingReload = false;
+	//if (bPendingReload){
+	//	StopWeaponAnimation(ReloadAnim);
+	//	bPendingReload = false;
 
-		GetWorldTimerManager().ClearTimer(this, &AShooterWeapon::StopReload);
-		GetWorldTimerManager().ClearTimer(this, &AShooterWeapon::ReloadWeapon);
-	}
+	//	GetWorldTimerManager().ClearTimer(this, &AShooterWeapon::StopReload);
+	//	GetWorldTimerManager().ClearTimer(this, &AShooterWeapon::ReloadWeapon);
+	//}
 
-	if (bPendingEquip)
-	{
-		StopWeaponAnimation(EquipAnim);
+	if (bPendingEquip){
+		//StopWeaponAnimation(EquipAnim);
 		bPendingEquip = false;
 
-		GetWorldTimerManager().ClearTimer(this, &AShooterWeapon::OnEquipFinished);
+		GetWorldTimerManager().ClearTimer(this, &AFMWeapon::OnEquipFinished);
 	}
 
 	DetermineWeaponState();
 	
 }
-*/
-/*
+
 void AFMWeapon::OnEnterInventory(AFMCharacter* NewOwner){
 	
 	SetOwningPawn(NewOwner);
 	
 }
-*/
-/*
+
 void AFMWeapon::OnLeaveInventory(){
 	
-	if (Role == ROLE_Authority)
-	{
+	if (Role == ROLE_Authority){
 		SetOwningPawn(NULL);
 	}
 
-	if (IsAttachedToPawn())
-	{
+	if (IsAttachedToPawn()){
 		OnUnEquip();
 	}
 
 }
-*/
 
 void AFMWeapon::AttachMeshToPawn(){
 	

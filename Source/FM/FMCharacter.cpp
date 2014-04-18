@@ -1,8 +1,13 @@
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
-
+#pragma once
 #include "FM.h"
 #include "FMCharacter.h"
+#include "FMWeapon.h"
+
+// temp include while goofing around with projetcile
 #include "FMProjectile.h"
+
+
 
 
 AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
@@ -510,32 +515,29 @@ void AFMCharacter::TornOff()
 
 //////////////////////////////////////////////////////////////////////////
 // INVENTORY
-/*
+
 void AFMCharacter::SpawnDefaultInventory(){
-	if (Role < ROLE_Authority)
-	{
+	if (Role < ROLE_Authority){
 		return;
 	}
 
 	int32 NumWeaponClasses = DefaultInventoryClasses.Num();	
-	for (int32 i = 0; i < NumWeaponClasses; i++)
-	{
-		if (DefaultInventoryClasses[i])
-		{
+	for (int32 i = 0; i < NumWeaponClasses; i++){
+		if (DefaultInventoryClasses[i]){
 			FActorSpawnParameters SpawnInfo;
 			SpawnInfo.bNoCollisionFail = true;
 			AFMWeapon* NewWeapon = GetWorld()->SpawnActor<AFMWeapon>(DefaultInventoryClasses[i], SpawnInfo);
-			AddWeapon(NewWeapon);
+			//AddWeapon(NewWeapon);
 		}
 	}
 
 	// equip first weapon in inventory
-	if (Inventory.Num() > 0)
-	{
-		EquipWeapon(Inventory[0]);
+	if (Inventory.Num() > 0){
+		//EquipWeapon(Inventory[0]);
 	}
 }
-*/
+
+
 /*
 void AFMCharacter::DestroyInventory(){
 	if (Role < ROLE_Authority)

@@ -1,5 +1,7 @@
-#include "FMTypes.generated.h"
+
 #pragma once
+#include "FM.h"
+#include "FMTypes.generated.h"
 
 namespace EMatchState
 {

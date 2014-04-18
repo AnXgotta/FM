@@ -1,9 +1,6 @@
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
 
 #pragma once
-
-#include "FMCharacter.h"
-
 #include "GameFramework/Actor.h"
 #include "FMWeapon.generated.h"
 
@@ -84,6 +81,8 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	TSubobjectPtr<USkeletalMeshComponent> Mesh3P;
 
+
+
 	//////////////////////////////////////////////////////
 	// INVENTORY
 
@@ -93,15 +92,42 @@ protected:
 	// is equip animation playing? 
 	uint32 bPendingEquip : 1;
 
+protected:
+	// how much time weapon needs to be equipped 
+	float EquipDuration;
+
+	// last time when this weapon was switched to 
+	float EquipStartedTime;
+
+public:
+
 	// attaches weapon mesh to pawn's mesh 
 	void AttachMeshToPawn();
 
 	// detaches weapon mesh from pawn 
 	void DetachMeshFromPawn();
 
+	// weapon is being equipped by owner pawn 
+	virtual void OnEquip();
 
+	// weapon is now equipped by owner pawn 
+	virtual void OnEquipFinished();
 
-public:
+	// weapon is holstered by owner pawn 
+	virtual void OnUnEquip();
+
+	// [server] weapon was added to pawn's inventory 
+	virtual void OnEnterInventory(AFMCharacter* NewOwner);
+
+	// [server] weapon was removed from pawn's inventory 
+	virtual void OnLeaveInventory();
+
+	// check if it's currently equipped 
+	bool IsEquipped() const;
+
+	// check if mesh is already attached 
+	bool IsAttachedToPawn() const;
+
 	//////////////////////////////////////////////////////////////////////////
 	// Replication & effects
 
@@ -136,8 +162,20 @@ public:
 	// set the weapon's owning pawn 
 	void SetOwningPawn(AFMCharacter* NewOwner);
 
+	// get pawn owner 
+	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")
+	class AFMCharacter* GetPawnOwner() const;
+
 	// get current weapon state 
 	EWeaponState::Type GetCurrentState() const;
+
+	// gets last time when this weapon was switched to 
+	float GetEquipStartedTime() const;
+
+	// gets the duration of equipping weapon
+	float GetEquipDuration() const;
+
+
 
 	/*
 	// get stamina cost amount 
@@ -146,9 +184,7 @@ public:
 	// get weapon mesh (needs pawn owner to determine variant) 
 	USkeletalMeshComponent* GetWeaponMesh() const;
 
-	// get pawn owner 
-	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")
-	class AFMCharacter* GetPawnOwner() const;
+	
 
 	// icon displayed on the HUD when weapon is equipped as primary 
 	UPROPERTY(EditDefaultsOnly, Category = HUD)
@@ -199,41 +235,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = HUD)
 		bool bHideCrosshairWhileNotAiming;
 
-	
-
-	// gets last time when this weapon was switched to 
-	float GetEquipStartedTime() const;
-
-	// gets the duration of equipping weapon
-	float GetEquipDuration() const;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Inventory
-
-	// weapon is being equipped by owner pawn 
-	virtual void OnEquip();
-
-	// weapon is now equipped by owner pawn 
-	virtual void OnEquipFinished();
-
-	// weapon is holstered by owner pawn 
-	virtual void OnUnEquip();
-
-	// [server] weapon was added to pawn's inventory 
-	virtual void OnEnterInventory(AFMCharacter* NewOwner);
-
-	// [server] weapon was removed from pawn's inventory 
-	virtual void OnLeaveInventory();
-
-	// check if it's currently equipped 
-	bool IsEquipped() const;
-
-	// check if mesh is already attached 
-	bool IsAttachedToPawn() const;
-
-	
-
-	
 
 protected:
 
@@ -328,11 +332,9 @@ protected:
 	// time of last successful weapon fire 
 	float LastFireTime;
 
-	// last time when this weapon was switched to 
-	float EquipStartedTime;
+	
 
-	// how much time weapon needs to be equipped 
-	float EquipDuration;
+	
 
 	// current total ammo 
 	UPROPERTY(Transient, Replicated)
