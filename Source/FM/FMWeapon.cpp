@@ -643,19 +643,18 @@ void AFMWeapon::OnEquip(){
 	//bPendingEquip = true;
 	//DetermineWeaponState();
 
-	// START NO ANIMS
+	// XXX: START NO ANIMATION YET
 	//float Duration = PlayWeaponAnimation(EquipAnim);
 	if (Duration <= 0.0f) {
 		// failsafe
 		Duration = 0.5f;
 	}
-
-	// START NO ANIMS
+	// END NO ANIMATION YET
 
 	// Local variable to track time of start equip time
 	EquipStartedTime = GetWorld()->GetTimeSeconds();
 
-	// local variable to equip weapon
+	// local variable for equip weapon duration
 	EquipDuration = Duration;
 
 	// "Class to globally manage timers"."Version that takes any generic delegate."
