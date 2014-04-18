@@ -23,7 +23,7 @@ AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 
 	// END FIRST PERSON MESH BS #######################################################
 
-
+	// Create 3d person mesh component to be assigned in Blueprint later for this weapon
 	//Mesh3P = PCIP.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("WeaponMesh3P"));
 
 	// USkinnedMeshComponent
