@@ -63,6 +63,10 @@ AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
 	LowHealthPercentage = 0.5f;
 	*/
 
+
+	LowHealthPercentage = 0.20f;
+
+
 }
 
 /*
@@ -75,41 +79,39 @@ void AFMCharacter::BeginPlay(){
 
 }
 */
-/*
+
+
 void AFMCharacter::PostInitializeComponents(){
 	Super::PostInitializeComponents();
 
 	if (Role == ROLE_Authority)
 	{
-//		Health = GetMaxHealth();
+		Health = GetMaxHealth();
 //		SpawnDefaultInventory();
 	}
 	
 	// set initial mesh visibility (3rd person view)
-	UpdatePawnMeshes();
+	//UpdatePawnMeshes();
 
 	// create material instance for setting team colors (3rd person view)
-	for (int32 iMat = 0; iMat < Mesh->GetNumMaterials(); iMat++)
-	{
-		MeshMIDs.Add(Mesh->CreateAndSetMaterialInstanceDynamic(iMat));
-	}
+	//for (int32 iMat = 0; iMat < Mesh->GetNumMaterials(); iMat++){
+	//	MeshMIDs.Add(Mesh->CreateAndSetMaterialInstanceDynamic(iMat));
+	//}
 
 	// play respawn effects
-	if (GetNetMode() != NM_DedicatedServer)
-	{
-		if (RespawnFX)
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(this, RespawnFX, GetActorLocation(), GetActorRotation());
-		}
+	if (GetNetMode() != NM_DedicatedServer){
+		//if (RespawnFX){
+		//	UGameplayStatics::SpawnEmitterAtLocation(this, RespawnFX, GetActorLocation(), GetActorRotation());
+		//}
 
-		if (RespawnSound)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, RespawnSound, GetActorLocation());
-		}
+		//if (RespawnSound){
+		//	UGameplayStatics::PlaySoundAtLocation(this, RespawnSound, GetActorLocation());
+		//}
 	}
 	
 }
-*/
+
+
 /*
 void AFMCharacter::Destroyed(){
 	Super::Destroyed();
@@ -656,25 +658,26 @@ void AFMCharacter::PreReplication(IRepChangedPropertyTracker & ChangedPropertyTr
 	
 }
 */
-/*
+
+
 void AFMCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
 	// only to local owner: weapon change requests are locally instigated, other clients don't need it
-	DOREPLIFETIME_CONDITION(AFMCharacter, Inventory, COND_OwnerOnly);
+	//DOREPLIFETIME_CONDITION(AFMCharacter, Inventory, COND_OwnerOnly);
 
 	// everyone except local owner: flag change is locally instigated
-	DOREPLIFETIME_CONDITION(AFMCharacter, bIsTargeting, COND_SkipOwner);
-	DOREPLIFETIME_CONDITION(AFMCharacter, bWantsToRun, COND_SkipOwner);
+	//DOREPLIFETIME_CONDITION(AFMCharacter, bIsTargeting, COND_SkipOwner);
+	//DOREPLIFETIME_CONDITION(AFMCharacter, bWantsToRun, COND_SkipOwner);
 
-	DOREPLIFETIME_CONDITION(AFMCharacter, LastTakeHitInfo, COND_Custom);
+	//DOREPLIFETIME_CONDITION(AFMCharacter, LastTakeHitInfo, COND_Custom);
 
 	// everyone
-	DOREPLIFETIME(AFMCharacter, CurrentWeapon);
-	DOREPLIFETIME(AFMCharacter, Health);
-	
+	//DOREPLIFETIME(AFMCharacter, CurrentWeapon);
+	DOREPLIFETIME(AFMCharacter, Health);	
 }
-*/
+
+
 /*
 AFMWeapon* AFMCharacter::GetWeapon() const {
 	return CurrentWeapon;
@@ -690,12 +693,17 @@ AFMWeapon* AFMCharacter::GetInventoryWeapon(int32 index) const {
 	return Inventory[index];
 }
 */
-/*
-USkeletalMeshComponent* AFMCharacter::GetPawnMesh() const
-{
+
+
+int32 AFMCharacter::GetMaxHealth() const {
+	return GetClass()->GetDefaultObject<AFMCharacter>()->Health;
+}
+
+USkeletalMeshComponent* AFMCharacter::GetPawnMesh() const {
 	return Mesh; // IsFirstPerson() ? Mesh1P : Mesh;
 }
-*/
+
+
 /*
 bool AFMCharacter::IsUsingWeapon() const
 {
@@ -739,8 +747,15 @@ bool AFMCharacter::CanCooldown() const {
 	return true;
 }
 */
+
+
+
 //////////////////////////////////////////////////////////////////////////
 // Meshes
+
+USkeletalMeshComponent* AFMCharacter::GetSpecifcPawnMesh(bool WantFirstPerson) const {
+	return WantFirstPerson == true ? Mesh : Mesh; //Mesh1P : Mesh;
+}
 
 /*
 void AFMCharacter::UpdatePawnMeshes(){
@@ -754,6 +769,8 @@ void AFMCharacter::UpdatePawnMeshes(){
 	
 }
 */
+
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 // INPUT

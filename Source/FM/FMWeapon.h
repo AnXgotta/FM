@@ -2,10 +2,12 @@
 
 #pragma once
 
+#include "FMCharacter.h"
+
 #include "GameFramework/Actor.h"
 #include "FMWeapon.generated.h"
 
-/*
+
 namespace EWeaponState{
 	enum Type{
 		Idle,
@@ -15,7 +17,7 @@ namespace EWeaponState{
 	};
 }
 
-
+/*
 USTRUCT()
 struct FMWeaponData{
 
@@ -69,6 +71,11 @@ protected:
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_MyPawn)
 	class AFMCharacter* MyPawn;
 
+	//////////////////////////////////////////////////////
+	// STATE
+
+	// current weapon state 
+	EWeaponState::Type CurrentState;
 
 	//////////////////////////////////////////////////////
 	// MESH
@@ -79,6 +86,15 @@ protected:
 
 	//////////////////////////////////////////////////////
 	// INVENTORY
+
+	// is weapon currently equipped? 
+	uint32 bIsEquipped : 1;
+
+	// is equip animation playing? 
+	uint32 bPendingEquip : 1;
+
+	// attaches weapon mesh to pawn's mesh 
+	void AttachMeshToPawn();
 
 	// detaches weapon mesh from pawn 
 	void DetachMeshFromPawn();
@@ -99,22 +115,31 @@ public:
 
 	//virtual void Destroyed() OVERRIDE;
 
-	//////////////////////////////////////////////////////////////////////////
-	// Ammo
+	*/
 
-	// [server] add stamina 
-	void GiveStamina(int AddAmount);
+	//////////////////////////////////////////////////////////////////////////
+	// Stamina
 
 	// consume stamina 
 	void UseStamina();
 
+	/*
+	// [server] add stamina 
+	void GiveStamina(int AddAmount);
+
+	
+
+	*/
 	//////////////////////////////////////////////////////////////////////////
 	// Reading data
+
+	// set the weapon's owning pawn 
+	void SetOwningPawn(AFMCharacter* NewOwner);
 
 	// get current weapon state 
 	EWeaponState::Type GetCurrentState() const;
 
-
+	/*
 	// get stamina cost amount 
 	int32 GetStaminaCost() const;
 
@@ -174,8 +199,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = HUD)
 		bool bHideCrosshairWhileNotAiming;
 
-	// set the weapon's owning pawn 
-	void SetOwningPawn(AFMCharacter* AShooterCharacter);
+	
 
 	// gets last time when this weapon was switched to 
 	float GetEquipStartedTime() const;
@@ -207,8 +231,7 @@ public:
 	// check if mesh is already attached 
 	bool IsAttachedToPawn() const;
 
-	// attaches weapon mesh to pawn's mesh 
-	void AttachMeshToPawn();
+	
 
 	
 
@@ -376,9 +399,17 @@ public:
 	// Called in network play to stop cosmetic fx (e.g. for a looping shot). 
 	virtual void StopSimulatingWeaponUse();
 
-
+	*/
 	//////////////////////////////////////////////////////////////////////////
 	// Weapon usage
+
+	// update weapon state
+	void SetWeaponState(EWeaponState::Type NewState);
+
+	// determine current weapon state 
+	void DetermineWeaponState();
+
+	/*
 
 	// [local] weapon specific fire implementation 
 	virtual void UseWeapon() PURE_VIRTUAL(AFMCharacter::UseWeapon, );
@@ -390,11 +421,9 @@ public:
 	// [local + server] handle weapon fire 
 	void HandleUseWeapon();
 
-	// update weapon state 
-	void SetWeaponState(EWeaponState::Type NewState);
+	
 
-	// determine current weapon state 
-	void DetermineWeaponState();
+	
 
 	//////////////////////////////////////////////////////////////////////////
 	// Weapon usage helpers

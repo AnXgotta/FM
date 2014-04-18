@@ -21,6 +21,27 @@ class AFMCharacter : public ACharacter
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 		TSubclassOf<class AFMProjectile> ProjectileClass;
 
+	//  spawn inventory, setup initial variables
+	virtual void PostInitializeComponents() OVERRIDE;
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// DAMAGE AND HEALTH AND STAMINA
+
+	// Current health of the Pawn
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Health)
+	float Health;
+
+	// Current health of the Pawn
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Stamina)
+	float Stamina;
+
+protected:
+
+	// when low health effects should start
+	float LowHealthPercentage;
+
+public:
 	//////////////////////////////////////////////////////////////////////////
 	// Input handlers
 
@@ -60,8 +81,7 @@ protected:
 
 
 	/*
-	//  spawn inventory, setup initial variables
-	virtual void PostInitializeComponents() OVERRIDE;
+	
 
 	//  Update the character. (Running, health etc).
 	//virtual void Tick(float DeltaSeconds) OVERRIDE;
@@ -273,11 +293,24 @@ protected:
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerEquipWeapon(class AFMWeapon* NewWeapon);
 
+	*/
+
+public:
+
 	//////////////////////////////////////////////////////////////////////////
 	// Reading data
 
 	//  get mesh component
 	USkeletalMeshComponent* GetPawnMesh() const;
+
+	// Get either first or third person mesh.
+	USkeletalMeshComponent* GetSpecifcPawnMesh( bool WantFirstPerson ) const;
+
+	// get max health
+	int32 GetMaxHealth() const;
+
+	/*
+	
 
 	//  get currently equipped weapon
 	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")

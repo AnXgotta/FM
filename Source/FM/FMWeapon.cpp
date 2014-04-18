@@ -81,14 +81,16 @@ AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 
 	// XXX: START WEAPON CLASS VARIABLES ####################################
 
-	//bIsEquipped = false;
 	//bWantsToUse = false;
 	//bPendingCooldown = false;
-	//bPendingEquip = false;
 	//CurrentState = EWeaponState::Idle;
-
 	//StaminaCost = 25.0f;
 	//LastFireTime = 0.0f;
+
+	CurrentState = EWeaponState::Idle;
+
+	bIsEquipped = false;
+	bPendingEquip = false;
 
 	// XXX: END WEAPON CLASS VARIABLES #######################################
 
@@ -267,27 +269,16 @@ void AFMWeapon::GiveStamina(int AddAmount){
 	
 }
 */
-/*
+
+
 void AFMWeapon::UseStamina(){
 	
-	if (!HasInfiniteAmmo())
-	{
-		CurrentAmmoInClip--;
-	}
-
-	if (!HasInfiniteAmmo() && !HasInfiniteClip())
-	{
-		CurrentAmmo--;
-	}
-
-	AShooterAIController* BotAI = MyPawn ? Cast<AShooterAIController>(MyPawn->GetController()) : NULL;
-	if (BotAI)
-	{
-		BotAI->CheckAmmo(this);
-	}
+	// check for buffs or whatever in IF
+	//MyPawn->UseStamina(StaminaCost);
 	
 }
-*/
+
+
 /*
 void AFMWeapon::HandleUseWeapon(){
 	
@@ -381,69 +372,59 @@ void AFMWeapon::ServerHandleUseWeapon_Implementation(){
 	
 }
 */
-/*
+
 void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 	
 	const EWeaponState::Type PrevState = CurrentState;
 
-	if (PrevState == EWeaponState::Firing && NewState != EWeaponState::Firing)
-	{
-		OnBurstFinished();
+	if (PrevState == EWeaponState::Using && NewState != EWeaponState::Using){
+		//OnBurstFinished();
 	}
 
 	CurrentState = NewState;
 
-	if (PrevState != EWeaponState::Firing && NewState == EWeaponState::Firing)
-	{
-		OnBurstStarted();
+	if (PrevState != EWeaponState::Using && NewState == EWeaponState::Using){
+		//OnBurstStarted();
 	}
 	
 }
-*/
-/*
+
 void AFMWeapon::DetermineWeaponState(){
 	
 	EWeaponState::Type NewState = EWeaponState::Idle;
 
-	if (bIsEquipped)
-	{
-		if (bPendingReload)
-		{
-			if (CanReload() == false)
-			{
-				NewState = CurrentState;
-			}
-			else
-			{
-				NewState = EWeaponState::Reloading;
-			}
-		}
-		else if ((bPendingReload == false) && (bWantsToFire == true) && (CanFire() == true))
-		{
-			NewState = EWeaponState::Firing;
-		}
-	}
-	else if (bPendingEquip)
-	{
+	if (bIsEquipped){
+		//if (bPendingReload){
+			//if (CanReload() == false){
+			//	NewState = CurrentState;
+			//}else{
+			//	NewState = EWeaponState::Reloading;
+			//}
+		//}else if ((bPendingReload == false) && (bWantsToFire == true) && (CanFire() == true))		{
+		//	NewState = EWeaponState::Firing;
+		//}
+	}else if (bPendingEquip){
 		NewState = EWeaponState::Equipping;
 	}
 
-	SetWeaponState(NewState);
-	
+	SetWeaponState(NewState);	
 }
-*/
-/*
+
 void AFMWeapon::SetOwningPawn(AFMCharacter* NewOwner){
 	
+	// I HAVE NO IDEA WHY THE CODE BELOW SHOWS ERRORS.
+	// "cannot convert arg 1 from AFMCharacter* to AActor* in SetOwner(arg1)"
+	// THIS MAKES NO SENSE BECAUSE AFMCharacter inherits from AActor.... it is an AActor
+	// also, this is done in the shooter game with no problem
 	if (MyPawn != NewOwner){
-		Instigator = NewOwner;
-		MyPawn = NewOwner;
+		//Instigator = NewOwner;
+		//MyPawn = NewOwner;
 		// net owner for RPC calls
-		SetOwner(NewOwner);
-	}
-	
+		//SetOwner(NewOwner);
+	}	
 }
-*/
+
+
 /////////////////////////////////////////////////////////////////////////
 // Replication & effects
 
@@ -612,11 +593,11 @@ bool AFMWeapon::IsAttachedToPawn() const {
 	return bIsEquipped || bPendingEquip;
 }
 */
-/*
+
 EWeaponState::Type AFMWeapon::GetCurrentState() const{
 	return CurrentState;
 }
-*/
+
 /*
 int32 AFMWeapon::GetStaminaCost() const {
 	return StaminaCost;
@@ -741,7 +722,7 @@ void AFMWeapon::OnLeaveInventory(){
 
 }
 */
-/*
+
 void AFMWeapon::AttachMeshToPawn(){
 	
 	if (MyPawn){
@@ -757,7 +738,7 @@ void AFMWeapon::AttachMeshToPawn(){
 
 
 		if (MyPawn->IsLocallyControlled() == true){
-			// MyPawn->GetSpecificPawnMesh(bool WantFirstPerson) is a custom Caracter class
+			// 'MyPawn->GetSpecificPawnMesh(bool WantFirstPerson)' is a custom Character class
 			//USkeletalMeshComponent* PawnMesh1p = MyPawn->GetSpecifcPawnMesh(true);
 			USkeletalMeshComponent* PawnMesh3p = MyPawn->GetSpecifcPawnMesh(false);
 
@@ -767,17 +748,16 @@ void AFMWeapon::AttachMeshToPawn(){
 
 			// call Weapon method to attach to pawn where you want
 			//Mesh1P->AttachTo(PawnMesh1p, AttachPoint);
-			Mesh3P->AttachTo(PawnMesh3p, AttachPoint);
+			//Mesh3P->AttachTo(PawnMesh3p, AttachPoint);
 		}else{
-			USkeletalMeshComponent* UseWeaponMesh = GetWeaponMesh();
-			USkeletalMeshComponent* UsePawnMesh = MyPawn->GetPawnMesh();
-			UseWeaponMesh->AttachTo(UsePawnMesh, AttachPoint);
-			UseWeaponMesh->SetHiddenInGame(false);
+			//USkeletalMeshComponent* UseWeaponMesh = GetWeaponMesh();
+			//USkeletalMeshComponent* UsePawnMesh = MyPawn->GetPawnMesh();
+			//UseWeaponMesh->AttachTo(UsePawnMesh, AttachPoint);
+			//UseWeaponMesh->SetHiddenInGame(false);
 		}
 	}
 	
 }
-*/
 
 void AFMWeapon::DetachMeshFromPawn(){
 	// not worried about 1st person right now
