@@ -130,6 +130,9 @@ public:
 		void OnFire0();
 
 	UFUNCTION()
+		void OnFire0Charged();
+
+	UFUNCTION()
 		void OnFire1();
 
 	UFUNCTION()
