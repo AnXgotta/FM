@@ -749,30 +749,6 @@ void AFMCharacter::UpdatePawnMeshes(){
 }
 
 
-
-//////////////////////////////////////////////////////////////////////////////////////
-// INPUT
-
-void AFMCharacter::SetupPlayerInputComponent(class UInputComponent* InputComponent){
-
-	check(InputComponent);
-	InputComponent->BindAxis("MoveForward", this, &AFMCharacter::MoveForward);
-	InputComponent->BindAxis("MoveRight", this, &AFMCharacter::MoveRight);
-	InputComponent->BindAxis("Turn", this, &AFMCharacter::AddControllerYawInput);
-	InputComponent->BindAxis("LookUp", this, &AFMCharacter::AddControllerPitchInput);
-	InputComponent->BindAction("Jump", IE_Pressed, this, &AFMCharacter::OnStartJump);
-	InputComponent->BindAction("Jump", IE_Released, this, &AFMCharacter::OnStopJump);
-	InputComponent->BindAction("Sprint", IE_Pressed, this, &AFMCharacter::OnStartRunning);
-	InputComponent->BindAction("Sprint", IE_Released, this, &AFMCharacter::OnStopRunning);
-
-	InputComponent->BindAction("Fire0", IE_Pressed, this, &AFMCharacter::OnFire0);
-	InputComponent->BindAction("Fire0Charged", IE_Repeat, this, &AFMCharacter::OnFire0Charged);
-	InputComponent->BindAction("Fire1", IE_Pressed, this, &AFMCharacter::OnFire1);
-	InputComponent->BindAction("Fire2", IE_Pressed, this, &AFMCharacter::OnFire2);
-	InputComponent->BindAction("Fire3", IE_Pressed, this, &AFMCharacter::OnFire3);
-
-}
-
 //////////////////////////////////////////////////////////////////////////////////////
 // MOVEMENT
 
@@ -858,6 +834,33 @@ void AFMCharacter::ServerSetRunning_Implementation(bool bNewSprint, bool bToggle
 float AFMCharacter::GetRunningSpeedModifier() const{
 	return RunningSpeedModifier;
 }
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+// INPUT
+
+void AFMCharacter::SetupPlayerInputComponent(class UInputComponent* InputComponent){
+
+	check(InputComponent);
+	InputComponent->BindAxis("MoveForward", this, &AFMCharacter::MoveForward);
+	InputComponent->BindAxis("MoveRight", this, &AFMCharacter::MoveRight);
+	InputComponent->BindAxis("Turn", this, &AFMCharacter::AddControllerYawInput);
+	InputComponent->BindAxis("LookUp", this, &AFMCharacter::AddControllerPitchInput);
+	InputComponent->BindAction("Jump", IE_Pressed, this, &AFMCharacter::OnStartJump);
+	InputComponent->BindAction("Jump", IE_Released, this, &AFMCharacter::OnStopJump);
+	InputComponent->BindAction("Sprint", IE_Pressed, this, &AFMCharacter::OnStartRunning);
+	InputComponent->BindAction("Sprint", IE_Released, this, &AFMCharacter::OnStopRunning);
+
+	//InputComponent->BindAction("Fire0", IE_Pressed, this, &AFMCharacter::OnFire0);
+	InputComponent->BindAction("Fire0Charged", IE_Repeat, this, &AFMCharacter::OnFire0Charged);
+	InputComponent->BindAction("Fire1", IE_Pressed, this, &AFMCharacter::OnFire1);
+	InputComponent->BindAction("Fire2", IE_Pressed, this, &AFMCharacter::OnFire2);
+	InputComponent->BindAction("Fire3", IE_Pressed, this, &AFMCharacter::OnFire3);
+
+}
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 // INPUT HANDLERS
