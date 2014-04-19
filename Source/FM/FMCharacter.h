@@ -168,7 +168,7 @@ protected:
 
 	//////////////////////////////////////////////////////////////////////////
 	// WEAPON USAGE
-	/*
+	
 	//  [local] starts weapon Use
 	void StartWeaponUse();
 
@@ -180,7 +180,6 @@ protected:
 
 	//  check if pawn can cooldown weapon
 	bool CanCooldown() const;
-	*/
 
 	//  get firing state
 	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")
@@ -188,8 +187,8 @@ protected:
 	
 	protected:
 	//  pawn mesh: 1st person view
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	TSubobjectPtr<USkeletalMeshComponent> Mesh1P;
+	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	//TSubobjectPtr<USkeletalMeshComponent> Mesh1P;
 
 	//  socket or bone name for attaching weapon mesh
 	UPROPERTY(EditDefaultsOnly, Category = Inventory)
@@ -237,10 +236,10 @@ protected:
 	virtual bool CanDie(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser) const;
 
 	//  player pressed Use Weapon action
-	//void OnStartUseWeapon();
+	void OnStartUseWeapon();
 
 	//  player released Use Weapon action
-	//void OnStopUseWeapon();
+	void OnStopUseWeapon();
 
 	//  player pressed next weapon action
 	//void OnNextWeapon();
@@ -280,6 +279,9 @@ protected:
 	//  play hit or death on client
 	UFUNCTION()
 	void OnRep_LastTakeHitInfo();
+
+	// check if pawn is still alive
+	bool IsAlive() const;
 
 public:
 

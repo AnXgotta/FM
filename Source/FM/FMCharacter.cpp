@@ -75,7 +75,6 @@ AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
 
 }
 
-
 void AFMCharacter::BeginPlay(){
 	Super::BeginPlay();
 
@@ -84,8 +83,6 @@ void AFMCharacter::BeginPlay(){
 	}
 
 }
-
-
 
 void AFMCharacter::PostInitializeComponents(){
 	Super::PostInitializeComponents();
@@ -116,7 +113,6 @@ void AFMCharacter::PostInitializeComponents(){
 	}
 	
 }
-
 
 void AFMCharacter::Tick(float DeltaSeconds){
 	Super::Tick(DeltaSeconds);
@@ -158,12 +154,10 @@ void AFMCharacter::Tick(float DeltaSeconds){
 	*/
 }
 
-
 void AFMCharacter::Destroyed(){
 	Super::Destroyed();
-	//DestroyInventory();
+	DestroyInventory();
 }
-
 
 void AFMCharacter::PawnClientRestart(){
 	Super::PawnClientRestart();
@@ -172,13 +166,12 @@ void AFMCharacter::PawnClientRestart(){
 //	UpdatePawnMeshes();
 
 	// reattach weapon if needed
-	//SetCurrentWeapon(CurrentWeapon);
+	SetCurrentWeapon(CurrentWeapon);
 
 	// set team colors for 1st person view
 //	UMaterialInstanceDynamic* Mesh1PMID = Mesh1P->CreateAndSetMaterialInstanceDynamic(0);
 //	UpdateTeamColors(Mesh1PMID);
 }
-
 
 void AFMCharacter::PossessedBy(class AController* InController){
 	Super::PossessedBy(InController);
@@ -186,7 +179,6 @@ void AFMCharacter::PossessedBy(class AController* InController){
 	// [server] as soon as PlayerState is assigned, set team colors of this pawn for local player
 	//UpdateTeamColorsAllMIDs();
 }
-
 
 void AFMCharacter::OnRep_PlayerState(){
 	Super::OnRep_PlayerState();
@@ -197,6 +189,7 @@ void AFMCharacter::OnRep_PlayerState(){
 	}
 	
 }
+
 
 //////////////////////////////////////////////////////////////////////////
 // ANIMATIONS
@@ -233,16 +226,13 @@ void AFMCharacter::StopAllAnimMontages(){
 //////////////////////////////////////////////////////////////////////////
 // DAMAGE AND DEATH
 
-
 void AFMCharacter::FellOutOfWorld(const class UDamageType& dmgType){
 	Die(Health, FDamageEvent(dmgType.GetClass()), NULL, NULL);
 }
 
-
 void AFMCharacter::Suicide(){
 	KilledBy(this);
 }
-
 
 void AFMCharacter::KilledBy(APawn* EventInstigator){
 	if (Role == ROLE_Authority && !bIsDying){
@@ -255,7 +245,6 @@ void AFMCharacter::KilledBy(APawn* EventInstigator){
 		Die(Health, FDamageEvent(UDamageType::StaticClass()), Killer, NULL);
 	}
 }
-
 
 float AFMCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser){
 	//AFMPlayerController* MyPC = Cast<AFMPlayerController>(Controller);
@@ -283,7 +272,6 @@ float AFMCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEv
 	return ActualDamage;
 }
 
-
 bool AFMCharacter::CanDie(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser) const {
 	if (bIsDying										// already dying
 		|| IsPendingKill()								// already destroyed
@@ -296,7 +284,6 @@ bool AFMCharacter::CanDie(float KillingDamage, FDamageEvent const& DamageEvent, 
 
 	return true;
 }
-
 
 bool AFMCharacter::Die(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser){
 	
@@ -320,7 +307,6 @@ bool AFMCharacter::Die(float KillingDamage, FDamageEvent const& DamageEvent, ACo
 	
 	return true;
 }
-
 
 void AFMCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser){
 	
@@ -389,7 +375,6 @@ void AFMCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& Damag
 	
 }
 
-
 void AFMCharacter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser){
 	
 	if (Role == ROLE_Authority){
@@ -425,7 +410,6 @@ void AFMCharacter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageE
 	
 }
 
-
 void AFMCharacter::SetRagdollPhysics(){
 	
 	bool bInRagdoll = false;
@@ -459,7 +443,6 @@ void AFMCharacter::SetRagdollPhysics(){
 	
 }
 
-
 void AFMCharacter::ReplicateHit(float Damage, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser, bool bKilled){
 	
 	const float TimeoutTime = GetWorld()->GetTimeSeconds() + 0.5f;
@@ -487,7 +470,6 @@ void AFMCharacter::ReplicateHit(float Damage, struct FDamageEvent const& DamageE
 	
 }
 
-
 void AFMCharacter::OnRep_LastTakeHitInfo(){
 	
 	if (LastTakeHitInfo.bKilled){
@@ -503,6 +485,9 @@ void AFMCharacter::TornOff(){
 	SetLifeSpan(25.f);
 }
 
+bool AFMCharacter::IsAlive() const{
+	return Health > 0;
+}
 
 //////////////////////////////////////////////////////////////////////////
 // INVENTORY (WEAPON MANAGEMENT (Adding to default inventory ) HANDLED IN BLUEPRINT!)
@@ -528,8 +513,6 @@ void AFMCharacter::SpawnDefaultInventory(){
 	}
 }
 
-
-
 void AFMCharacter::DestroyInventory(){
 	if (Role < ROLE_Authority)
 	{
@@ -547,7 +530,6 @@ void AFMCharacter::DestroyInventory(){
 	
 }
 
-
 void AFMCharacter::AddWeapon(AFMWeapon* Weapon){
 	if (Weapon && Role == ROLE_Authority){
 		Weapon->OnEnterInventory(this);
@@ -555,14 +537,12 @@ void AFMCharacter::AddWeapon(AFMWeapon* Weapon){
 	}
 }
 
-
 void AFMCharacter::RemoveWeapon(AFMWeapon* Weapon){
 	if (Weapon && Role == ROLE_Authority){
 		Weapon->OnLeaveInventory();
 		Inventory.RemoveSingle(Weapon);
 	}
 }
-
 
 AFMWeapon* AFMCharacter::FindWeapon(TSubclassOf<AFMWeapon> WeaponClass){
 	for (int32 i = 0; i < Inventory.Num(); i++){
@@ -574,7 +554,6 @@ AFMWeapon* AFMCharacter::FindWeapon(TSubclassOf<AFMWeapon> WeaponClass){
 	return NULL;
 }
 
-
 void AFMCharacter::EquipWeapon(AFMWeapon* Weapon){
 	if (Weapon){
 		if (Role == ROLE_Authority){
@@ -585,21 +564,17 @@ void AFMCharacter::EquipWeapon(AFMWeapon* Weapon){
 	}
 }
 
-
 bool AFMCharacter::ServerEquipWeapon_Validate(AFMWeapon* Weapon){
 	return true;
 }
-
 
 void AFMCharacter::ServerEquipWeapon_Implementation(AFMWeapon* Weapon){
 	EquipWeapon(Weapon);
 }
 
-
 void AFMCharacter::OnRep_CurrentWeapon(AFMWeapon* LastWeapon){
 	SetCurrentWeapon(CurrentWeapon, LastWeapon);
 }
-
 
 void AFMCharacter::SetCurrentWeapon(class AFMWeapon* NewWeapon, class AFMWeapon* LastWeapon){
 	AFMWeapon* LocalLastWeapon = NULL;
@@ -624,9 +599,9 @@ void AFMCharacter::SetCurrentWeapon(class AFMWeapon* NewWeapon, class AFMWeapon*
 	}
 }
 
+
 //////////////////////////////////////////////////////////////////////////
 // REPLICATION
-
 
 void AFMCharacter::PreReplication(IRepChangedPropertyTracker & ChangedPropertyTracker){
 	Super::PreReplication(ChangedPropertyTracker);
@@ -635,8 +610,6 @@ void AFMCharacter::PreReplication(IRepChangedPropertyTracker & ChangedPropertyTr
 	DOREPLIFETIME_ACTIVE_OVERRIDE(AFMCharacter, LastTakeHitInfo, GetWorld() && GetWorld()->GetTimeSeconds() < LastTakeHitTimeTimeout);
 	
 }
-
-
 
 void AFMCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -655,23 +628,17 @@ void AFMCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutL
 	DOREPLIFETIME(AFMCharacter, Health);	
 }
 
-
-
 AFMWeapon* AFMCharacter::GetWeapon() const {
 	return CurrentWeapon;
 }
-
 
 int32 AFMCharacter::GetInventoryCount() const {
 	return Inventory.Num();
 }
 
-
 AFMWeapon* AFMCharacter::GetInventoryWeapon(int32 index) const {
 	return Inventory[index];
 }
-
-
 
 int32 AFMCharacter::GetMaxHealth() const {
 	return GetClass()->GetDefaultObject<AFMCharacter>()->Health;
@@ -684,41 +651,34 @@ USkeletalMeshComponent* AFMCharacter::GetPawnMesh() const {
 
 //////////////////////////////////////////////////////////////////////////
 // WEAPON USAGE
-/*
+
 void AFMCharacter::StartWeaponUse() {
-	if (!bWantsToUseWeapon)
-	{
+	if (!bWantsToUseWeapon)	{
 		bWantsToUseWeapon = true;
-		if (CurrentWeapon)
-		{
-			CurrentWeapon->StartUseWeapon();
+		if (CurrentWeapon){
+			//CurrentWeapon->StartUseWeapon();
 		}
 	}
 }
-*/
-/*
+
 void AFMCharacter::StopWeaponUse(){
-	if (bWantsToUseWeapon)
-	{
+	if (bWantsToUseWeapon){
 		bWantsToUseWeapon = false;
-		if (CurrentWeapon)
-		{
-			CurrentWeapon->StopUseWeapon();
+		if (CurrentWeapon){
+			//CurrentWeapon->StopUseWeapon();
 		}
 	}
 }
-*/
-/*
+
 bool AFMCharacter::CanUse() const {
-	//return IsAlive();
-	return true;
+	return IsAlive();
+	//return true;
 }
-*/
-/*
+
 bool AFMCharacter::CanCooldown() const {
+	// logic goes here
 	return true;
 }
-*/
 
 bool AFMCharacter::IsUsingWeapon() const {
 	return bWantsToUseWeapon;
@@ -745,10 +705,8 @@ void AFMCharacter::UpdatePawnMeshes(){
 */
 
 
-
 //////////////////////////////////////////////////////////////////////////////////////
 // INPUT
-
 
 void AFMCharacter::SetupPlayerInputComponent(class UInputComponent* InputComponent){
 
