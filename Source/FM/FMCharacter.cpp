@@ -120,6 +120,10 @@ void AFMCharacter::PostInitializeComponents(){
 
 void AFMCharacter::Tick(float DeltaSeconds){
 	Super::Tick(DeltaSeconds);
+
+	if (bIsFire0Held){
+		fire0ChargeValue += DeltaSeconds;
+	}
 	/*
 	if (bWantsToRunToggled && !IsRunning()){
 		SetRunning(false, false);
@@ -871,6 +875,7 @@ void AFMCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompone
 
 // using test projectile... not permanent
 void AFMCharacter::OnFire0Pressed(){
+	bIsFire0Held = true;
 	if (GEngine){
 		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0Pressed"));
 	}
@@ -878,10 +883,12 @@ void AFMCharacter::OnFire0Pressed(){
 }
 
 void AFMCharacter::OnFire0Released(){
+	bIsFire0Held = false;
+
 	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0Released"));
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0Released. Charge is: ") + FCString::Atof(fire0ChargeValue));
 	}
-	// try and fire a projectile
+		// try and fire a projectile
 	//if (ProjectileClass){
 	//	
 	//	if (RootComponent && CameraBoom){
