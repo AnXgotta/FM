@@ -504,13 +504,13 @@ void AFMCharacter::SpawnDefaultInventory(){
 			FActorSpawnParameters SpawnInfo;
 			SpawnInfo.bNoCollisionFail = true;
 			AFMWeapon* NewWeapon = GetWorld()->SpawnActor<AFMWeapon>(DefaultInventoryClasses[i], SpawnInfo);
-			//AddWeapon(NewWeapon);
+			AddWeapon(NewWeapon);
 		}
 	}
 
 	// equip first weapon in inventory
 	if (Inventory.Num() > 0){
-		//EquipWeapon(Inventory[0]);
+		EquipWeapon(Inventory[0]);
 	}
 }
 

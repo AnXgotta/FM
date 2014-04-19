@@ -5,9 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "FMProjectile.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class AFMProjectile : public AActor
 {

@@ -700,10 +700,8 @@ void AFMWeapon::OnUnEquip(){
 	
 }
 
-void AFMWeapon::OnEnterInventory(AFMCharacter* NewOwner){
-	
-	SetOwningPawn(NewOwner);
-	
+void AFMWeapon::OnEnterInventory(AFMCharacter* NewOwner){	
+	SetOwningPawn(NewOwner);	
 }
 
 void AFMWeapon::OnLeaveInventory(){
