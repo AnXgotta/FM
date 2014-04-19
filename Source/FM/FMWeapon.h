@@ -135,7 +135,7 @@ public:
 	virtual void OnBurstFinished();
 
 	/** [local] weapon specific fire implementation */
-	virtual void FireWeapon() PURE_VIRTUAL(AShooterWeapon::FireWeapon, );
+	virtual void FireWeapon() PURE_VIRTUAL(AFMWeapon::FireWeapon, );
 
 	/** [server] fire & update ammo */
 	UFUNCTION(reliable, server, WithValidation)
