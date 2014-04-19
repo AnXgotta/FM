@@ -90,6 +90,7 @@ void AFMCharacter::PostInitializeComponents(){
 	if (Role == ROLE_Authority)
 	{
 		Health = GetMaxHealth();
+		//Stamina = GetMaxStamina();
 //		SpawnDefaultInventory();
 	}
 	
@@ -629,6 +630,10 @@ void AFMCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutL
 
 	// only to local owner: weapon change requests are locally instigated, other clients don't need it
 	DOREPLIFETIME_CONDITION(AFMCharacter, Inventory, COND_OwnerOnly);
+	//Unsure about rep style for currentMaxHealth
+	DOREPLIFETIME_CONDITION(AFMCharacter, currentMaxHealth, COND_OwnerOnly);
+	//Unsure about rep style for stamina
+	//DOREPLIFETIME_CONDITION(AFMCharacter, Stamina, COND_OwnerOnly);
 
 	// everyone except local owner: flag change is locally instigated
 	//DOREPLIFETIME_CONDITION(AFMCharacter, bIsTargeting, COND_SkipOwner);
@@ -638,7 +643,7 @@ void AFMCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutL
 
 	// everyone
 	//DOREPLIFETIME(AFMCharacter, CurrentWeapon);
-	DOREPLIFETIME(AFMCharacter, Health);	
+	DOREPLIFETIME(AFMCharacter, currentHealth);	
 }
 
 AFMWeapon* AFMCharacter::GetWeapon() const {
@@ -653,9 +658,24 @@ AFMWeapon* AFMCharacter::GetInventoryWeapon(int32 index) const {
 	return Inventory[index];
 }
 
-int32 AFMCharacter::GetMaxHealth() const {
-	return GetClass()->GetDefaultObject<AFMCharacter>()->Health;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// GETS AND SETS
+
+int32 AFMCharacter::GetDefaultMaxHealth() const {
+	return GetClass()->GetDefaultObject<AFMCharacter>()->defaultMaxHealth;
 }
+
+int32 AFMCharacter::GetCurrentMaxHealth() const {
+	return GetClass()->GetDefaultObject<AFMCharacter>()->currentMaxHealth;
+}
+
+/* int32 AFMCharacter::GetMaxStamina() const {
+	return 
+} 
+
+
+*/
 
 USkeletalMeshComponent* AFMCharacter::GetPawnMesh() const {
 	return Mesh; // IsFirstPerson() ? Mesh1P : Mesh;

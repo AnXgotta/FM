@@ -33,11 +33,33 @@ class AFMCharacter : public ACharacter
 
 	// Current health of the Pawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Health)
-	float Health;
+	float currentHealth;
+
+	// Current Max health of the Pawn
+	// May want to change replication -- not monitored regularly
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Health)
+	float currentMaxHealth;
+
+	// Default Max health of the Pawn
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
+	float defaultMaxHealth;
+
+	//GET health
+
+	// get default max health
+	int32 GetDefaultMaxHealth() const;
+
+	// get current max health
+	int32 GetCurrentMaxHealth() const;
 
 	// Current stamina of the Pawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Stamina)
-	float Stamina;
+	float currentStamina;
+
+	//GET stamina
+
+	// get max stamina
+	//int32 GetMaxStamina() const;
 
 protected:
 
@@ -293,9 +315,6 @@ public:
 
 	// Get either first or third person mesh.
 	USkeletalMeshComponent* GetSpecifcPawnMesh( bool WantFirstPerson ) const;
-
-	// get max health
-	int32 GetMaxHealth() const;
 
 	/** modifier for max movement speed */
 	UPROPERTY(EditDefaultsOnly, Category = Pawn)
