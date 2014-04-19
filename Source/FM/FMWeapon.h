@@ -128,6 +128,13 @@ public:
 	// check if mesh is already attached 
 	bool IsAttachedToPawn() const;
 
+	/** [local + server] firing started */
+	virtual void OnBurstStarted();
+
+	/** [local + server] firing finished */
+	virtual void OnBurstFinished();
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// Replication & effects
 

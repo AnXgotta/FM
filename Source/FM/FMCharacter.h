@@ -136,9 +136,6 @@ public:
 	UPROPERTY()
 		bool bIsFire0Held;
 
-	UFUNCTION()
-		void OnFire0Released();
-
 	UPROPERTY()
 		float fire0ChargeValue;
 	

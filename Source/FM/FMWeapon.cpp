@@ -155,6 +155,7 @@ void AFMWeapon::StartUseWeapon(){
 /*
 void AFMWeapon::StopUseWeapon(){
 	if (Role < ROLE_Authority){
+
 		ServerStopUseWeapon();
 	}
 
@@ -425,6 +426,37 @@ void AFMWeapon::SetOwningPawn(AFMCharacter* NewOwner){
 		// net owner for RPC calls
 		//SetOwner(NewOwner);
 	}	
+}
+
+void AFMWeapon::OnBurstStarted(){
+/*	// start firing, can be delayed to satisfy TimeBetweenShots
+	const float GameTime = GetWorld()->GetTimeSeconds();
+	if (LastFireTime > 0 && WeaponConfig.TimeBetweenShots > 0.0f &&
+		LastFireTime + WeaponConfig.TimeBetweenShots > GameTime)
+	{
+		GetWorldTimerManager().SetTimer(this, &AShooterWeapon::HandleFiring, LastFireTime + WeaponConfig.TimeBetweenShots - GameTime, false);
+	}
+	else
+	{
+		HandleFiring();
+	}
+	*/
+}
+
+void AFMWeapon::OnBurstFinished(){
+	/*
+	// stop firing FX on remote clients
+	BurstCounter = 0;
+
+	// stop firing FX locally, unless it's a dedicated server
+	if (GetNetMode() != NM_DedicatedServer)
+	{
+		StopSimulatingWeaponFire();
+	}
+
+	GetWorldTimerManager().ClearTimer(this, &AShooterWeapon::HandleFiring);
+	bRefiring = false;
+	*/
 }
 
 
