@@ -614,6 +614,19 @@ void AFMCharacter::PreReplication(IRepChangedPropertyTracker & ChangedPropertyTr
 void AFMCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
+	//enum ELifetimeCondition{COND_None = 0,COND_InitialOnly = 1,COND_OwnerOnly = 2,COND_SkipOwner = 3,COND_SimulatedOnly = 4,
+	//COND_AutonomousOnly = 5,COND_SimulatedOrPhysics = 6,COND_InitialOrOwner = 7,COND_Custom = 8,COND_Max = 9,}
+
+	/*	COND_InitialOnly - This property will only attempt to send on the initial bunch
+		COND_OwnerOnly - This property will only send to the actor's owner
+		COND_SkipOwner - This property send to every connection EXCEPT the owner
+		COND_SimulatedOnly - This property will only send to simulated actors
+		COND_AutonomousOnly - This property will only send to autonomous actors
+		COND_SimulatedOrPhysics - This property will send to simulated OR bRepPhysics actors
+		COND_InitialOrOwner - This property will send on the initial packet, or to the actors owner
+		COND_Custom - This property has no particular condition, but wants the ability to toggle on / off via SetCustomIsActiveOverride
+*/
+
 	// only to local owner: weapon change requests are locally instigated, other clients don't need it
 	DOREPLIFETIME_CONDITION(AFMCharacter, Inventory, COND_OwnerOnly);
 
