@@ -72,6 +72,10 @@ AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
 	bWantsToRun = false;
 	LowHealthPercentage = 0.20f;
 
+	//Is weapon being charged? No.
+	bIsFire0Held = false;
+	fire0ChargeValue = 0.0f;
+
 
 }
 
@@ -852,8 +856,8 @@ void AFMCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompone
 	InputComponent->BindAction("Sprint", IE_Pressed, this, &AFMCharacter::OnStartRunning);
 	InputComponent->BindAction("Sprint", IE_Released, this, &AFMCharacter::OnStopRunning);
 
-	//InputComponent->BindAction("Fire0", IE_Pressed, this, &AFMCharacter::OnFire0);
-	InputComponent->BindAction("Fire0Charged", IE_Repeat, this, &AFMCharacter::OnFire0Charged);
+	InputComponent->BindAction("Fire0Pressed", IE_Pressed, this, &AFMCharacter::OnFire0Pressed);
+	InputComponent->BindAction("Fire0Released", IE_Released, this, &AFMCharacter::OnFire0Released);
 	InputComponent->BindAction("Fire1", IE_Pressed, this, &AFMCharacter::OnFire1);
 	InputComponent->BindAction("Fire2", IE_Pressed, this, &AFMCharacter::OnFire2);
 	InputComponent->BindAction("Fire3", IE_Pressed, this, &AFMCharacter::OnFire3);
@@ -866,9 +870,16 @@ void AFMCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompone
 // INPUT HANDLERS
 
 // using test projectile... not permanent
-void AFMCharacter::OnFire0(){
+void AFMCharacter::OnFire0Pressed(){
 	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0"));
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0Pressed"));
+	}
+	
+}
+
+void AFMCharacter::OnFire0Released(){
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0Released"));
 	}
 	// try and fire a projectile
 	//if (ProjectileClass){
@@ -894,12 +905,6 @@ void AFMCharacter::OnFire0(){
 	//		}
 	//	}		
 	//}
-}
-
-void AFMCharacter::OnFire0Charged(){
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0Charged"));
-	}
 }
 
 void AFMCharacter::OnFire1(){

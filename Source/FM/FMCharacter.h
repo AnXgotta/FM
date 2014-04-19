@@ -127,10 +127,16 @@ public:
 		void ServerSetRunning(bool bNewSprint, bool bToggle);
 
 	UFUNCTION()
-		void OnFire0();
+		void OnFire0Pressed();
+
+	UPROPERTY()
+		bool bIsFire0Held;
 
 	UFUNCTION()
-		void OnFire0Charged();
+		void OnFire0Released();
+
+	UPROPERTY()
+		float fire0ChargeValue;
 
 	UFUNCTION()
 		void OnFire1();
