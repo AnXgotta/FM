@@ -766,6 +766,10 @@ void AFMCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompone
 	InputComponent->BindAction("Sprint", IE_Released, this, &AFMCharacter::OnStopRunning);
 
 	InputComponent->BindAction("Fire0", IE_Pressed, this, &AFMCharacter::OnFire0);
+	InputComponent->BindAction("Fire0Charged", IE_Repeat, this, &AFMCharacter::OnFire0Charged);
+	InputComponent->BindAction("Fire1", IE_Pressed, this, &AFMCharacter::OnFire1);
+	InputComponent->BindAction("Fire2", IE_Pressed, this, &AFMCharacter::OnFire2);
+	InputComponent->BindAction("Fire3", IE_Pressed, this, &AFMCharacter::OnFire3);
 
 }
 
@@ -856,32 +860,59 @@ float AFMCharacter::GetRunningSpeedModifier() const{
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-// WEAPON FIRING
+// INPUT HANDLERS
 
 // using test projectile... not permanent
 void AFMCharacter::OnFire0(){
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0"));
+	}
 	// try and fire a projectile
-	if (ProjectileClass){
-		
-		if (RootComponent && CameraBoom){
-			// get boom rotation and RootComponent Location in world coords 
-			FRotator MuzzleRotation = CameraBoom->GetComponentRotation();
-			FVector const MuzzleLocation = RootComponent->GetComponentLocation() + (RootComponent->GetForwardVector() * 100.0f);
-			// skew aim up a tiny bit
-			MuzzleRotation.Pitch += 10.0f;
-			UWorld* const World = GetWorld();
-			if (World){
-				FActorSpawnParameters SpawnParams;
-				SpawnParams.Owner = this;
-				SpawnParams.Instigator = Instigator;
-				// spawn projectile at the muzzle
-				AFMProjectile* const Projectile = World->SpawnActor<AFMProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
-				if (Projectile){
-					// find launch direction
-					FVector const LaunchDir = MuzzleRotation.Vector();
-					Projectile->InitVelocity(LaunchDir);
-				}
-			}
-		}		
+	//if (ProjectileClass){
+	//	
+	//	if (RootComponent && CameraBoom){
+	//		// get boom rotation and RootComponent Location in world coords 
+	//		FRotator MuzzleRotation = CameraBoom->GetComponentRotation();
+	//		FVector const MuzzleLocation = RootComponent->GetComponentLocation() + (RootComponent->GetForwardVector() * 100.0f);
+	//		// skew aim up a tiny bit
+	//		MuzzleRotation.Pitch += 10.0f;
+	//		UWorld* const World = GetWorld();
+	//		if (World){
+	//			FActorSpawnParameters SpawnParams;
+	//			SpawnParams.Owner = this;
+	//			SpawnParams.Instigator = Instigator;
+	//			// spawn projectile at the muzzle
+	//			AFMProjectile* const Projectile = World->SpawnActor<AFMProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+	//			if (Projectile){
+	//				// find launch direction
+	//				FVector const LaunchDir = MuzzleRotation.Vector();
+	//				Projectile->InitVelocity(LaunchDir);
+	//			}
+	//		}
+	//	}		
+	//}
+}
+
+void AFMCharacter::OnFire0Charged(){
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0Charged"));
+	}
+}
+
+void AFMCharacter::OnFire1(){
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire1"));
+	}
+}
+
+void AFMCharacter::OnFire2(){
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire2"));
+	}
+}
+
+void AFMCharacter::OnFire3(){
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire3"));
 	}
 }

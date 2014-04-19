@@ -129,6 +129,15 @@ public:
 	UFUNCTION()
 		void OnFire0();
 
+	UFUNCTION()
+		void OnFire1();
+
+	UFUNCTION()
+		void OnFire2();
+
+	UFUNCTION()
+		void OnFire3();
+
 
 
 protected:
