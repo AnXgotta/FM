@@ -7,6 +7,7 @@
 #include "FMPlayerController.h"
 #include "FMCharacter.h"
 
+
 AFMGameMode::AFMGameMode(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
@@ -16,6 +17,10 @@ AFMGameMode::AFMGameMode(const class FPostConstructInitializeProperties& PCIP)
 		DefaultPawnClass = (UClass*)PlayerPawnObject.Object->GeneratedClass;
 	}
 
+	PlayerControllerClass = AFMPlayerController::StaticClass();
+	PlayerStateClass = AFMPlayerState::StaticClass();
+	GameStateClass = AFMGameState::StaticClass();
+
 }
 
 
@@ -23,7 +28,7 @@ void AFMGameMode::BeginPlay(){
 	Super::BeginPlay();
 
 	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("GameMode: BeginPlay Called"));
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: BeginPlay "));
 	}
 
 
@@ -31,12 +36,18 @@ void AFMGameMode::BeginPlay(){
 
 void AFMGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage){
 	Super::InitGame(MapName, Options, ErrorMessage);
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: InitGame"));
+	}
 }
 
 
 /** Returns game session class to use */
 TSubclassOf<AGameSession> AFMGameMode::GetGameSessionClass() const {
 	return AFMGameSession::StaticClass();
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: GetGameSessionClass "));
+	}
 }
 
 void AFMGameMode::DefaultTimer(){
@@ -64,6 +75,10 @@ void AFMGameMode::DefaultTimer(){
 }
 
 void AFMGameMode::StartMatch(){
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: StartMatch"));
+	}
+
 	AFMGameState* const MyGameState = Cast<AFMGameState>(GameState);
 	const bool bWasStarted = MyGameState && MyGameState->bMatchHasBegun;
 
@@ -85,6 +100,10 @@ void AFMGameMode::StartMatch(){
 }
 
 void AFMGameMode::FinishMatch(){
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: FinishMatch"));
+	}
+
 	AFMGameState* const MyGameState = Cast<AFMGameState>(GameState);
 	if (!MyGameState->bMatchIsOver)	{
 		PerformEndGameHandling();
@@ -118,6 +137,9 @@ bool AFMGameMode::IsWinner(class AFMPlayerState* PlayerState) const {
 
 void AFMGameMode::PreLogin(const FString& Options, const FString& Address, const TSharedPtr<FUniqueNetId>& UniqueId, FString& ErrorMessage){
 	Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: PreLogin "));
+	}
 
 	AFMGameState* const MyGameState = Cast<AFMGameState>(GameState);
 	const bool bMatchIsOver = MyGameState && MyGameState->bMatchIsOver;
@@ -129,6 +151,10 @@ void AFMGameMode::PreLogin(const FString& Options, const FString& Address, const
 
 void AFMGameMode::PostLogin(APlayerController* NewPlayer){
 	Super::PostLogin(NewPlayer);
+
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: PostLogin "));
+	}
 
 	// update spectator location for client
 	AFMPlayerController* NewPC = Cast<AFMPlayerController>(NewPlayer);
@@ -215,6 +241,10 @@ UClass* AFMGameMode::GetDefaultPawnClassForController(AController* InController)
 AActor* AFMGameMode::ChoosePlayerStart(AController* Player){
 	TArray<APlayerStart*> PreferredSpawns;
 	TArray<APlayerStart*> FallbackSpawns;
+
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: ChoosePlayerStart "));
+	}
 
 	for (int32 i = 0; i < PlayerStarts.Num(); i++)	{
 		APlayerStart* TestSpawn = PlayerStarts[i];

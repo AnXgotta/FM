@@ -15,6 +15,8 @@
 #define MAX_PLAYER_NAME_LENGTH 14
 
 
+#define DEBUG_MSG_TIME 30.0f
+
 
 #define COLLISION_PROJECTILE ECC_GameTraceChannel1
 

@@ -7,7 +7,6 @@
 #include "FMPlayerState.h"
 #include "FMPlayerController.h"
 
-
 AFMPlayerController::AFMPlayerController(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
@@ -43,6 +42,10 @@ void AFMPlayerController::SetupInputComponent(){
 
 void AFMPlayerController::PostInitializeComponents(){
 	Super::PostInitializeComponents();
+
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, TEXT("PlayerController: PostInit "));
+	}
 	//Build menu only after game is initialized
 	//FShooterStyle::Initialize();
 	//ShooterIngameMenu = MakeShareable(new FShooterIngameMenu());
@@ -294,6 +297,9 @@ bool AFMPlayerController::IsGameMenuVisible() const {
 }
 
 void AFMPlayerController::ClientGameStarted_Implementation(){
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, TEXT("PlayerController: GameStarted"));
+	}
 	/*
 	AShooterHUD* ShooterHUD = GetShooterHUD();
 	if (ShooterHUD)

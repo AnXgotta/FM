@@ -9,7 +9,6 @@
 
 
 
-
 AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
@@ -79,7 +78,7 @@ void AFMCharacter::BeginPlay(){
 	Super::BeginPlay();
 
 	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Character: BeginPlay Called"));
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: BeginPlay Called"));
 	}
 
 }
