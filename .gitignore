@@ -19,7 +19,8 @@ UE4.*.suo
 
 Binaries/
 DerivedDataCache/
-Intermediate/
+Intermediate/Build/
+Intermediate/Shaders/
 Saved/
 
 
