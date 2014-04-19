@@ -89,7 +89,7 @@ void AFMCharacter::PostInitializeComponents(){
 
 	if (Role == ROLE_Authority)
 	{
-		Health = GetMaxHealth();
+		currentHealth = GetDefaultMaxHealth();
 		//Stamina = GetMaxStamina();
 //		SpawnDefaultInventory();
 	}
@@ -123,32 +123,32 @@ void AFMCharacter::Tick(float DeltaSeconds){
 	}
 	AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
 	if (MyPC && MyPC->HasHealthRegen()){
-		if (this->Health < this->GetMaxHealth())
+		if (this->currentHealth < this->GetDefaultMaxHealth())
 		{
-			this->Health += 5 * DeltaSeconds;
-			if (Health > this->GetMaxHealth())
+			this->currentHealth += 5 * DeltaSeconds;
+			if (currentHealth > this->GetDefaultMaxHealth())
 			{
-				Health = this->GetMaxHealth();
+				currentHealth = this->GetDefaultMaxHealth();
 			}
 		}
 	}
 
 	if (LowHealthSound && GEngine->UseSound())
 	{
-		if ((this->Health > 0 && this->Health < this->GetMaxHealth() * LowHealthPercentage) && (!LowHealthWarningPlayer || !LowHealthWarningPlayer->IsPlaying()))
+		if ((this->currentHealth > 0 && this->currentHealth < this->GetDefaultMaxHealth() * LowHealthPercentage) && (!LowHealthWarningPlayer || !LowHealthWarningPlayer->IsPlaying()))
 		{
 			LowHealthWarningPlayer = UGameplayStatics::PlaySoundAttached(LowHealthSound, GetRootComponent(),
 				NAME_None, FVector(ForceInit), EAttachLocation::KeepRelativeOffset, true);
 			LowHealthWarningPlayer->SetVolumeMultiplier(0.0f);
 		}
-		else if ((this->Health > this->GetMaxHealth() * LowHealthPercentage || this->Health < 0) && LowHealthWarningPlayer && LowHealthWarningPlayer->IsPlaying())
+		else if ((this->currentHealth > this->GetDefaultMaxHealth() * LowHealthPercentage || this->currentHealth < 0) && LowHealthWarningPlayer && LowHealthWarningPlayer->IsPlaying())
 		{
 			LowHealthWarningPlayer->Stop();
 		}
 		if (LowHealthWarningPlayer && LowHealthWarningPlayer->IsPlaying())
 		{
 			const float MinVolume = 0.3f;
-			const float VolumeMultiplier = (1.0f - (this->Health / (this->GetMaxHealth() * LowHealthPercentage)));
+			const float VolumeMultiplier = (1.0f - (this->currentHealth / (this->GetDefaultMaxHealth() * LowHealthPercentage)));
 			LowHealthWarningPlayer->SetVolumeMultiplier(MinVolume + (1.0f - MinVolume) * VolumeMultiplier);
 		}
 	}
@@ -228,7 +228,7 @@ void AFMCharacter::StopAllAnimMontages(){
 // DAMAGE AND DEATH
 
 void AFMCharacter::FellOutOfWorld(const class UDamageType& dmgType){
-	Die(Health, FDamageEvent(dmgType.GetClass()), NULL, NULL);
+	Die(currentHealth, FDamageEvent(dmgType.GetClass()), NULL, NULL);
 }
 
 void AFMCharacter::Suicide(){
@@ -243,14 +243,14 @@ void AFMCharacter::KilledBy(APawn* EventInstigator){
 			LastHitBy = NULL;
 		}
 
-		Die(Health, FDamageEvent(UDamageType::StaticClass()), Killer, NULL);
+		Die(currentHealth, FDamageEvent(UDamageType::StaticClass()), Killer, NULL);
 	}
 }
 
 float AFMCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser){
 	//AFMPlayerController* MyPC = Cast<AFMPlayerController>(Controller);
 
-	if (Health <= 0.f){
+	if (currentHealth <= 0.f){
 		return 0.f;
 	}
 
@@ -260,8 +260,8 @@ float AFMCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEv
 
 	const float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	if (ActualDamage > 0.f)	{
-		Health -= ActualDamage;
-		if (Health <= 0)		{
+		currentHealth -= ActualDamage;
+		if (currentHealth <= 0)		{
 			Die(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
 		}else{
 			PlayHit(ActualDamage, DamageEvent, EventInstigator ? EventInstigator->GetPawn() : NULL, DamageCauser);
@@ -292,7 +292,7 @@ bool AFMCharacter::Die(float KillingDamage, FDamageEvent const& DamageEvent, ACo
 		return false;
 	}
 
-	Health = FMath::Min(0.0f, Health);
+	currentHealth = FMath::Min(0.0f, currentHealth);
 
 	// if this is an environmental death then refer to the previous killer so that they receive credit (knocked into lava pits, etc)
 	UDamageType const* const DamageType = DamageEvent.DamageTypeClass ? DamageEvent.DamageTypeClass->GetDefaultObject<UDamageType>() : GetDefault<UDamageType>();
@@ -487,7 +487,7 @@ void AFMCharacter::TornOff(){
 }
 
 bool AFMCharacter::IsAlive() const{
-	return Health > 0;
+	return currentHealth > 0;
 }
 
 //////////////////////////////////////////////////////////////////////////
