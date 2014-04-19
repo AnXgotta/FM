@@ -126,8 +126,12 @@ public:
 	UFUNCTION(reliable, server, WithValidation)
 		void ServerSetRunning(bool bNewSprint, bool bToggle);
 
+	// [server + local] change pressed state
 	UFUNCTION()
 		void OnFire0Pressed();
+
+	UFUNCTION(reliable, server, WithValidation)
+		void ServerOnFire0Changed(bool bNewFire0Held);
 
 	UPROPERTY()
 		bool bIsFire0Held;

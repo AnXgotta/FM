@@ -874,44 +874,52 @@ void AFMCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompone
 // INPUT HANDLERS
 
 // using test projectile... not permanent
-void AFMCharacter::OnFire0Pressed(){
-	bIsFire0Held = true;
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0Pressed"));
-	}
-	
-}
+//void AFMCharacter::OnFire0Pressed(){
+//	bIsFire0Held = true;
+//	if (GEngine){
+//		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0Pressed"));
+//	}
+//	
+//}
+//
+//void AFMCharacter::OnFire0Released(){
+//	bIsFire0Held = false;
+//	if (GEngine){
+//		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Character: OnFire0Release %f"), fire0ChargeValue));
+//	}
+//	fire0ChargeValue = 0.0f;
+//		// try and fire a projectile
+//	//if (ProjectileClass){
+//	//	
+//	//	if (RootComponent && CameraBoom){
+//	//		// get boom rotation and RootComponent Location in world coords 
+//	//		FRotator MuzzleRotation = CameraBoom->GetComponentRotation();
+//	//		FVector const MuzzleLocation = RootComponent->GetComponentLocation() + (RootComponent->GetForwardVector() * 100.0f);
+//	//		// skew aim up a tiny bit
+//	//		MuzzleRotation.Pitch += 10.0f;
+//	//		UWorld* const World = GetWorld();
+//	//		if (World){
+//	//			FActorSpawnParameters SpawnParams;
+//	//			SpawnParams.Owner = this;
+//	//			SpawnParams.Instigator = Instigator;
+//	//			// spawn projectile at the muzzle
+//	//			AFMProjectile* const Projectile = World->SpawnActor<AFMProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+//	//			if (Projectile){
+//	//				// find launch direction
+//	//				FVector const LaunchDir = MuzzleRotation.Vector();
+//	//				Projectile->InitVelocity(LaunchDir);
+//	//			}
+//	//		}
+//	//	}		
+//	//}
+//}
 
-void AFMCharacter::OnFire0Released(){
-	bIsFire0Held = false;
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Character: OnFire0Release %f"), fire0ChargeValue));
+void ServerOnFire0Pressed(bool bNewFire0Held){
+	if (Role == ROLE_Authority){
+		bIsFire0Held = bNewFire0Held;
+	}else{
+		bIsFire0Held = bNewFire0Held;
 	}
-	fire0ChargeValue = 0.0f;
-		// try and fire a projectile
-	//if (ProjectileClass){
-	//	
-	//	if (RootComponent && CameraBoom){
-	//		// get boom rotation and RootComponent Location in world coords 
-	//		FRotator MuzzleRotation = CameraBoom->GetComponentRotation();
-	//		FVector const MuzzleLocation = RootComponent->GetComponentLocation() + (RootComponent->GetForwardVector() * 100.0f);
-	//		// skew aim up a tiny bit
-	//		MuzzleRotation.Pitch += 10.0f;
-	//		UWorld* const World = GetWorld();
-	//		if (World){
-	//			FActorSpawnParameters SpawnParams;
-	//			SpawnParams.Owner = this;
-	//			SpawnParams.Instigator = Instigator;
-	//			// spawn projectile at the muzzle
-	//			AFMProjectile* const Projectile = World->SpawnActor<AFMProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
-	//			if (Projectile){
-	//				// find launch direction
-	//				FVector const LaunchDir = MuzzleRotation.Vector();
-	//				Projectile->InitVelocity(LaunchDir);
-	//			}
-	//		}
-	//	}		
-	//}
 }
 
 void AFMCharacter::OnFire1(){
