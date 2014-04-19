@@ -35,7 +35,7 @@ class AFMCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Health)
 	float Health;
 
-	// Current health of the Pawn
+	// Current stamina of the Pawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Stamina)
 	float Stamina;
 
