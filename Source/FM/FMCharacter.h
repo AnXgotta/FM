@@ -46,7 +46,7 @@ protected:
 
 public:
 	//////////////////////////////////////////////////////////////////////////
-	// Input handlers
+	// INPUT HANDLERS handlers
 
 	//  setup pawn specific input handlers 
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) OVERRIDE;
@@ -66,6 +66,26 @@ public:
 	// clears jump flag when key released
 	UFUNCTION()
 		void OnStopJump();
+
+	// sets run flag when key pressed
+	UFUNCTION()
+		void OnStartRunning();
+
+	// clears run flag when key released
+	UFUNCTION()
+	void OnStopRunning();
+
+	bool IsRunning() const;
+
+	// [server + local] change sprint state
+	void SetRunning(bool bNewSprint, bool bToggle);
+
+	/** get the modifier value for running speed */
+	UFUNCTION(BlueprintCallable, Category = Pawn)
+		float GetRunningSpeedModifier() const;
+
+	UFUNCTION(reliable, server, WithValidation)
+		void ServerSetRunning(bool bNewSprint, bool bToggle);
 
 	UFUNCTION()
 		void OnFire0();
@@ -87,8 +107,35 @@ protected:
 	//  [server] spawns default inventory
 	void SpawnDefaultInventory();
 
+	//[server] add weapon to inventory
+	void AddWeapon(class AFMWeapon* Weapon);
+
+	// [server] remove weapon from inventory
+	void RemoveWeapon(class AFMWeapon* Weapon);
+
+	// Find in inventory
+	class AFMWeapon* FindWeapon(TSubclassOf<class AFMWeapon> WeaponClass);
+
+	//[server + local] equips weapon from inventory
+	void EquipWeapon(class AFMWeapon* Weapon);
+
+	//  updates current weapon
+	void SetCurrentWeapon(class AFMWeapon* NewWeapon, class AFMWeapon* LastWeapon = NULL);
+
+	//  current weapon rep handler
+	UFUNCTION()
+	void OnRep_CurrentWeapon(class AFMWeapon* LastWeapon);
+
+	//  [server] remove all weapons from inventory and destroy them
+	void DestroyInventory();
+
+	//  equip weapon
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerEquipWeapon(class AFMWeapon* NewWeapon);
 
 
+	///////////////////////////////////////////////////////////////////////////
+	// ACHARACTER OVERRIDES
 
 	//  Update the character. (Running, health etc).
 	virtual void Tick(float DeltaSeconds) OVERRIDE;
@@ -118,40 +165,10 @@ protected:
 	//  stop playing all montages
 	void StopAllAnimMontages();
 
+
 	//////////////////////////////////////////////////////////////////////////
-	// Inventory
+	// WEAPON USAGE
 	/*
-	//
-	//[server] add weapon to inventory
-
-	// @param Weapon	Weapon to add.
-
-	void AddWeapon(class AFMWeapon* Weapon);
-
-	//
-	// [server] remove weapon from inventory
-	//
-	// @param Weapon	Weapon to remove.
-
-	void RemoveWeapon(class AFMWeapon* Weapon);
-
-	//
-	// Find in inventory
-	
-	// @param WeaponClass	Class of weapon to find.
-
-	class AFMWeapon* FindWeapon(TSubclassOf<class AFMWeapon> WeaponClass);
-
-	//
-	//[server + local] equips weapon from inventory
-	//
-	// @param Weapon	Weapon to equip
-
-	void EquipWeapon(class AFMWeapon* Weapon);
-
-	//////////////////////////////////////////////////////////////////////////
-	// Weapon usage
-
 	//  [local] starts weapon Use
 	void StartWeaponUse();
 
@@ -163,15 +180,13 @@ protected:
 
 	//  check if pawn can cooldown weapon
 	bool CanCooldown() const;
+	*/
 
-
-
+	//  get firing state
+	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")
+	bool IsUsingWeapon() const;
+	
 	protected:
-
-
-
-
-
 	//  pawn mesh: 1st person view
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	TSubobjectPtr<USkeletalMeshComponent> Mesh1P;
@@ -180,21 +195,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Inventory)
 	FName WeaponAttachPoint;
 
-	
-
-	
-
 	//  currently equipped weapon
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_CurrentWeapon)
 	class AFMWeapon* CurrentWeapon;
 
-	
-
-	
-
 	//  current weapon use state
 	uint8 bWantsToUseWeapon : 1;
-	*/
 
 	//  Time at which point the last take hit info for the actor times out and won't be replicated; Used to stop join-in-progress effects all over the screen
 	float LastTakeHitTimeTimeout;
@@ -208,8 +214,6 @@ protected:
 
 	//  handle mesh visibility and updates
 	void UpdatePawnMeshes();
-
-	
 
 	//////////////////////////////////////////////////////////////////////////
 	// DAMAGE AND DEATH
@@ -277,26 +281,6 @@ protected:
 	UFUNCTION()
 	void OnRep_LastTakeHitInfo();
 
-	//////////////////////////////////////////////////////////////////////////
-	// Inventory
-
-	//  updates current weapon
-	//void SetCurrentWeapon(class AFMWeapon* NewWeapon, class AFMWeapon* LastWeapon = NULL);
-
-	//  current weapon rep handler
-	//UFUNCTION()
-	//void OnRep_CurrentWeapon(class AFMWeapon* LastWeapon);
-
-	
-
-	//  [server] remove all weapons from inventory and destroy them
-	//void DestroyInventory();
-
-	//  equip weapon
-	//UFUNCTION(reliable, server, WithValidation)
-	//void ServerEquipWeapon(class AFMWeapon* NewWeapon);
-
-
 public:
 
 	//////////////////////////////////////////////////////////////////////////
@@ -317,7 +301,7 @@ public:
 
 	/** current running state */
 	UPROPERTY(Transient, Replicated)
-		uint8 bWantsToRun : 1;
+	uint8 bWantsToRun : 1;
 
 	/** from gamepad running is toggled */
 	uint8 bWantsToRunToggled : 1;
@@ -325,6 +309,21 @@ public:
 	/** current firing state */
 	uint8 bWantsToFire : 1;
 
+	/** handles sounds for running */
+	void UpdateRunSounds(bool bNewRunning);
+
+	//  get currently equipped weapon
+	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")
+	class AFMWeapon* GetWeapon() const;
+
+	//  get weapon attach point
+	FName GetWeaponAttachPoint() const;
+
+	//  get total number of inventory items
+	int32 GetInventoryCount() const;
+
+	// get weapon from inventory at index.Index validity is not checked.
+	class AFMWeapon* GetInventoryWeapon(int32 index) const;
 
 	/** material instances for setting team color in mesh (3rd person view) */
 //	UPROPERTY(Transient)
@@ -358,7 +357,6 @@ public:
 //	UPROPERTY(EditDefaultsOnly, Category = Pawn)
 //		USoundCue* RunStopSound;
 
-
 	/** used to manipulate with run loop sound */
 //	UPROPERTY()
 //		UAudioComponent* RunLoopAC;
@@ -367,32 +365,6 @@ public:
 //	UPROPERTY()
 //		UAudioComponent* LowHealthWarningPlayer;
 
-	/** handles sounds for running */
-	void UpdateRunSounds(bool bNewRunning);
-
-	/*
 	
-
-	//  get currently equipped weapon
-	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")
-	class AFMWeapon* GetWeapon() const;
-
-	//  get weapon attach point
-	FName GetWeaponAttachPoint() const;
-
-	//  get total number of inventory items
-	int32 GetInventoryCount() const;
-
-	//
-	* get weapon from inventory at index. Index validity is not checked.
-	*
-	* @param Index Inventory index
-
-	class AFMWeapon* GetInventoryWeapon(int32 index) const;
-
-	//  get firing state
-	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")
-	bool IsUsingWeapon() const;
-	*/
 
 };

@@ -1,6 +1,7 @@
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
 #pragma once
 #include "FM.h"
+#include "FMPlayerController.h"
 #include "FMGameMode.h"
 #include "FMCharacter.h"
 #include "FMWeapon.h"
@@ -12,7 +13,7 @@
 
 
 AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)
+	: Super(PCIP)//.SetDefaultSubobjectClass<UFMCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	// Configure character movement
 	CharacterMovement->JumpZVelocity = 400.0f;
@@ -63,13 +64,12 @@ AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
 	
 	TargetingSpeedModifier = 0.5f;
 	bIsTargeting = false;
-	RunningSpeedModifier = 1.5f;
-	bWantsToRun = false;
+	
+	
 	bWantsToUse = false;
-	LowHealthPercentage = 0.5f;
 	*/
-
-
+	RunningSpeedModifier = 10.0f;
+	bWantsToRun = false;
 	LowHealthPercentage = 0.20f;
 
 
@@ -199,7 +199,7 @@ void AFMCharacter::OnRep_PlayerState(){
 }
 
 //////////////////////////////////////////////////////////////////////////
-// Animations
+// ANIMATIONS
 
 float AFMCharacter::PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate, FName StartSectionName){
 	
@@ -211,7 +211,6 @@ float AFMCharacter::PlayAnimMontage(class UAnimMontage* AnimMontage, float InPla
 	return 0.0f;
 }
 
-
 void AFMCharacter::StopAnimMontage(class UAnimMontage* AnimMontage){
 	
 	USkeletalMeshComponent* UseMesh = GetPawnMesh();
@@ -220,7 +219,6 @@ void AFMCharacter::StopAnimMontage(class UAnimMontage* AnimMontage){
 	}
 	
 }
-
 
 void AFMCharacter::StopAllAnimMontages(){
 	
@@ -232,9 +230,8 @@ void AFMCharacter::StopAllAnimMontages(){
 }
 
 
-
 //////////////////////////////////////////////////////////////////////////
-// Damage & death
+// DAMAGE AND DEATH
 
 
 void AFMCharacter::FellOutOfWorld(const class UDamageType& dmgType){
@@ -463,7 +460,6 @@ void AFMCharacter::SetRagdollPhysics(){
 }
 
 
-
 void AFMCharacter::ReplicateHit(float Damage, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser, bool bKilled){
 	
 	const float TimeoutTime = GetWorld()->GetTimeSeconds() + 0.5f;
@@ -509,7 +505,7 @@ void AFMCharacter::TornOff(){
 
 
 //////////////////////////////////////////////////////////////////////////
-// INVENTORY
+// INVENTORY (WEAPON MANAGEMENT (Adding to default inventory ) HANDLED IN BLUEPRINT!)
 
 void AFMCharacter::SpawnDefaultInventory(){
 	if (Role < ROLE_Authority){
@@ -533,7 +529,7 @@ void AFMCharacter::SpawnDefaultInventory(){
 }
 
 
-/*
+
 void AFMCharacter::DestroyInventory(){
 	if (Role < ROLE_Authority)
 	{
@@ -541,110 +537,95 @@ void AFMCharacter::DestroyInventory(){
 	}
 	
 	// remove all weapons from inventory and destroy them
-	for (int32 i = Inventory.Num() - 1; i >= 0; i--)
-	{
+	for (int32 i = Inventory.Num() - 1; i >= 0; i--){
 		AFMWeapon* Weapon = Inventory[i];
-		if (Weapon)
-		{
+		if (Weapon){
 			RemoveWeapon(Weapon);
 			Weapon->Destroy();
 		}
 	}
 	
 }
-*/
-/*
+
+
 void AFMCharacter::AddWeapon(AFMWeapon* Weapon){
-	if (Weapon && Role == ROLE_Authority)
-	{
+	if (Weapon && Role == ROLE_Authority){
 		Weapon->OnEnterInventory(this);
 		Inventory.AddUnique(Weapon);
 	}
 }
-*/
-/*
+
+
 void AFMCharacter::RemoveWeapon(AFMWeapon* Weapon){
-	if (Weapon && Role == ROLE_Authority)
-	{
+	if (Weapon && Role == ROLE_Authority){
 		Weapon->OnLeaveInventory();
 		Inventory.RemoveSingle(Weapon);
 	}
 }
-*/
-/*
+
+
 AFMWeapon* AFMCharacter::FindWeapon(TSubclassOf<AFMWeapon> WeaponClass){
-	for (int32 i = 0; i < Inventory.Num(); i++)
-	{
-		if (Inventory[i] && Inventory[i]->IsA(WeaponClass))
-		{
+	for (int32 i = 0; i < Inventory.Num(); i++){
+		if (Inventory[i] && Inventory[i]->IsA(WeaponClass))	{
 			return Inventory[i];
 		}
 	}
 
 	return NULL;
 }
-*/
-/*
+
+
 void AFMCharacter::EquipWeapon(AFMWeapon* Weapon){
-	if (Weapon)
-	{
-		if (Role == ROLE_Authority)
-		{
+	if (Weapon){
+		if (Role == ROLE_Authority){
 			SetCurrentWeapon(Weapon);
-		}
-		else
-		{
+		}else{
 			ServerEquipWeapon(Weapon);
 		}
 	}
 }
-*/
-/*
+
+
 bool AFMCharacter::ServerEquipWeapon_Validate(AFMWeapon* Weapon){
 	return true;
 }
-*/
-/*
+
+
 void AFMCharacter::ServerEquipWeapon_Implementation(AFMWeapon* Weapon){
 	EquipWeapon(Weapon);
 }
-*/
-/*
+
+
 void AFMCharacter::OnRep_CurrentWeapon(AFMWeapon* LastWeapon){
 	SetCurrentWeapon(CurrentWeapon, LastWeapon);
 }
-*/
-/*
+
+
 void AFMCharacter::SetCurrentWeapon(class AFMWeapon* NewWeapon, class AFMWeapon* LastWeapon){
 	AFMWeapon* LocalLastWeapon = NULL;
 
-	if (LastWeapon != NULL)
-	{
+	if (LastWeapon != NULL){
 		LocalLastWeapon = LastWeapon;
-	}
-	else if (NewWeapon != CurrentWeapon)
-	{
+	}else if (NewWeapon != CurrentWeapon){
 		LocalLastWeapon = CurrentWeapon;
 	}
 
 	// unequip previous
-	if (LocalLastWeapon)
-	{
+	if (LocalLastWeapon){
 		LocalLastWeapon->OnUnEquip();
 	}
 
 	CurrentWeapon = NewWeapon;
 
 	// equip new one
-	if (NewWeapon)
-	{
+	if (NewWeapon){
 		NewWeapon->SetOwningPawn(this);	// Make sure weapon's MyPawn is pointing back to us. During replication, we can't guarantee APawn::CurrentWeapon will rep after AWeapon::MyPawn!
 		NewWeapon->OnEquip();
 	}
 }
-*/
+
 //////////////////////////////////////////////////////////////////////////
-// Replication
+// REPLICATION
 
 
 void AFMCharacter::PreReplication(IRepChangedPropertyTracker & ChangedPropertyTracker){
@@ -661,13 +642,13 @@ void AFMCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutL
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
 	// only to local owner: weapon change requests are locally instigated, other clients don't need it
-	//DOREPLIFETIME_CONDITION(AFMCharacter, Inventory, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AFMCharacter, Inventory, COND_OwnerOnly);
 
 	// everyone except local owner: flag change is locally instigated
 	//DOREPLIFETIME_CONDITION(AFMCharacter, bIsTargeting, COND_SkipOwner);
-	//DOREPLIFETIME_CONDITION(AFMCharacter, bWantsToRun, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(AFMCharacter, bWantsToRun, COND_SkipOwner);
 
-	//DOREPLIFETIME_CONDITION(AFMCharacter, LastTakeHitInfo, COND_Custom);
+	DOREPLIFETIME_CONDITION(AFMCharacter, LastTakeHitInfo, COND_Custom);
 
 	// everyone
 	//DOREPLIFETIME(AFMCharacter, CurrentWeapon);
@@ -675,21 +656,21 @@ void AFMCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutL
 }
 
 
-/*
+
 AFMWeapon* AFMCharacter::GetWeapon() const {
 	return CurrentWeapon;
 }
 
-/*
+
 int32 AFMCharacter::GetInventoryCount() const {
 	return Inventory.Num();
 }
-*/
-/*
+
+
 AFMWeapon* AFMCharacter::GetInventoryWeapon(int32 index) const {
 	return Inventory[index];
 }
-*/
+
 
 
 int32 AFMCharacter::GetMaxHealth() const {
@@ -701,14 +682,8 @@ USkeletalMeshComponent* AFMCharacter::GetPawnMesh() const {
 }
 
 
-/*
-bool AFMCharacter::IsUsingWeapon() const
-{
-	return bWantsToUseWeapon;
-};
-*/
 //////////////////////////////////////////////////////////////////////////
-// Weapon usage
+// WEAPON USAGE
 /*
 void AFMCharacter::StartWeaponUse() {
 	if (!bWantsToUseWeapon)
@@ -745,10 +720,12 @@ bool AFMCharacter::CanCooldown() const {
 }
 */
 
-
+bool AFMCharacter::IsUsingWeapon() const {
+	return bWantsToUseWeapon;
+};
 
 //////////////////////////////////////////////////////////////////////////
-// Meshes
+// MESHES
 
 USkeletalMeshComponent* AFMCharacter::GetSpecifcPawnMesh(bool WantFirstPerson) const {
 	return WantFirstPerson == true ? Mesh : Mesh; //Mesh1P : Mesh;
@@ -782,6 +759,8 @@ void AFMCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompone
 	InputComponent->BindAxis("LookUp", this, &AFMCharacter::AddControllerPitchInput);
 	InputComponent->BindAction("Jump", IE_Pressed, this, &AFMCharacter::OnStartJump);
 	InputComponent->BindAction("Jump", IE_Released, this, &AFMCharacter::OnStopJump);
+	InputComponent->BindAction("Sprint", IE_Pressed, this, &AFMCharacter::OnStartRunning);
+	InputComponent->BindAction("Sprint", IE_Released, this, &AFMCharacter::OnStopRunning);
 
 	InputComponent->BindAction("Fire0", IE_Pressed, this, &AFMCharacter::OnFire0);
 
@@ -799,7 +778,10 @@ void AFMCharacter::MoveForward(float Value){
 			Rotation.Pitch = 0.0f;
 		}
 		// add movement in that direction
-		const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::X);
+		/*const */FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::X);
+		if (bWantsToRun){
+			Value *= RunningSpeedModifier;
+		}
 		AddMovementInput(Direction, Value);
 	}
 }
@@ -822,10 +804,60 @@ void AFMCharacter::OnStopJump(){
 	bPressedJump = false;
 }
 
+void AFMCharacter::OnStartRunning(){
+	AFMPlayerController* MyPC = Cast<AFMPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed()){
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: StartSprint "));
+		}
+		SetRunning(true, false);
+	}
+}
+
+void AFMCharacter::OnStopRunning(){
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: StopSprint "));
+	}
+	SetRunning(false, false);
+}
+
+bool AFMCharacter::IsRunning() const {
+	if (!CharacterMovement) return false;
+
+	return bWantsToRun && !GetVelocity().IsZero();// && (GetVelocity().SafeNormal2D | GetActorRotation().Vector()) > -0.1;
+}
+
+void AFMCharacter::SetRunning(bool bNewSprint, bool bToggle){
+	
+	if (Role < ROLE_Authority){
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: SERVERStartSprint "));
+		}
+		ServerSetRunning(bNewSprint, bToggle);
+	}
+	bWantsToRun = bNewSprint;
+	//bWantsToSprintToggled = bNewSprint && bToggle;
+
+	// UpdateRunningSounds(bNewSprint);
+
+}
+
+bool AFMCharacter::ServerSetRunning_Validate(bool bNewSprint, bool bToggle){
+	return true;
+}
+
+void AFMCharacter::ServerSetRunning_Implementation(bool bNewSprint, bool bToggle){
+	SetRunning(bNewSprint, bToggle);
+}
+
+float AFMCharacter::GetRunningSpeedModifier() const{
+	return RunningSpeedModifier;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 // WEAPON FIRING
 
+// using test projectile... not permanent
 void AFMCharacter::OnFire0(){
 	// try and fire a projectile
 	if (ProjectileClass){
