@@ -860,8 +860,8 @@ void AFMCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompone
 	InputComponent->BindAction("Sprint", IE_Pressed, this, &AFMCharacter::OnStartRunning);
 	InputComponent->BindAction("Sprint", IE_Released, this, &AFMCharacter::OnStopRunning);
 
-	InputComponent->BindAction("Fire0Pressed", IE_Pressed, this, &AFMCharacter::OnFire0Pressed);
-	InputComponent->BindAction("Fire0Released", IE_Released, this, &AFMCharacter::OnFire0Released);
+	InputComponent->BindAction("Fire0", IE_Pressed, this, &AFMCharacter::OnFire0Pressed);
+	InputComponent->BindAction("Fire0", IE_Released, this, &AFMCharacter::OnFire0Released);
 	InputComponent->BindAction("Fire1", IE_Pressed, this, &AFMCharacter::OnFire1);
 	InputComponent->BindAction("Fire2", IE_Pressed, this, &AFMCharacter::OnFire2);
 	InputComponent->BindAction("Fire3", IE_Pressed, this, &AFMCharacter::OnFire3);
@@ -884,9 +884,6 @@ void AFMCharacter::OnFire0Pressed(){
 
 void AFMCharacter::OnFire0Released(){
 	bIsFire0Held = false;
-
-
-
 	if (GEngine){
 		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Character: OnFire0Release %f"), fire0ChargeValue));
 	}
