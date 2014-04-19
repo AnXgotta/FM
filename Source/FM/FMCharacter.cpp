@@ -738,8 +738,6 @@ void AFMCharacter::MoveForward(float Value){
 		// add movement in that direction
 		const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::X);
 
-
-
 		AddMovementInput(Direction, Value);
 	}
 }
