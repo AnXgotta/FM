@@ -736,10 +736,10 @@ void AFMCharacter::MoveForward(float Value){
 			Rotation.Pitch = 0.0f;
 		}
 		// add movement in that direction
-		/*const */FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::X);
-		if (bWantsToRun){
-			Value *= RunningSpeedModifier;
-		}
+		const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::X);
+
+
+
 		AddMovementInput(Direction, Value);
 	}
 }
