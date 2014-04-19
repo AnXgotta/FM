@@ -87,8 +87,7 @@ void AFMCharacter::BeginPlay(){
 void AFMCharacter::PostInitializeComponents(){
 	Super::PostInitializeComponents();
 
-	if (Role == ROLE_Authority)
-	{
+	if (Role == ROLE_Authority)	{
 		currentHealth = GetDefaultMaxHealth();
 		currentStamina = GetDefaultMaxStamina();
 //		SpawnDefaultInventory();
