@@ -54,12 +54,24 @@ class AFMCharacter : public ACharacter
 
 	// Current stamina of the Pawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Stamina)
-	float currentStamina;
+		float currentStamina;
+
+	// Current Max stamina of the Pawn
+	// May want to change replication -- not monitored regularly
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Stamina)
+		float currentMaxStamina;
+
+	// Default Max stamina of the Pawn
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stamina)
+		float defaultMaxStamina;
 
 	//GET stamina
 
-	// get max stamina
-	//int32 GetMaxStamina() const;
+	// get default max stamina
+	int32 GetDefaultMaxStamina() const;
+
+	// get current max stamina
+	int32 GetCurrentMaxStamina() const;
 
 protected:
 

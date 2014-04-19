@@ -90,7 +90,7 @@ void AFMCharacter::PostInitializeComponents(){
 	if (Role == ROLE_Authority)
 	{
 		currentHealth = GetDefaultMaxHealth();
-		//Stamina = GetMaxStamina();
+		currentStamina = GetDefaultMaxStamina();
 //		SpawnDefaultInventory();
 	}
 	
@@ -632,9 +632,11 @@ void AFMCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutL
 	DOREPLIFETIME_CONDITION(AFMCharacter, Inventory, COND_OwnerOnly);
 	//Unsure about rep style for currentMaxHealth
 	DOREPLIFETIME_CONDITION(AFMCharacter, currentMaxHealth, COND_OwnerOnly);
-	//Unsure about rep style for stamina
-	//DOREPLIFETIME_CONDITION(AFMCharacter, Stamina, COND_OwnerOnly);
-
+	//Unsure about rep style for currentStamina
+	DOREPLIFETIME_CONDITION(AFMCharacter, currentStamina, COND_OwnerOnly);
+	//Unsure about rep style for currentMaxStamina
+	DOREPLIFETIME_CONDITION(AFMCharacter, currentMaxStamina, COND_OwnerOnly);
+	
 	// everyone except local owner: flag change is locally instigated
 	//DOREPLIFETIME_CONDITION(AFMCharacter, bIsTargeting, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(AFMCharacter, bWantsToRun, COND_SkipOwner);
@@ -670,12 +672,13 @@ int32 AFMCharacter::GetCurrentMaxHealth() const {
 	return GetClass()->GetDefaultObject<AFMCharacter>()->currentMaxHealth;
 }
 
-/* int32 AFMCharacter::GetMaxStamina() const {
-	return 
-} 
+int32 AFMCharacter::GetDefaultMaxStamina() const {
+	return GetClass()->GetDefaultObject<AFMCharacter>()->defaultMaxStamina;
+}
 
-
-*/
+int32 AFMCharacter::GetCurrentMaxStamina() const {
+	return GetClass()->GetDefaultObject<AFMCharacter>()->currentMaxStamina;
+}
 
 USkeletalMeshComponent* AFMCharacter::GetPawnMesh() const {
 	return Mesh; // IsFirstPerson() ? Mesh1P : Mesh;
