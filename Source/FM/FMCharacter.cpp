@@ -93,8 +93,8 @@ void AFMCharacter::PostInitializeComponents(){
 //		SpawnDefaultInventory();
 	}
 	
-	// set initial mesh visibility (3rd person view)
-	//UpdatePawnMeshes();
+	// set initial mesh visibility
+	UpdatePawnMeshes();
 
 	// create material instance for setting team colors (3rd person view)
 	//for (int32 iMat = 0; iMat < Mesh->GetNumMaterials(); iMat++){
@@ -162,8 +162,8 @@ void AFMCharacter::Destroyed(){
 void AFMCharacter::PawnClientRestart(){
 	Super::PawnClientRestart();
 
-	// switch mesh to 1st person view
-//	UpdatePawnMeshes();
+	// update mesh
+	UpdatePawnMeshes();
 
 	// reattach weapon if needed
 	SetCurrentWeapon(CurrentWeapon);
@@ -337,9 +337,9 @@ void AFMCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& Damag
 	//}
 
 	// remove all weapons
-	//DestroyInventory();
+	DestroyInventory();
 
-	// sfix up 3rd person mesh
+	// fix up 3rd person mesh
 	UpdatePawnMeshes();
 
 	DetachFromControllerPendingDestroy();
@@ -664,19 +664,27 @@ AFMWeapon* AFMCharacter::GetInventoryWeapon(int32 index) const {
 /// GETS AND SETS
 
 int32 AFMCharacter::GetDefaultMaxHealth() const {
-	return GetClass()->GetDefaultObject<AFMCharacter>()->defaultMaxHealth;
+	return defaultMaxHealth;
 }
 
 int32 AFMCharacter::GetCurrentMaxHealth() const {
-	return GetClass()->GetDefaultObject<AFMCharacter>()->currentMaxHealth;
+	return currentMaxHealth;
 }
 
 int32 AFMCharacter::GetDefaultMaxStamina() const {
-	return GetClass()->GetDefaultObject<AFMCharacter>()->defaultMaxStamina;
+	return defaultMaxStamina;
 }
 
 int32 AFMCharacter::GetCurrentMaxStamina() const {
-	return GetClass()->GetDefaultObject<AFMCharacter>()->currentMaxStamina;
+	return currentMaxStamina;
+}
+
+float AFMCharacter::PercentStaminaAvailable(int32 StaminaCost){
+	return (float)currentStamina / (float)StaminaCost;
+}
+
+void AFMCharacter::UseStamina(int32 Value){
+	currentStamina -= Value;
 }
 
 USkeletalMeshComponent* AFMCharacter::GetPawnMesh() const {

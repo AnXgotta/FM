@@ -72,6 +72,12 @@ class AFMCharacter : public ACharacter
 	// get current max stamina
 	int32 GetCurrentMaxStamina() const;
 
+	// return percent of current stamina available given a staminaCost
+	float AFMCharacter::PercentStaminaAvailable(int32 StaminaCost);
+
+	// reduce current stamina by amount
+	void UseStamina(int32 Amount);
+
 protected:
 
 	// when low health effects should start
