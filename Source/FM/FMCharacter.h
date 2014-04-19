@@ -1,6 +1,7 @@
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
 
 #pragma once
+#include "FMTypes.h"
 #include "GameFramework/Character.h"
 #include "FMCharacter.generated.h"
 
@@ -86,11 +87,11 @@ protected:
 	//  [server] spawns default inventory
 	void SpawnDefaultInventory();
 
-	
-	/*
+
+
 
 	//  Update the character. (Running, health etc).
-	//virtual void Tick(float DeltaSeconds) OVERRIDE;
+	virtual void Tick(float DeltaSeconds) OVERRIDE;
 
 	//  cleanup inventory
 	virtual void Destroyed() OVERRIDE;
@@ -105,11 +106,8 @@ protected:
 	virtual void OnRep_PlayerState() OVERRIDE;
 
 
-
-
-
 	//////////////////////////////////////////////////////////////////////////
-	// Animations
+	// ANIMATIONS
 
 	//  play anim montage
 	virtual float PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None) OVERRIDE;
@@ -122,7 +120,7 @@ protected:
 
 	//////////////////////////////////////////////////////////////////////////
 	// Inventory
-
+	/*
 	//
 	//[server] add weapon to inventory
 
@@ -190,15 +188,20 @@ protected:
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_CurrentWeapon)
 	class AFMWeapon* CurrentWeapon;
 
-	//  Replicate where this pawn was last hit and damaged
-	UPROPERTY(Transient, ReplicatedUsing = OnRep_LastTakeHitInfo)
-	struct FTakeHitInfo LastTakeHitInfo;
+	
+
+	
+
+	//  current weapon use state
+	uint8 bWantsToUseWeapon : 1;
+	*/
 
 	//  Time at which point the last take hit info for the actor times out and won't be replicated; Used to stop join-in-progress effects all over the screen
 	float LastTakeHitTimeTimeout;
 
-	//  current weapon use state
-	uint8 bWantsToUseWeapon : 1;
+	//  Replicate where this pawn was last hit and damaged
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_LastTakeHitInfo)
+	struct FTakeHitInfo LastTakeHitInfo;
 
 	//  Responsible for cleaning up bodies on clients.
 	virtual void TornOff();
@@ -209,17 +212,13 @@ protected:
 	
 
 	//////////////////////////////////////////////////////////////////////////
-	// Damage & death
+	// DAMAGE AND DEATH
 
 	public:
 
 	//  Identifies if pawn is in its dying state
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Health)
 	uint32 bIsDying : 1;
-
-	// Current health of the Pawn
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Health)
-	float Health;
 
 	//  Take damage, handle death
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) OVERRIDE;
@@ -234,24 +233,24 @@ protected:
 	virtual bool CanDie(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser) const;
 
 	//  player pressed Use Weapon action
-	void OnStartUseWeapon();
+	//void OnStartUseWeapon();
 
 	//  player released Use Weapon action
-	void OnStopUseWeapon();
+	//void OnStopUseWeapon();
 
 	//  player pressed next weapon action
-	void OnNextWeapon();
+	//void OnNextWeapon();
 
 	//  player pressed prev weapon action
-	void OnPrevWeapon();
+	//void OnPrevWeapon();
 
-	//
-	* Kills pawn.  Server/authority only.
-	* @param KillingDamage - Damage amount of the killing blow
-	* @param DamageEvent - Damage event of the killing blow
-	* @param Killer - Who killed this pawn
-	* @param DamageCauser - the Actor that directly caused the damage (i.e. the Projectile that exploded, the Weapon that fired, etc)
-	* @returns true if allowed
+
+	//Kills pawn.  Server/authority only.
+	// @param KillingDamage - Damage amount of the killing blow
+	// @param DamageEvent - Damage event of the killing blow
+	// @param Killer - Who killed this pawn
+	// @param DamageCauser - the Actor that directly caused the damage (i.e. the Projectile that exploded, the Weapon that fired, etc)
+	// @returns true if allowed
 
 	virtual bool Die(float KillingDamage, struct FDamageEvent const& DamageEvent, class AController* Killer, class AActor* DamageCauser);
 
@@ -260,6 +259,7 @@ protected:
 
 	//  Called on the actor right before replication occurs
 	virtual void PreReplication(IRepChangedPropertyTracker & ChangedPropertyTracker) OVERRIDE;
+
 	protected:
 	//  notification when killed, for both the server and client.
 	virtual void OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, class APawn* InstigatingPawn, class AActor* DamageCauser);
@@ -281,22 +281,21 @@ protected:
 	// Inventory
 
 	//  updates current weapon
-	void SetCurrentWeapon(class AFMWeapon* NewWeapon, class AFMWeapon* LastWeapon = NULL);
+	//void SetCurrentWeapon(class AFMWeapon* NewWeapon, class AFMWeapon* LastWeapon = NULL);
 
 	//  current weapon rep handler
-	UFUNCTION()
-	void OnRep_CurrentWeapon(class AFMWeapon* LastWeapon);
+	//UFUNCTION()
+	//void OnRep_CurrentWeapon(class AFMWeapon* LastWeapon);
 
 	
 
 	//  [server] remove all weapons from inventory and destroy them
-	void DestroyInventory();
+	//void DestroyInventory();
 
 	//  equip weapon
-	UFUNCTION(reliable, server, WithValidation)
-	void ServerEquipWeapon(class AFMWeapon* NewWeapon);
+	//UFUNCTION(reliable, server, WithValidation)
+	//void ServerEquipWeapon(class AFMWeapon* NewWeapon);
 
-	*/
 
 public:
 
@@ -311,6 +310,65 @@ public:
 
 	// get max health
 	int32 GetMaxHealth() const;
+
+	/** modifier for max movement speed */
+	UPROPERTY(EditDefaultsOnly, Category = Pawn)
+		float RunningSpeedModifier;
+
+	/** current running state */
+	UPROPERTY(Transient, Replicated)
+		uint8 bWantsToRun : 1;
+
+	/** from gamepad running is toggled */
+	uint8 bWantsToRunToggled : 1;
+
+	/** current firing state */
+	uint8 bWantsToFire : 1;
+
+
+	/** material instances for setting team color in mesh (3rd person view) */
+//	UPROPERTY(Transient)
+//		TArray<UMaterialInstanceDynamic*> MeshMIDs;
+
+	/** animation played on death */
+//	UPROPERTY(EditDefaultsOnly, Category = Animation)
+//		UAnimMontage* DeathAnim;
+
+	/** sound played on death, local player only */
+//	UPROPERTY(EditDefaultsOnly, Category = Pawn)
+//		USoundCue* DeathSound;
+
+	/** effect played on respawn */
+//	UPROPERTY(EditDefaultsOnly, Category = Pawn)
+//		UParticleSystem* RespawnFX;
+
+	/** sound played on respawn */
+//	UPROPERTY(EditDefaultsOnly, Category = Pawn)
+//		USoundCue* RespawnSound;
+
+	/** sound played when health is low */
+//	UPROPERTY(EditDefaultsOnly, Category = Pawn)
+//		USoundCue* LowHealthSound;
+
+	/** sound played when running */
+//	UPROPERTY(EditDefaultsOnly, Category = Pawn)
+//		USoundCue* RunLoopSound;
+
+	/** sound played when stop running */
+//	UPROPERTY(EditDefaultsOnly, Category = Pawn)
+//		USoundCue* RunStopSound;
+
+
+	/** used to manipulate with run loop sound */
+//	UPROPERTY()
+//		UAudioComponent* RunLoopAC;
+
+	/** hook to looped low health sound used to stop/adjust volume */
+//	UPROPERTY()
+//		UAudioComponent* LowHealthWarningPlayer;
+
+	/** handles sounds for running */
+	void UpdateRunSounds(bool bNewRunning);
 
 	/*
 	

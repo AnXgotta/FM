@@ -1,8 +1,10 @@
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
 #pragma once
 #include "FM.h"
+#include "FMGameMode.h"
 #include "FMCharacter.h"
 #include "FMWeapon.h"
+#include "FMDamageType.h"
 
 // temp include while goofing around with projetcile
 #include "FMProjectile.h"
@@ -116,13 +118,53 @@ void AFMCharacter::PostInitializeComponents(){
 }
 
 
-/*
+void AFMCharacter::Tick(float DeltaSeconds){
+	Super::Tick(DeltaSeconds);
+	/*
+	if (bWantsToRunToggled && !IsRunning()){
+		SetRunning(false, false);
+	}
+	AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
+	if (MyPC && MyPC->HasHealthRegen()){
+		if (this->Health < this->GetMaxHealth())
+		{
+			this->Health += 5 * DeltaSeconds;
+			if (Health > this->GetMaxHealth())
+			{
+				Health = this->GetMaxHealth();
+			}
+		}
+	}
+
+	if (LowHealthSound && GEngine->UseSound())
+	{
+		if ((this->Health > 0 && this->Health < this->GetMaxHealth() * LowHealthPercentage) && (!LowHealthWarningPlayer || !LowHealthWarningPlayer->IsPlaying()))
+		{
+			LowHealthWarningPlayer = UGameplayStatics::PlaySoundAttached(LowHealthSound, GetRootComponent(),
+				NAME_None, FVector(ForceInit), EAttachLocation::KeepRelativeOffset, true);
+			LowHealthWarningPlayer->SetVolumeMultiplier(0.0f);
+		}
+		else if ((this->Health > this->GetMaxHealth() * LowHealthPercentage || this->Health < 0) && LowHealthWarningPlayer && LowHealthWarningPlayer->IsPlaying())
+		{
+			LowHealthWarningPlayer->Stop();
+		}
+		if (LowHealthWarningPlayer && LowHealthWarningPlayer->IsPlaying())
+		{
+			const float MinVolume = 0.3f;
+			const float VolumeMultiplier = (1.0f - (this->Health / (this->GetMaxHealth() * LowHealthPercentage)));
+			LowHealthWarningPlayer->SetVolumeMultiplier(MinVolume + (1.0f - MinVolume) * VolumeMultiplier);
+		}
+	}
+	*/
+}
+
+
 void AFMCharacter::Destroyed(){
 	Super::Destroyed();
-	DestroyInventory();
+	//DestroyInventory();
 }
-*/
-/*
+
+
 void AFMCharacter::PawnClientRestart(){
 	Super::PawnClientRestart();
 
@@ -130,92 +172,85 @@ void AFMCharacter::PawnClientRestart(){
 //	UpdatePawnMeshes();
 
 	// reattach weapon if needed
-	SetCurrentWeapon(CurrentWeapon);
+	//SetCurrentWeapon(CurrentWeapon);
 
 	// set team colors for 1st person view
 //	UMaterialInstanceDynamic* Mesh1PMID = Mesh1P->CreateAndSetMaterialInstanceDynamic(0);
 //	UpdateTeamColors(Mesh1PMID);
 }
-*/
-/*
+
+
 void AFMCharacter::PossessedBy(class AController* InController){
 	Super::PossessedBy(InController);
 
 	// [server] as soon as PlayerState is assigned, set team colors of this pawn for local player
 	//UpdateTeamColorsAllMIDs();
 }
-*/
-/*
+
+
 void AFMCharacter::OnRep_PlayerState(){
 	Super::OnRep_PlayerState();
 
 	// [client] as soon as PlayerState is assigned, set team colors of this pawn for local player
-	if (PlayerState != NULL)
-	{
-		UpdateTeamColorsAllMIDs();
+	if (PlayerState != NULL){
+		//UpdateTeamColorsAllMIDs();
 	}
 	
 }
-*/
+
 //////////////////////////////////////////////////////////////////////////
 // Animations
-/*
+
 float AFMCharacter::PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate, FName StartSectionName){
 	
 	USkeletalMeshComponent* UseMesh = GetPawnMesh();
-	if (AnimMontage && UseMesh && UseMesh->AnimScriptInstance)
-	{
-		return UseMesh->AnimScriptInstance->Montage_Play(AnimMontage, InPlayRate);
+	if (AnimMontage && UseMesh && UseMesh->AnimScriptInstance){
+		//return UseMesh->AnimScriptInstance->Montage_Play(AnimMontage, InPlayRate);
 	}
 	
 	return 0.0f;
 }
-*/
-/*
+
+
 void AFMCharacter::StopAnimMontage(class UAnimMontage* AnimMontage){
 	
 	USkeletalMeshComponent* UseMesh = GetPawnMesh();
-	if (AnimMontage && UseMesh && UseMesh->AnimScriptInstance &&
-		UseMesh->AnimScriptInstance->Montage_IsPlaying(AnimMontage))
-	{
-		UseMesh->AnimScriptInstance->Montage_Stop(AnimMontage->BlendOutTime);
+	if (AnimMontage && UseMesh && UseMesh->AnimScriptInstance && UseMesh->AnimScriptInstance->Montage_IsPlaying(AnimMontage)) {
+		//UseMesh->AnimScriptInstance->Montage_Stop(AnimMontage->BlendOutTime);
 	}
 	
 }
-*/
-/*
+
+
 void AFMCharacter::StopAllAnimMontages(){
 	
 	USkeletalMeshComponent* UseMesh = GetPawnMesh();
-	if (UseMesh && UseMesh->AnimScriptInstance)
-	{
-		UseMesh->AnimScriptInstance->Montage_Stop(0.0f);
+	if (UseMesh && UseMesh->AnimScriptInstance){
+		//UseMesh->AnimScriptInstance->Montage_Stop(0.0f);
 	}
 	
 }
-*/
+
 
 
 //////////////////////////////////////////////////////////////////////////
 // Damage & death
 
-/*
+
 void AFMCharacter::FellOutOfWorld(const class UDamageType& dmgType){
 	Die(Health, FDamageEvent(dmgType.GetClass()), NULL, NULL);
 }
-*/
-/*
+
+
 void AFMCharacter::Suicide(){
 	KilledBy(this);
 }
-*/
-/*
+
+
 void AFMCharacter::KilledBy(APawn* EventInstigator){
-	if (Role == ROLE_Authority && !bIsDying)
-	{
+	if (Role == ROLE_Authority && !bIsDying){
 		AController* Killer = NULL;
-		if (EventInstigator != NULL)
-		{
+		if (EventInstigator != NULL){
 			Killer = EventInstigator->Controller;
 			LastHitBy = NULL;
 		}
@@ -223,58 +258,52 @@ void AFMCharacter::KilledBy(APawn* EventInstigator){
 		Die(Health, FDamageEvent(UDamageType::StaticClass()), Killer, NULL);
 	}
 }
-*/
-/*
+
+
 float AFMCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser){
 	//AFMPlayerController* MyPC = Cast<AFMPlayerController>(Controller);
 
-	if (Health <= 0.f)
-	{
+	if (Health <= 0.f){
 		return 0.f;
 	}
 
 	// Modify based on game rules.
-	AShooterGameMode* const Game = GetWorld()->GetAuthGameMode<AShooterGameMode>();
+	AFMGameMode* const Game = GetWorld()->GetAuthGameMode<AFMGameMode>();
 	Damage = Game ? Game->ModifyDamage(Damage, this, DamageEvent, EventInstigator, DamageCauser) : 0.f;
 
 	const float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
-	if (ActualDamage > 0.f)
-	{
+	if (ActualDamage > 0.f)	{
 		Health -= ActualDamage;
-		if (Health <= 0)
-		{
+		if (Health <= 0)		{
 			Die(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
-		}
-		else
-		{
+		}else{
 			PlayHit(ActualDamage, DamageEvent, EventInstigator ? EventInstigator->GetPawn() : NULL, DamageCauser);
 		}
 
-		MakeNoise(1.0f, EventInstigator ? EventInstigator->GetPawn() : this);
+		//MakeNoise(1.0f, EventInstigator ? EventInstigator->GetPawn() : this);
 	}
 	
 	return ActualDamage;
 }
-*/
-/*
+
+
 bool AFMCharacter::CanDie(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser) const {
 	if (bIsDying										// already dying
 		|| IsPendingKill()								// already destroyed
 		|| Role != ROLE_Authority						// not authority
 		|| GetWorld()->GetAuthGameMode() == NULL
-		|| GetWorld()->GetAuthGameMode()->bLevelChange)	// level transition occurring
-	{
+		|| GetWorld()->GetAuthGameMode()->bLevelChange){	// level transition occurring
+	
 		return false;
 	}
 
 	return true;
 }
-*/
-/*
+
+
 bool AFMCharacter::Die(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser){
 	
-	if (!CanDie(KillingDamage, DamageEvent, Killer, DamageCauser))
-	{
+	if (!CanDie(KillingDamage, DamageEvent, Killer, DamageCauser)){
 		return false;
 	}
 
@@ -285,21 +314,20 @@ bool AFMCharacter::Die(float KillingDamage, FDamageEvent const& DamageEvent, ACo
 	Killer = GetDamageInstigator(Killer, *DamageType);
 
 	AController* const KilledPlayer = (Controller != NULL) ? Controller : Cast<AController>(GetOwner());
-	GetWorld()->GetAuthGameMode<AShooterGameMode>()->Killed(Killer, KilledPlayer, this, DamageType);
+	GetWorld()->GetAuthGameMode<AFMGameMode>()->Killed(Killer, KilledPlayer, this, DamageType);
 
-	NetUpdateFrequency = GetDefault<AShooterCharacter>()->NetUpdateFrequency;
+	NetUpdateFrequency = GetDefault<AFMCharacter>()->NetUpdateFrequency;
 	CharacterMovement->ForceReplicationUpdate();
 
 	OnDeath(KillingDamage, DamageEvent, Killer ? Killer->GetPawn() : NULL, DamageCauser);
 	
 	return true;
 }
-*/
-/*
+
+
 void AFMCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser){
 	
-	if (bIsDying)
-	{
+	if (bIsDying){
 		return;
 	}
 
@@ -307,131 +335,109 @@ void AFMCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& Damag
 	bTearOff = true;
 	bIsDying = true;
 
-	if (Role == ROLE_Authority)
-	{
+	if (Role == ROLE_Authority){
 		ReplicateHit(KillingDamage, DamageEvent, PawnInstigator, DamageCauser, true);
 
 		// play the force feedback effect on the client player controller
 		APlayerController* PC = Cast<APlayerController>(Controller);
-		if (PC && DamageEvent.DamageTypeClass)
-		{
-			UShooterDamageType *DamageType = Cast<UShooterDamageType>(DamageEvent.DamageTypeClass->GetDefaultObject());
-			if (DamageType && DamageType->KilledForceFeedback)
-			{
+		if (PC && DamageEvent.DamageTypeClass){
+			UFMDamageType *DamageType = Cast<UFMDamageType>(DamageEvent.DamageTypeClass->GetDefaultObject());
+			if (DamageType && DamageType->KilledForceFeedback){
 				PC->ClientPlayForceFeedback(DamageType->KilledForceFeedback, false, "Damage");
 			}
 		}
 	}
 
 	// cannot use IsLocallyControlled here, because even local client's controller may be NULL here
-	if (GetNetMode() != NM_DedicatedServer && DeathSound && Mesh1P && Mesh1P->IsVisible())
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
-	}
+	//if (GetNetMode() != NM_DedicatedServer && DeathSound && Mesh1P && Mesh1P->IsVisible()){
+		//UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
+	//}
 
 	// remove all weapons
-	DestroyInventory();
+	//DestroyInventory();
 
 	// switch back to 3rd person view
-	UpdatePawnMeshes();
+	//UpdatePawnMeshes();
 
 	DetachFromControllerPendingDestroy();
 	StopAllAnimMontages();
 
-	if (LowHealthWarningPlayer && LowHealthWarningPlayer->IsPlaying())
-	{
-		LowHealthWarningPlayer->Stop();
-	}
+	//if (LowHealthWarningPlayer && LowHealthWarningPlayer->IsPlaying())	{
+	//	LowHealthWarningPlayer->Stop();
+	//}
 
-	if (RunLoopAC)
-	{
-		RunLoopAC->Stop();
-	}
+	//if (RunLoopAC){
+	//	RunLoopAC->Stop();
+	//}
 
 	// disable collisions on capsule
 	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	CapsuleComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 
-	if (Mesh)
-	{
-		static FName CollisionProfileName(TEXT("Ragdoll"));
-		Mesh->SetCollisionProfileName(CollisionProfileName);
+	if (Mesh){
+		//static FName CollisionProfileName(TEXT("Ragdoll"));
+		//Mesh->SetCollisionProfileName(CollisionProfileName);
 	}
 	SetActorEnableCollision(true);
 
 	// Death anim
-	float DeathAnimDuration = PlayAnimMontage(DeathAnim);
-
+	//float DeathAnimDuration = PlayAnimMontage(DeathAnim);
+	/*
 	// Ragdoll
-	if (DeathAnimDuration > 0.f)
-	{
+	if (DeathAnimDuration > 0.f){
 		GetWorldTimerManager().SetTimer(this, &AShooterCharacter::SetRagdollPhysics, FMath::Min(0.1f, DeathAnimDuration), false);
-	}
-	else
-	{
+	}else{
 		SetRagdollPhysics();
-	}
+	}*/
 	
 }
-*/
-/*
+
+
 void AFMCharacter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser){
 	
-	if (Role == ROLE_Authority)
-	{
+	if (Role == ROLE_Authority){
 		ReplicateHit(DamageTaken, DamageEvent, PawnInstigator, DamageCauser, false);
 
 		// play the force feedback effect on the client player controller
 		APlayerController* PC = Cast<APlayerController>(Controller);
-		if (PC && DamageEvent.DamageTypeClass)
-		{
-			UShooterDamageType *DamageType = Cast<UShooterDamageType>(DamageEvent.DamageTypeClass->GetDefaultObject());
-			if (DamageType && DamageType->HitForceFeedback)
-			{
+		if (PC && DamageEvent.DamageTypeClass){
+			UFMDamageType *DamageType = Cast<UFMDamageType>(DamageEvent.DamageTypeClass->GetDefaultObject());
+			if (DamageType && DamageType->HitForceFeedback)	{
 				PC->ClientPlayForceFeedback(DamageType->HitForceFeedback, false, "Damage");
 			}
 		}
 	}
 
-	if (DamageTaken > 0.f)
-	{
+	if (DamageTaken > 0.f){
 		ApplyDamageMomentum(DamageTaken, DamageEvent, PawnInstigator, DamageCauser);
 	}
 
-	AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
-	AShooterHUD* MyHUD = MyPC ? Cast<AShooterHUD>(MyPC->GetHUD()) : NULL;
-	if (MyHUD)
-	{
-		MyHUD->NotifyHit(DamageTaken, DamageEvent, PawnInstigator);
-	}
+	//AFMPlayerController* MyPC = Cast<AFMPlayerController>(Controller);
+	//AFMHUD* MyHUD = MyPC ? Cast<AFMHUD>(MyPC->GetHUD()) : NULL;
+	//if (MyHUD)	{
+	//	MyHUD->NotifyHit(DamageTaken, DamageEvent, PawnInstigator);
+	//}
 
-	if (PawnInstigator && PawnInstigator != this && PawnInstigator->IsLocallyControlled())
-	{
-		AShooterPlayerController* InstigatorPC = Cast<AShooterPlayerController>(PawnInstigator->Controller);
-		AShooterHUD* InstigatorHUD = InstigatorPC ? Cast<AShooterHUD>(InstigatorPC->GetHUD()) : NULL;
-		if (InstigatorHUD)
-		{
-			InstigatorHUD->NotifyEnemyHit();
-		}
+	if (PawnInstigator && PawnInstigator != this && PawnInstigator->IsLocallyControlled()){
+		//AFMPlayerController* InstigatorPC = Cast<AFMPlayerController>(PawnInstigator->Controller);
+		//AShooterHUD* InstigatorHUD = InstigatorPC ? Cast<AShooterHUD>(InstigatorPC->GetHUD()) : NULL;
+		//if (InstigatorHUD){
+		//	InstigatorHUD->NotifyEnemyHit();
+		//}
 	}
 	
 }
-*/
-/*
+
+
 void AFMCharacter::SetRagdollPhysics(){
 	
 	bool bInRagdoll = false;
 
-	if (IsPendingKill())
-	{
+	if (IsPendingKill()){
 		bInRagdoll = false;
-	}
-	else if (!Mesh || !Mesh->GetPhysicsAsset())
-	{
+	}else if (!Mesh || !Mesh->GetPhysicsAsset()){
 		bInRagdoll = false;
-	}
-	else
-	{
+	}else{
 		// initialize physics/etc
 		Mesh->SetAllBodiesSimulatePhysics(true);
 		Mesh->SetSimulatePhysics(true);
@@ -445,32 +451,27 @@ void AFMCharacter::SetRagdollPhysics(){
 	CharacterMovement->DisableMovement();
 	CharacterMovement->SetComponentTickEnabled(false);
 
-	if (!bInRagdoll)
-	{
+	if (!bInRagdoll){
 		// hide and set short lifespan
 		TurnOff();
 		SetActorHiddenInGame(true);
 		SetLifeSpan(1.0f);
-	}
-	else
-	{
+	}else{
 		SetLifeSpan(10.0f);
 	}
 	
 }
-*/
 
-/*
+
+
 void AFMCharacter::ReplicateHit(float Damage, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser, bool bKilled){
 	
 	const float TimeoutTime = GetWorld()->GetTimeSeconds() + 0.5f;
 
 	FDamageEvent const& LastDamageEvent = LastTakeHitInfo.GetDamageEvent();
-	if ((PawnInstigator == LastTakeHitInfo.PawnInstigator.Get()) && (LastDamageEvent.DamageTypeClass == LastTakeHitInfo.DamageTypeClass) && (LastTakeHitTimeTimeout == TimeoutTime))
-	{
+	if ((PawnInstigator == LastTakeHitInfo.PawnInstigator.Get()) && (LastDamageEvent.DamageTypeClass == LastTakeHitInfo.DamageTypeClass) && (LastTakeHitTimeTimeout == TimeoutTime)){
 		// same frame damage
-		if (bKilled && LastTakeHitInfo.bKilled)
-		{
+		if (bKilled && LastTakeHitInfo.bKilled)	{
 			// Redundant death take hit, just ignore it
 			return;
 		}
@@ -480,7 +481,7 @@ void AFMCharacter::ReplicateHit(float Damage, struct FDamageEvent const& DamageE
 	}
 
 	LastTakeHitInfo.ActualDamage = Damage;
-	LastTakeHitInfo.PawnInstigator = Cast<AShooterCharacter>(PawnInstigator);
+	LastTakeHitInfo.PawnInstigator = Cast<AFMCharacter>(PawnInstigator);
 	LastTakeHitInfo.DamageCauser = DamageCauser;
 	LastTakeHitInfo.SetDamageEvent(DamageEvent);
 	LastTakeHitInfo.bKilled = bKilled;
@@ -489,28 +490,23 @@ void AFMCharacter::ReplicateHit(float Damage, struct FDamageEvent const& DamageE
 	LastTakeHitTimeTimeout = TimeoutTime;
 	
 }
-*/
-/*
+
+
 void AFMCharacter::OnRep_LastTakeHitInfo(){
 	
-	if (LastTakeHitInfo.bKilled)
-	{
+	if (LastTakeHitInfo.bKilled){
 		OnDeath(LastTakeHitInfo.ActualDamage, LastTakeHitInfo.GetDamageEvent(), LastTakeHitInfo.PawnInstigator.Get(), LastTakeHitInfo.DamageCauser.Get());
-	}
-	else
-	{
+	}else{
 		PlayHit(LastTakeHitInfo.ActualDamage, LastTakeHitInfo.GetDamageEvent(), LastTakeHitInfo.PawnInstigator.Get(), LastTakeHitInfo.DamageCauser.Get());
 	}
 	
 }
-*/
-/*
+
 //Pawn::PlayDying sets this lifespan, but when that function is called on client, dead pawn's role is still SimulatedProxy despite bTearOff being true. 
-void AFMCharacter::TornOff()
-{
+void AFMCharacter::TornOff(){
 	SetLifeSpan(25.f);
 }
-*/
+
 
 //////////////////////////////////////////////////////////////////////////
 // INVENTORY
@@ -650,7 +646,7 @@ void AFMCharacter::SetCurrentWeapon(class AFMWeapon* NewWeapon, class AFMWeapon*
 //////////////////////////////////////////////////////////////////////////
 // Replication
 
-/*
+
 void AFMCharacter::PreReplication(IRepChangedPropertyTracker & ChangedPropertyTracker){
 	Super::PreReplication(ChangedPropertyTracker);
 	
@@ -658,7 +654,7 @@ void AFMCharacter::PreReplication(IRepChangedPropertyTracker & ChangedPropertyTr
 	DOREPLIFETIME_ACTIVE_OVERRIDE(AFMCharacter, LastTakeHitInfo, GetWorld() && GetWorld()->GetTimeSeconds() < LastTakeHitTimeTimeout);
 	
 }
-*/
+
 
 
 void AFMCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {

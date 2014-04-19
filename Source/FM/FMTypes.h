@@ -1,6 +1,5 @@
 
 #pragma once
-#include "FM.h"
 #include "FMTypes.generated.h"
 
 namespace EMatchState
@@ -109,12 +108,12 @@ struct FTakeHitInfo
 		UClass* DamageTypeClass;
 
 	/** Who hit us */
-//	UPROPERTY()
-//		TWeakObjectPtr<class FMShooterCharacter> PawnInstigator;
+	UPROPERTY()
+		TWeakObjectPtr<class AFMCharacter> PawnInstigator;
 
 	/** Who actually caused the damage */
-//	UPROPERTY()
-//		TWeakObjectPtr<class AActor> DamageCauser;
+	UPROPERTY()
+		TWeakObjectPtr<class AActor> DamageCauser;
 
 	/** Specifies which DamageEvent below describes the damage received. */
 	UPROPERTY()
@@ -146,45 +145,38 @@ public:
 	FTakeHitInfo()
 		: ActualDamage(0)
 		, DamageTypeClass(NULL)
-		//, PawnInstigator(NULL)
-		//, DamageCauser(NULL)
+		, PawnInstigator(NULL)
+		, DamageCauser(NULL)
 		, DamageEventClassID(0)
 		, bKilled(false)
 		, EnsureReplicationByte(0)
 	{}
 
-	FDamageEvent& GetDamageEvent()
-	{
-		switch (DamageEventClassID)
-		{
+	FDamageEvent& GetDamageEvent(){
+		switch (DamageEventClassID)	{
 		case FPointDamageEvent::ClassID:
-			if (PointDamageEvent.DamageTypeClass == NULL)
-			{
+			if (PointDamageEvent.DamageTypeClass == NULL){
 				PointDamageEvent.DamageTypeClass = DamageTypeClass ? DamageTypeClass : UDamageType::StaticClass();
 			}
 			return PointDamageEvent;
 
 		case FRadialDamageEvent::ClassID:
-			if (RadialDamageEvent.DamageTypeClass == NULL)
-			{
+			if (RadialDamageEvent.DamageTypeClass == NULL){
 				RadialDamageEvent.DamageTypeClass = DamageTypeClass ? DamageTypeClass : UDamageType::StaticClass();
 			}
 			return RadialDamageEvent;
 
 		default:
-			if (GeneralDamageEvent.DamageTypeClass == NULL)
-			{
+			if (GeneralDamageEvent.DamageTypeClass == NULL){
 				GeneralDamageEvent.DamageTypeClass = DamageTypeClass ? DamageTypeClass : UDamageType::StaticClass();
 			}
 			return GeneralDamageEvent;
 		}
 	}
 
-	void SetDamageEvent(const FDamageEvent& DamageEvent)
-	{
+	void SetDamageEvent(const FDamageEvent& DamageEvent){
 		DamageEventClassID = DamageEvent.GetTypeID();
-		switch (DamageEventClassID)
-		{
+		switch (DamageEventClassID){
 		case FPointDamageEvent::ClassID:
 			PointDamageEvent = *((FPointDamageEvent const*)(&DamageEvent));
 			break;
@@ -198,8 +190,7 @@ public:
 		DamageTypeClass = DamageEvent.DamageTypeClass;
 	}
 
-	void EnsureReplication()
-	{
+	void EnsureReplication(){
 		EnsureReplicationByte++;
 	}
 };
