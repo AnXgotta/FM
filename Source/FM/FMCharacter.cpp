@@ -75,7 +75,7 @@ AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
 	//Is weapon being charged? No.
 	bIsFire0Held = false;
 	fire0ChargeValue = 0.0f;
-
+	
 
 }
 
@@ -887,6 +887,7 @@ void AFMCharacter::OnFire0Released(){
 	if (GEngine){
 		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Character: OnFire0Release %f"), fire0ChargeValue));
 	}
+	fire0ChargeValue = 0.0f;
 		// try and fire a projectile
 	//if (ProjectileClass){
 	//	

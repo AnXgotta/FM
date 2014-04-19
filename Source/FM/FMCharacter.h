@@ -137,7 +137,7 @@ public:
 
 	UPROPERTY()
 		float fire0ChargeValue;
-
+	
 	UFUNCTION()
 		void OnFire1();
 
