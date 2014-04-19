@@ -460,6 +460,96 @@ void AFMWeapon::OnBurstFinished(){
 }
 
 
+void AFMWeapon::HandleFiring(){
+	/*
+	if ((CurrentAmmoInClip > 0 || HasInfiniteClip() || HasInfiniteAmmo()) && CanFire())
+	{
+		if (GetNetMode() != NM_DedicatedServer)
+		{
+			SimulateWeaponFire();
+		}
+
+		if (MyPawn && MyPawn->IsLocallyControlled())
+		{
+			FireWeapon();
+
+			UseAmmo();
+
+			// update firing FX on remote clients if function was called on server
+			BurstCounter++;
+		}
+	}
+	else if (CanReload())
+	{
+		StartReload();
+	}
+	else if (MyPawn && MyPawn->IsLocallyControlled())
+	{
+		if (GetCurrentAmmo() == 0 && !bRefiring)
+		{
+			PlayWeaponSound(OutOfAmmoSound);
+			AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(MyPawn->Controller);
+			AShooterHUD* MyHUD = MyPC ? Cast<AShooterHUD>(MyPC->GetHUD()) : NULL;
+			if (MyHUD)
+			{
+				MyHUD->NotifyOutOfAmmo();
+			}
+		}
+
+		// stop weapon fire FX, but stay in Firing state
+		if (BurstCounter > 0)
+		{
+			OnBurstFinished();
+		}
+	}
+
+	if (MyPawn && MyPawn->IsLocallyControlled())
+	{
+		// local client will notify server
+		if (Role < ROLE_Authority)
+		{
+			ServerHandleFiring();
+		}
+
+		// reload after firing last round
+		if (CurrentAmmoInClip <= 0 && CanReload())
+		{
+			StartReload();
+		}
+
+		// setup refire timer
+		bRefiring = (CurrentState == EWeaponState::Firing && WeaponConfig.TimeBetweenShots > 0.0f);
+		if (bRefiring)
+		{
+			GetWorldTimerManager().SetTimer(this, &AShooterWeapon::HandleFiring, WeaponConfig.TimeBetweenShots, false);
+		}
+	}
+
+	LastFireTime = GetWorld()->GetTimeSeconds();
+	*/
+}
+
+bool AFMWeapon::ServerHandleFiring_Validate(){
+	return true;
+}
+
+void AFMWeapon::ServerHandleFiring_Implementation(){
+	/*
+	const bool bShouldUpdateAmmo = (CurrentAmmoInClip > 0 && CanFire());
+
+	HandleFiring();
+
+	if (bShouldUpdateAmmo)
+	{
+		// update ammo
+		UseAmmo();
+
+		// update firing FX on remote clients
+		BurstCounter++;
+	}
+	*/
+}
+
 /////////////////////////////////////////////////////////////////////////
 // Replication & effects
 

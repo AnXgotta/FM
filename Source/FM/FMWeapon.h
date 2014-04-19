@@ -134,6 +134,16 @@ public:
 	/** [local + server] firing finished */
 	virtual void OnBurstFinished();
 
+	/** [local] weapon specific fire implementation */
+	virtual void FireWeapon() PURE_VIRTUAL(AShooterWeapon::FireWeapon, );
+
+	/** [server] fire & update ammo */
+	UFUNCTION(reliable, server, WithValidation)
+		void ServerHandleFiring();
+
+	/** [local + server] handle weapon fire */
+	void HandleFiring();
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Replication & effects
