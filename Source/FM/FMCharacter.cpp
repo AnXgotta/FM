@@ -885,8 +885,10 @@ void AFMCharacter::OnFire0Pressed(){
 void AFMCharacter::OnFire0Released(){
 	bIsFire0Held = false;
 
+
+
 	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0Released. Charge is: ") + FCString::Atof(fire0ChargeValue));
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Character: OnFire0Release %f"), fire0ChargeValue));
 	}
 		// try and fire a projectile
 	//if (ProjectileClass){
