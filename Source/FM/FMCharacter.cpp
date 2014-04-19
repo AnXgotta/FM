@@ -339,8 +339,8 @@ void AFMCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& Damag
 	// remove all weapons
 	//DestroyInventory();
 
-	// switch back to 3rd person view
-	//UpdatePawnMeshes();
+	// sfix up 3rd person mesh
+	UpdatePawnMeshes();
 
 	DetachFromControllerPendingDestroy();
 	StopAllAnimMontages();
@@ -726,18 +726,20 @@ USkeletalMeshComponent* AFMCharacter::GetSpecifcPawnMesh(bool WantFirstPerson) c
 	return WantFirstPerson == true ? Mesh : Mesh; //Mesh1P : Mesh;
 }
 
-/*
+
 void AFMCharacter::UpdatePawnMeshes(){
-	bool const bFirstPerson = IsFirstPerson();
+	//bool const bFirstPerson = IsFirstPerson();
 
-	Mesh1P->MeshComponentUpdateFlag = !bFirstPerson ? EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered : EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
-	Mesh1P->SetOwnerNoSee(!bFirstPerson);
+	//Mesh1P->MeshComponentUpdateFlag = !bFirstPerson ? EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered : EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
+	//Mesh1P->SetOwnerNoSee(!bFirstPerson);
 
-	Mesh->MeshComponentUpdateFlag = bFirstPerson ? EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered : EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
-	Mesh->SetOwnerNoSee(bFirstPerson);
+	// SET UP FOR 3rd Person only
+
+	Mesh->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
+	Mesh->SetOwnerNoSee(false);
 	
 }
-*/
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////
