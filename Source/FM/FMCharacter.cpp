@@ -71,10 +71,6 @@ AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
 	RunningSpeedModifier = 10.0f;
 	bWantsToRun = false;
 	LowHealthPercentage = 0.20f;
-
-	//Is weapon being charged? No.
-	bIsFire0Held = false;
-	fire0ChargeValue = 0.0f;
 	
 
 }
@@ -121,9 +117,6 @@ void AFMCharacter::PostInitializeComponents(){
 void AFMCharacter::Tick(float DeltaSeconds){
 	Super::Tick(DeltaSeconds);
 
-	if (bIsFire0Held){
-		fire0ChargeValue += DeltaSeconds;
-	}
 	/*
 	if (bWantsToRunToggled && !IsRunning()){
 		SetRunning(false, false);
@@ -873,13 +866,9 @@ void AFMCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompone
 ///////////////////////////////////////////////////////////////////////////////////////
 // INPUT HANDLERS
 
-// using test projectile... not permanent
-
+//
 void AFMCharacter::OnFire0Pressed(){	
-	if (Role < ROLE_Authority){
-		ServerOnFire0Changed(true);
-		bIsFire0Held = true;
-	}	
+
 	if (GEngine){
 		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0Pressed"));
 	}
@@ -887,21 +876,10 @@ void AFMCharacter::OnFire0Pressed(){
 }
 
 void AFMCharacter::OnFire0Released(){
-/*	if (Role < ROLE_Authority){
-		ServerOnFire0Changed(false);
-		bIsFire0Held = false;
 
-		// HANDLE WEAPON FIRING LOCALLY
-
-	}else{
-
-
-
-	} */
 	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Character: OnFire0Release %f"), fire0ChargeValue));
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0Release"));
 	}
-	fire0ChargeValue = 0.0f;
 		// try and fire a projectile
 	//if (ProjectileClass){
 	//	
@@ -928,9 +906,6 @@ void AFMCharacter::OnFire0Released(){
 	//}
 }
 
-void AFMCharacter::ServerOnFire0Pressed(bool bNewFire0Held){
-	bIsFire0Held = bNewFire0Held;
-}
 
 void AFMCharacter::OnFire1(){
 	if (GEngine){
