@@ -11,26 +11,32 @@ namespace EWeaponState{
 		Using,
 		Cooldown,
 		Equipping,
+		Charging,
 	};
 }
 
-/*
+
 USTRUCT()
 struct FMWeaponData{
 
 	GENERATED_USTRUCT_BODY()
 
 	//  total uses (Combos/ammo) 
-	UPROPERTY(EditDefaultsOnly, Category = Ammo)
+	UPROPERTY(EditDefaultsOnly, Category = Usage)
 	int32 StaminaCost;
 
+	//  total uses (Combos/ammo) 
+	UPROPERTY(EditDefaultsOnly, Category = Usage)
+		int32 StaminaCostCharging;
+
 	//  time between uses 
-	UPROPERTY(EditDefaultsOnly, Category = Ammo)
+	UPROPERTY(EditDefaultsOnly, Category = Usage)
 	float timeBetweenUses;
 
 	// defaults 
 	FMWeaponData(){
 		StaminaCost = 25;
+		StaminaCostCharging = 5;
 		timeBetweenUses = 1.0f;
 	}
 
@@ -42,15 +48,15 @@ struct FWeaponAnim
 	GENERATED_USTRUCT_BODY()
 
 	// animation played on pawn (1st person view) 
-	UPROPERTY(EditDefaultsOnly, Category = Animation)
-	UAnimMontage* Pawn1P;
+	//UPROPERTY(EditDefaultsOnly, Category = Animation)
+	//UAnimMontage* Pawn1P;
 
 	// animation played on pawn (3rd person view) 
 	UPROPERTY(EditDefaultsOnly, Category = Animation)
 	UAnimMontage* Pawn3P;
 };
 
-*/ 
+
  
 UCLASS()
 class AFMWeapon : public AActor
@@ -61,6 +67,8 @@ class AFMWeapon : public AActor
 	// called after all components of object have been established
 	virtual void PostInitializeComponents() OVERRIDE;
 
+	//  Update the weapon (charging)
+	virtual void Tick(float DeltaSeconds) OVERRIDE;
 
 
 protected:
@@ -86,18 +94,31 @@ protected:
 	//////////////////////////////////////////////////////
 	// INVENTORY
 
+protected:
+
+	// weapon data 
+	UPROPERTY(EditDefaultsOnly, Category = Config)
+		FMWeaponData WeaponConfig;
+
+	// how much time weapon needs to be equipped 
+	float EquipDuration;
+
+	// last time when this weapon was switched to 
+	float EquipStartedTime;
+
+	// is reload animation playing? 
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_Cooldown)
+		uint32 bPendingCooldown : 1;
+
 	// is weapon currently equipped? 
 	uint32 bIsEquipped : 1;
 
 	// is equip animation playing? 
 	uint32 bPendingEquip : 1;
 
-protected:
-	// how much time weapon needs to be equipped 
-	float EquipDuration;
+	// time of last successful weapon fire 
+	float LastFireTime;
 
-	// last time when this weapon was switched to 
-	float EquipStartedTime;
 
 public:
 
@@ -131,14 +152,11 @@ public:
 	/////////////////////////////////////////////////////////////////////////
 	// HANDLE FIRING
 
-	/** [local + server] firing started */
-	virtual void OnBurstStarted();
+	/** [local + server] weapon usage started */
+	virtual void OnUseWeaponStarted();
 
-	/** [local + server] firing finished */
-	virtual void OnBurstFinished();
-
-	/** [local] weapon specific fire implementation */
-	virtual void FireWeapon() PURE_VIRTUAL(AFMWeapon::FireWeapon, );
+	/** [local + server] weapon usage finished */
+	virtual void OnUseWeaponFinished();
 
 	/** [server] fire & update ammo */
 	UFUNCTION(reliable, server, WithValidation)
@@ -147,16 +165,34 @@ public:
 	/** [local + server] handle weapon fire */
 	void HandleFiring();
 
+	// determines if this weapon has the ability to charge
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Charging)
 	bool bIsChargable;
 
+	// determines if this weapon has the ability to charge
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Charging)
+		float maxChargeValue;
+
+	// is weapon charge active?
+	bool bWantsToCharge;
+
+	// do the charging
+	bool bIsCharging;
+
+	// get charging value
+	float chargeValue;
+
+	// is weapon fire active? 
+	uint32 bWantsToUse : 1;
 
 	//////////////////////////////////////////////////////////////////////////
-	// Replication & effects
+	// REPLICATION AND EFFECTS
 
 	UFUNCTION()
 		void OnRep_MyPawn();
 
+	UFUNCTION()
+		void OnRep_Cooldown();
 
 	/*
 	// perform initial setup 
@@ -171,14 +207,9 @@ public:
 
 	// consume stamina 
 	void UseStamina();
-
-	/*
-	// [server] add stamina 
-	void GiveStamina(int AddAmount);
-
 	
 
-	*/
+
 	//////////////////////////////////////////////////////////////////////////
 	// Reading data
 
@@ -258,21 +289,19 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = HUD)
 		bool bHideCrosshairWhileNotAiming;
 
-
+*/
 	//////////////////////////////////////////////////////////////////////////
-	// Inventory
+	// INVENTORY
 
 protected:
 
 	
 
-	// weapon data 
-	UPROPERTY(EditDefaultsOnly, Category = Config)
-		FMWeaponData WeaponConfig;
+	
 
 	// weapon mesh: 1st person view 
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		TSubobjectPtr<USkeletalMeshComponent> Mesh1P;
+	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		//TSubobjectPtr<USkeletalMeshComponent> Mesh1P;
 
 	
 
@@ -335,37 +364,19 @@ protected:
 	// is fire animation playing? 
 //	uint32 bPlayingUseAnim : 1;
 
-	// is weapon currently equipped? 
-	uint32 bIsEquipped : 1;
+	
 
-	// is weapon fire active? 
-	uint32 bWantsToUse : 1;
-
-	// is reload animation playing? 
-	UPROPERTY(Transient, ReplicatedUsing = OnRep_Cooldown)
-	uint32 bPendingCooldown : 1;
-
-	// is equip animation playing? 
-	uint32 bPendingEquip : 1;
-
-
-	// current weapon state 
-	EWeaponState::Type CurrentState;
-
-	// time of last successful weapon fire 
-	float LastFireTime;
+	
 
 	
 
 	
 
-	// current total ammo 
-	UPROPERTY(Transient, Replicated)
-	int32 StaminaCost;
+	
 
 public:
 	//////////////////////////////////////////////////////////////////////////
-	// Input
+	// INPUT
 
 	// [local + server] start weapon use 
 	virtual void StartUseWeaponPressed();
@@ -374,7 +385,7 @@ public:
 	virtual void StartUseWeaponReleased();
 
 	// [local + server] stop weapon use 
-	virtual void StopUseWeapon();
+	//virtual void StopUseWeapon();
 
 	// [all] start weapon cooldown 
 	virtual void StartCooldown(bool bFromReplication = false);
@@ -391,38 +402,40 @@ public:
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Control
+	// CONTROL
 
 	// check if weapon can use 
 	bool CanUse() const;
+
+	// check if weapon can charge
+	bool CanCharge() const;
 
 	// check if weapon can be cooled 
 	bool CanCooldown() const;
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Input - server side
+	// INPUT - SERVER
 
 	UFUNCTION(reliable, server, WithValidation)
-		void ServerStartUseWeaponPressed();
+	void ServerStartUseWeaponPressed();
 
 	UFUNCTION(reliable, server, WithValidation)
-		void ServerStartUseWeaponReleased();
+	void ServerStartUseWeaponReleased();
 
 	UFUNCTION(reliable, server, WithValidation)
-		void ServerStopUseWeapon();
+	void ServerStopUseWeapon();
 
 	UFUNCTION(reliable, server, WithValidation)
-		void ServerStartCooldown();
+	void ServerStartCooldown();
 
 	UFUNCTION(reliable, server, WithValidation)
-		void ServerStopCooldown();
+	void ServerStopCooldown();
 
 	
 
-
-	UFUNCTION()
-		void OnRep_Cooldown();
+	/*
+	
 
 	// Called in network play to do the cosmetic fx for firing 
 	virtual void SimulateWeaponUse();
@@ -432,15 +445,13 @@ public:
 
 	*/
 	//////////////////////////////////////////////////////////////////////////
-	// Weapon usage
+	// WEAPON USAGE
 
 	// update weapon state
 	void SetWeaponState(EWeaponState::Type NewState);
 
 	// determine current weapon state 
 	void DetermineWeaponState();
-
-	/*
 
 	// [local] weapon specific fire implementation 
 	virtual void UseWeapon() PURE_VIRTUAL(AFMCharacter::UseWeapon, );
@@ -452,7 +463,7 @@ public:
 	// [local + server] handle weapon fire 
 	void HandleUseWeapon();
 
-	
+	/*
 
 	
 

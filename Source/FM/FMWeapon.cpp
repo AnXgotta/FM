@@ -96,35 +96,38 @@ AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 	bPendingEquip = false;
 
 	bIsChargable = false;
+	bWantsToCharge = false;
+	maxChargeValue = 3.0f;
+	chargeValue = 0.0f;
 
 	// XXX: END WEAPON CLASS VARIABLES #######################################
 
 	// AActor
 	// "Primary Actor tick function"."If false, this tick function will never be registered and will never tick."
-	//PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = true;
 
 	// AActor
 	// "Primary Actor tick function"."Defines the minimum tick group for this tick function; given prerequisites, it can be delayed."
 	//(enum ETickingGroup => G_PrePhysics, TG_StartPhysics, TG_DuringPhysics, TG_EndPhysics,TG_PostPhysics, TG_PostUpdateWork, TG_NewlySpawned, TG_MAX)
-	//PrimaryActorTick.TickGroup = TG_PrePhysics;
+	PrimaryActorTick.TickGroup = TG_PrePhysics;
 
 	// AActor
 	// No description in documentation -- looks like replication role for networking
 	// (enum ENetRole => ROLE_None, ROLE_SimulatedProxy, ROLE_AutonomousProxy, ROLE_Authority, ROLE_MAX)
-	//SetRemoteRoleForBackwardsCompat(ROLE_SimulatedProxy);
+	SetRemoteRoleForBackwardsCompat(ROLE_SimulatedProxy);
 
 	// AActor
 	// No description in documentation -- looks like replication boolean to confirm that it should be replicated
-	//bReplicates = true;
+	bReplicates = true;
 
 	// AActor
 	// "Replicate instigator to client (used by bNetTemporary projectiles for example)."
-	//bReplicateInstigator = true;
+	bReplicateInstigator = true;
 
 	// AActor
 	// "If actor has valid Owner, call Owner's IsNetRelevantFor and GetNetPriority."
 	// --Notes: I think thie means assume network role of owner... for a weapon class, this is what you want
-	//bNetUseOwnerRelevancy = true;
+	bNetUseOwnerRelevancy = true;
 
 }
 
@@ -141,9 +144,19 @@ void AFMWeapon::PostInitializeComponents(){
 	
 }
 
+void AFMWeapon::Tick(float DeltaSeconds){
+	Super::Tick(DeltaSeconds);
+
+	if (bIsCharging){
+		chargeValue = FMath::Min(chargeValue + DeltaSeconds, maxChargeValue);
+	}
+
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
-/*
+
+
 void AFMWeapon::StartUseWeaponPressed(){
 	if (Role < ROLE_Authority){
 		ServerStartUseWeaponPressed();
@@ -152,14 +165,13 @@ void AFMWeapon::StartUseWeaponPressed(){
 	if (!bWantsToUse){
 		bWantsToUse = true;
 		if(bIsChargable){
-
-			// handle begin chargin stuffs
-
-		}else{
-			DetermineWeaponState();
-		}		
+			bWantsToCharge = true;
+		}
+			
+		DetermineWeaponState();			
 	}
 }
+
 
 void AFMWeapon::StartUseWeaponReleased(){
 	if (Role < ROLE_Authority){
@@ -167,34 +179,38 @@ void AFMWeapon::StartUseWeaponReleased(){
 	}
 
 	if (!bWantsToUse){
-		bWantsToUse = true;
+		bWantsToUse = false;
 		if(bIsChargable){
-
-			// handle begin chargin stuffs
-
-		}else{
+			bWantsToCharge = false;
 			DetermineWeaponState();
 		}
 	}
 }
-/*
-void AFMWeapon::StopUseWeapon(){
-	if (Role < ROLE_Authority){
 
-		ServerStopUseWeapon();
-	}
-
-	if (bWantsToUse){
-		bWantsToUse = false;
-		DetermineWeaponState();
-	}
+bool AFMWeapon::ServerStartUseWeaponPressed_Validate(){
+	return true;
 }
-/*
+
+void AFMWeapon::ServerStartUseWeaponPressed_Implementation(){
+	StartUseWeaponPressed();
+}
+
+bool AFMWeapon::ServerStartUseWeaponReleased_Validate(){
+	return true;
+}
+
+void AFMWeapon::ServerStartUseWeaponReleased_Implementation(){
+	StartUseWeaponReleased();
+}
+
+
+
 void AFMWeapon::StartCooldown(bool bFromReplication){
 	if (!bFromReplication && Role < ROLE_Authority){
-		ServerStartCooldown();
+		//ServerStartCooldown();
 	}
 	
+	/*
 	if (bFromReplication || CanReload())
 	{
 		bPendingReload = true;
@@ -217,74 +233,57 @@ void AFMWeapon::StartCooldown(bool bFromReplication){
 			PlayWeaponSound(ReloadSound);
 		}
 	}
+	*/
 }
-*/
-/*
+
+
 void AFMWeapon::StopCooldown(){
+	/*
 	if (CurrentState == EWeaponState::Reloading){
 		bPendingReload = false;
 		DetermineWeaponState();
 		StopWeaponAnimation(ReloadAnim);
 	}
+	*/
 }
-*/
-/*
-bool AFMWeapon::ServerStartUseWeaponPressed_Validate(){
-	return true;
-}
-*/
-/*
-void AFMWeapon::ServerStartUseWeaponPressed_Implementation(){
-	StartUseWeapon();
-}
-*/
-/*
-bool AFMWeapon::ServerStopUseWeaponReleased_Validate(){
-	return true;
-}
-*/
-/*
-void AFMWeapon::ServerStartUseWeaponReleased_Implementation(){
-StartUseWeapon();
-}
-*/
-/*
+
+
+
 bool AFMWeapon::ServerStopUseWeapon_Validate(){
-return true;
+	return true;
 }
-*/
-/*
+
+
 void AFMWeapon::ServerStopUseWeapon_Implementation(){
-	StopUseWeapon();
+	//StopUseWeapon();
 }
-*/
-/*
+
+
+
 bool AFMWeapon::ServerStartCooldown_Validate(){
 	return true;
 }
-*/
-/*
+
 void AFMWeapon::ServerStartCooldown_Implementation(){
 	StartCooldown();
 }
-*/
-/*
+
+
 bool AFMWeapon::ServerStopCooldown_Validate(){
 	return true;
 }
-*/
-/*
+
 void AFMWeapon::ServerStopCooldown_Implementation(){
 	StopCooldown();
 }
-*/
-/*
+
+
 void AFMWeapon::ClientStartCooldown_Implementation(){
 	StartCooldown();
 }
-*/
+
 //////////////////////////////////////////////////////////////////////////
-// Weapon usage
+// WEAPON USAGE
 /*
 void AFMWeapon::GiveStamina(int AddAmount){
 	
@@ -312,15 +311,26 @@ void AFMWeapon::GiveStamina(int AddAmount){
 
 void AFMWeapon::UseStamina(){
 	
-	// check for buffs or whatever in IF
+	// check for buffs or whatever 
 	//MyPawn->UseStamina(StaminaCost);
 	
 }
 
+bool AFMWeapon::CanUse() const {
 
-/*
+	return false;
+}
+
+bool AFMWeapon::CanCharge() const {
+
+	return false;
+}
+
+
+
 void AFMWeapon::HandleUseWeapon(){
 	
+	/*
 	if ((CurrentAmmoInClip > 0 || HasInfiniteClip() || HasInfiniteAmmo()) && CanFire())
 	{
 		if (GetNetMode() != NM_DedicatedServer)
@@ -385,17 +395,16 @@ void AFMWeapon::HandleUseWeapon(){
 	}
 
 	LastFireTime = GetWorld()->GetTimeSeconds();
-	
+	*/
 }
-*/
-/*
+
 bool AFMWeapon::ServerHandleUseWeapon_Validate(){
 	return true;
 }
-*/
-/*
+
 void AFMWeapon::ServerHandleUseWeapon_Implementation(){
-	
+	/*
+
 	const bool bShouldUpdateAmmo = (CurrentAmmoInClip > 0 && CanFire());
 
 	HandleFiring();
@@ -408,22 +417,67 @@ void AFMWeapon::ServerHandleUseWeapon_Implementation(){
 		// update firing FX on remote clients
 		BurstCounter++;
 	}
-	
+	*/
 }
-*/
+
 
 void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 	
+	// odd state change structure with a chargable weapon... explination:
+	/*
+	Click use chargable weapon -> state goes to charging
+	Release use chargable weapon -> state goes to using
+	Weapon being used
+	Click to use chargable weapon again ->state goes to charging
+	Release us chargable weapon again -> state goes to using
+	????? -> ???? [charged combo?]
+	*/
+
 	const EWeaponState::Type PrevState = CurrentState;
 
+	// initial click and start initial charge
+	if (PrevState == EWeaponState::Idle && NewState == EWeaponState::Charging){
+		bIsCharging = true;
+	}
+
+	// release click to end charge and fire
+	if (PrevState == EWeaponState::Charging && NewState == EWeaponState::Using){
+		bIsCharging = false;
+		// DO USE WEAPON / HANDLE COMBO
+		// OnUseWeaponStarted()
+
+		// for combos we need to know if already in use...
+		// we will need an array to hold use types [Swings] and can do a check for currentSwing
+		// if currentSwing != firstSwing, manage combo stuff [if in combo window -> do combo | else -> end use] 
+		
+		//otherwise just start first swing
+
+	}
+
+	// end of using weapon
 	if (PrevState == EWeaponState::Using && NewState != EWeaponState::Using){
-		//OnBurstFinished();
+		// STOP USE WEAPON
+		// OnUseWeaponFinished()
 	}
 
 	CurrentState = NewState;
 
+	// non chargable weapon initial use
 	if (PrevState != EWeaponState::Using && NewState == EWeaponState::Using){
-		//OnBurstStarted();
+		// DO USE WEAPON
+		// OnUseWeaponStarted()
+
+	}
+
+	// non charge weapon try to use while currently using
+	if (PrevState == EWeaponState::Using && NewState == EWeaponState::Using){
+		// HANDLE COMBO
+		// OnUseWeaponStarted()
+		// for combos we need to know if already in use...
+		// we will need an array to hold use types [Swings] and can do a check for currentSwing
+		// if currentSwing != firstSwing, manage combo stuff [if in combo window -> do combo | else -> end use] 
+
+		//otherwise just start first swing
 	}
 	
 }
@@ -431,18 +485,46 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 void AFMWeapon::DetermineWeaponState(){
 	
 	EWeaponState::Type NewState = EWeaponState::Idle;
-
+	// if weapon is equipped
 	if (bIsEquipped){
-		//if (bPendingReload){
-			//if (CanReload() == false){
-			//	NewState = CurrentState;
-			//}else{
-			//	NewState = EWeaponState::Reloading;
-			//}
-		//}else if ((bPendingReload == false) && (bWantsToFire == true) && (CanFire() == true))		{
-		//	NewState = EWeaponState::Firing;
-		//}
+		// if is trying to use
+		if (bWantsToUse){
+			// is able(stamina)
+			if (CanUse()){
+				// if this is a chargable weapon
+				if (bIsChargable){
+					// if is trying to charge and is able (stamina), not sure if checking charge stamina is necessary
+					if (bWantsToCharge && CanCharge()){
+						NewState = EWeaponState::Charging;
+					}else{
+						// not enough stamina to start charge					
+					}
+				}else{ 
+					// not chargable
+					NewState = EWeaponState::Using;
+				}
+			}else{ 
+				// not enough stamina to use weapon
+			}						
+		}else{ 
+			// on press released
+
+			// some of these checks are redundant
+			// is a chargable weapon
+			if (bIsChargable){
+				// check for currently charging
+				if (bWantsToCharge && bIsCharging){
+					NewState = EWeaponState::Using;
+				}else{
+					// not currently charging
+					// i have no idea when this would happen
+				}
+			}
+
+			// if not a chargable weapon, do nothing
+		}
 	}else if (bPendingEquip){
+		// weapon is being equipped
 		NewState = EWeaponState::Equipping;
 	}
 
@@ -463,22 +545,23 @@ void AFMWeapon::SetOwningPawn(AFMCharacter* NewOwner){
 	}	
 }
 
-void AFMWeapon::OnBurstStarted(){
-/*	// start firing, can be delayed to satisfy TimeBetweenShots
+
+
+void AFMWeapon::OnUseWeaponStarted(){
+	/*
+	// start using, can be delayed to satisfy TimeBetweenShots
 	const float GameTime = GetWorld()->GetTimeSeconds();
-	if (LastFireTime > 0 && WeaponConfig.TimeBetweenShots > 0.0f &&
-		LastFireTime + WeaponConfig.TimeBetweenShots > GameTime)
-	{
+	if (LastFireTime > 0 && WeaponConfig.TimeBetweenShots > 0.0f &&	LastFireTime + WeaponConfig.TimeBetweenShots > GameTime){
 		GetWorldTimerManager().SetTimer(this, &AShooterWeapon::HandleFiring, LastFireTime + WeaponConfig.TimeBetweenShots - GameTime, false);
-	}
-	else
-	{
+	}else{
 		HandleFiring();
 	}
 	*/
 }
 
-void AFMWeapon::OnBurstFinished(){
+
+
+void AFMWeapon::OnUseWeaponFinished(){
 	/*
 	// stop firing FX on remote clients
 	BurstCounter = 0;
@@ -586,15 +669,12 @@ void AFMWeapon::ServerHandleFiring_Implementation(){
 }
 
 /////////////////////////////////////////////////////////////////////////
-// Replication & effects
+// REPLICATION & EFFECTS
 
 void AFMWeapon::OnRep_MyPawn(){
-	if (MyPawn)
-	{
+	if (MyPawn){
 		//OnEnterInventory(MyPawn);
-	}
-	else
-	{
+	}else{
 		//OnLeaveInventory();
 	}
 }
@@ -612,20 +692,18 @@ void AFMWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLife
 
 }
 
-/*
+
 void AFMWeapon::OnRep_Cooldown(){
-	
-	if (bPendingReload)
-	{
+	/*
+	if (bPendingReload){
 		StartReload(true);
-	}
-	else
-	{
+	}else{
 		StopReload();
 	}
-
+	*/
 }
-*/
+
+
 /*
 void AFMWeapon::SimulateWeaponUse(){
 	
