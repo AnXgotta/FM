@@ -368,7 +368,10 @@ public:
 	// Input
 
 	// [local + server] start weapon use 
-	virtual void StartUseWeapon();
+	virtual void StartUseWeaponPressed();
+
+	// [local + server] start weapon use
+	virtual void StartUseWeaponReleased();
 
 	// [local + server] stop weapon use 
 	virtual void StopUseWeapon();
@@ -401,7 +404,10 @@ public:
 	// Input - server side
 
 	UFUNCTION(reliable, server, WithValidation)
-		void ServerStartUseWeapon();
+		void ServerStartUseWeaponPressed();
+
+	UFUNCTION(reliable, server, WithValidation)
+		void ServerStartUseWeaponReleased();
 
 	UFUNCTION(reliable, server, WithValidation)
 		void ServerStopUseWeapon();

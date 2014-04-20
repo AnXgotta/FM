@@ -144,14 +144,37 @@ void AFMWeapon::PostInitializeComponents(){
 //////////////////////////////////////////////////////////////////////////
 // Input
 /*
-void AFMWeapon::StartUseWeapon(){
+void AFMWeapon::StartUseWeaponPressed(){
 	if (Role < ROLE_Authority){
-		ServerStartUseWeapon();
+		ServerStartUseWeaponPressed();
 	}
 
 	if (!bWantsToUse){
 		bWantsToUse = true;
-		DetermineWeaponState();
+		if(bIsChargable){
+
+			// handle begin chargin stuffs
+
+		}else{
+			DetermineWeaponState();
+		}		
+	}
+}
+
+void AFMWeapon::StartUseWeaponReleased(){
+	if (Role < ROLE_Authority){
+		ServerStartUseWeaponReleased();
+	}
+
+	if (!bWantsToUse){
+		bWantsToUse = true;
+		if(bIsChargable){
+
+			// handle begin chargin stuffs
+
+		}else{
+			DetermineWeaponState();
+		}
 	}
 }
 /*
@@ -206,18 +229,28 @@ void AFMWeapon::StopCooldown(){
 }
 */
 /*
-bool AFMWeapon::ServerStartUseWeapon_Validate(){
+bool AFMWeapon::ServerStartUseWeaponPressed_Validate(){
 	return true;
 }
 */
 /*
-void AFMWeapon::ServerStartUseWeapon_Implementation(){
+void AFMWeapon::ServerStartUseWeaponPressed_Implementation(){
 	StartUseWeapon();
 }
 */
 /*
-bool AFMWeapon::ServerStopUseWeapon_Validate(){
+bool AFMWeapon::ServerStopUseWeaponReleased_Validate(){
 	return true;
+}
+*/
+/*
+void AFMWeapon::ServerStartUseWeaponReleased_Implementation(){
+StartUseWeapon();
+}
+*/
+/*
+bool AFMWeapon::ServerStopUseWeapon_Validate(){
+return true;
 }
 */
 /*

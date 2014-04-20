@@ -869,6 +869,8 @@ void AFMCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompone
 //
 void AFMCharacter::OnFire0Pressed(){	
 
+	// startuseweaponpressed
+
 	if (GEngine){
 		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0Pressed"));
 	}
@@ -876,6 +878,8 @@ void AFMCharacter::OnFire0Pressed(){
 }
 
 void AFMCharacter::OnFire0Released(){
+
+	// startuseweaponreleased
 
 	if (GEngine){
 		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0Release"));
