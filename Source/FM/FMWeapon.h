@@ -128,6 +128,9 @@ public:
 	// check if mesh is already attached 
 	bool IsAttachedToPawn() const;
 
+	/////////////////////////////////////////////////////////////////////////
+	// HANDLE FIRING
+
 	/** [local + server] firing started */
 	virtual void OnBurstStarted();
 
@@ -143,6 +146,9 @@ public:
 
 	/** [local + server] handle weapon fire */
 	void HandleFiring();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Charging)
+	bool bIsChargable;
 
 
 	//////////////////////////////////////////////////////////////////////////

@@ -95,6 +95,8 @@ AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 	bIsEquipped = false;
 	bPendingEquip = false;
 
+	bIsChargable = false;
+
 	// XXX: END WEAPON CLASS VARIABLES #######################################
 
 	// AActor
