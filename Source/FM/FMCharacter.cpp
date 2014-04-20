@@ -68,6 +68,15 @@ AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
 	
 	bWantsToUse = false;
 	*/
+
+	currentStamina = 100;
+	currentMaxStamina = 100;
+	defaultMaxStamina = 100;
+
+	currentHealth = 100;
+	currentMaxHealth = 100;
+	defaultMaxHealth = 100;
+
 	RunningSpeedModifier = 10.0f;
 	bWantsToRun = false;
 	LowHealthPercentage = 0.20f;
@@ -81,7 +90,6 @@ void AFMCharacter::BeginPlay(){
 	if (GEngine){
 		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: BeginPlay Called"));
 	}
-
 }
 
 void AFMCharacter::PostInitializeComponents(){
@@ -664,20 +672,24 @@ AFMWeapon* AFMCharacter::GetInventoryWeapon(int32 index) const {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// GETS AND SETS
 
-int32 AFMCharacter::GetDefaultMaxHealth() const {
+int32 AFMCharacter::GetDefaultMaxHealth() {
 	return defaultMaxHealth;
 }
 
-int32 AFMCharacter::GetCurrentMaxHealth() const {
+int32 AFMCharacter::GetCurrentMaxHealth() {
 	return currentMaxHealth;
 }
 
-int32 AFMCharacter::GetDefaultMaxStamina() const {
+int32 AFMCharacter::GetDefaultMaxStamina() {
 	return defaultMaxStamina;
 }
 
-int32 AFMCharacter::GetCurrentMaxStamina() const {
+int32 AFMCharacter::GetCurrentMaxStamina() {
 	return currentMaxStamina;
+}
+
+int32 AFMCharacter::GetCurrentStamina() {
+	return currentStamina;
 }
 
 float AFMCharacter::PercentStaminaAvailable(int32 StaminaCost){

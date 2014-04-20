@@ -46,7 +46,7 @@ class AFMCharacter : public ACharacter
 
 	// Current stamina of the Pawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Stamina)
-		float currentStamina;
+	float currentStamina;
 
 	// Current Max stamina of the Pawn
 	// May want to change replication -- not monitored regularly
@@ -61,16 +61,19 @@ class AFMCharacter : public ACharacter
 	//GET health and stamina
 
 	// get default max health
-	int32 GetDefaultMaxHealth() const;
+	int32 GetDefaultMaxHealth();
 
 	// get current max health
-	int32 GetCurrentMaxHealth() const;
+	int32 GetCurrentMaxHealth();
 	
 	// get default max stamina
-	int32 GetDefaultMaxStamina() const;
+	int32 GetDefaultMaxStamina();
 
 	// get current max stamina
-	int32 GetCurrentMaxStamina() const;
+	int32 GetCurrentMaxStamina();
+
+	// get current stamina
+	int32 GetCurrentStamina();
 
 	// return percent of current stamina available given a staminaCost
 	float AFMCharacter::PercentStaminaAvailable(int32 StaminaCost);
@@ -78,14 +81,12 @@ class AFMCharacter : public ACharacter
 	// reduce current stamina by amount
 	void UseStamina(int32 Amount);
 
-protected:
-
 	// when low health effects should start
 	float LowHealthPercentage;
 
 public:
 	//////////////////////////////////////////////////////////////////////////
-	// INPUT HANDLERS handlers
+	// INPUT HANDLERS
 
 	//  setup pawn specific input handlers 
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) OVERRIDE;
@@ -227,6 +228,7 @@ protected:
 	//  [local] stops weapon Use
 	void StopWeaponUse();
 
+public:
 	//  check if pawn can Use weapon
 	bool CanUse() const;
 
@@ -237,7 +239,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")
 	bool IsUsingWeapon() const;
 	
-	protected:
+protected:
 	//  pawn mesh: 1st person view
 	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	//TSubobjectPtr<USkeletalMeshComponent> Mesh1P;

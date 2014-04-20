@@ -132,6 +132,8 @@ AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 }
 
 
+///////////////////////////////////////////////////////////////
+// OVERRIDEN CLASS FUNCTIONS
 
 void AFMWeapon::PostInitializeComponents(){
 	Super::PostInitializeComponents();
@@ -153,8 +155,138 @@ void AFMWeapon::Tick(float DeltaSeconds){
 
 }
 
+void AFMWeapon::Destroyed(){
+	Super::Destroyed();
+
+	//StopSimulatingWeaponFire();
+}
+
+////////////////////////////////////////////////////////////////////////
+// WEAPON STATE
+
+EWeaponState::Type AFMWeapon::GetCurrentState() const{
+	return CurrentState;
+}
+
+void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
+
+	// odd state change structure with a chargable weapon... explination:
+	/*
+	Click use chargable weapon -> state goes to charging
+	Release use chargable weapon -> state goes to using
+	Weapon being used
+	Click to use chargable weapon again ->state goes to charging
+	Release us chargable weapon again -> state goes to using
+	????? -> ???? [charged combo?]
+	*/
+
+	const EWeaponState::Type PrevState = CurrentState;
+
+	// initial click and start initial charge
+	if (PrevState == EWeaponState::Idle && NewState == EWeaponState::Charging){
+		bIsCharging = true;
+	}
+
+	// release click to end charge and fire
+	if (PrevState == EWeaponState::Charging && NewState == EWeaponState::Using){
+		bIsCharging = false;
+		// DO USE WEAPON / HANDLE COMBO
+		// OnUseWeaponStarted()
+
+		// for combos we need to know if already in use...
+		// we will need an array to hold use types [Swings] and can do a check for currentSwing
+		// if currentSwing != firstSwing, manage combo stuff [if in combo window -> do combo | else -> end use] 
+
+		//otherwise just start first swing
+
+	}
+
+	// end of using weapon
+	if (PrevState == EWeaponState::Using && NewState != EWeaponState::Using){
+		// STOP USE WEAPON
+		// OnUseWeaponFinished()
+	}
+
+	CurrentState = NewState;
+
+	// non chargable weapon initial use
+	if (PrevState != EWeaponState::Using && NewState == EWeaponState::Using){
+		// DO USE WEAPON
+		// OnUseWeaponStarted()
+
+	}
+
+	// non charge weapon try to use while currently using
+	if (PrevState == EWeaponState::Using && NewState == EWeaponState::Using){
+		// HANDLE COMBO
+		// OnUseWeaponStarted()
+		// for combos we need to know if already in use...
+		// we will need an array to hold use types [Swings] and can do a check for currentSwing
+		// if currentSwing != firstSwing, manage combo stuff [if in combo window -> do combo | else -> end use] 
+
+		//otherwise just start first swing
+	}
+
+}
+
+void AFMWeapon::DetermineWeaponState(){
+
+	EWeaponState::Type NewState = EWeaponState::Idle;
+	// if weapon is equipped
+	if (bIsEquipped){
+		// if is trying to use
+		if (bWantsToUse){
+			// is able(stamina)
+			if (CanUse()){
+				// if this is a chargable weapon
+				if (bIsChargable){
+					// if is trying to charge and is able (stamina), not sure if checking charge stamina is necessary
+					if (bWantsToCharge && CanCharge()){
+						NewState = EWeaponState::Charging;
+					}
+					else{
+						// not enough stamina to start charge					
+					}
+				}
+				else{
+					// not chargable
+					NewState = EWeaponState::Using;
+				}
+			}
+			else{
+				// not enough stamina to use weapon
+			}
+		}
+		else{
+			// on press released
+
+			// some of these checks are redundant
+			// is a chargable weapon
+			if (bIsChargable){
+				// check for currently charging
+				if (bWantsToCharge && bIsCharging){
+					NewState = EWeaponState::Using;
+				}
+				else{
+					// not currently charging
+					// i have no idea when this would happen
+				}
+			}
+
+			// if not a chargable weapon, do nothing
+		}
+	}
+	else if (bPendingEquip){
+		// weapon is being equipped
+		NewState = EWeaponState::Equipping;
+	}
+
+	SetWeaponState(NewState);
+}
+
+
 //////////////////////////////////////////////////////////////////////////
-// Input
+// INPUT
 
 
 void AFMWeapon::StartUseWeaponPressed(){
@@ -171,7 +303,6 @@ void AFMWeapon::StartUseWeaponPressed(){
 		DetermineWeaponState();			
 	}
 }
-
 
 void AFMWeapon::StartUseWeaponReleased(){
 	if (Role < ROLE_Authority){
@@ -204,61 +335,83 @@ void AFMWeapon::ServerStartUseWeaponReleased_Implementation(){
 }
 
 
+//////////////////////////////////////////////////////////////////////////
+// WEAPON USAGE
+
+void AFMWeapon::UseStamina(bool bIsCharging){
+	if (MyPawn){
+		if (!bIsCharging){
+			MyPawn->UseStamina(WeaponConfig.StaminaCost);
+		}else{
+			MyPawn->UseStamina(WeaponConfig.StaminaCostCharging);
+		}
+		
+	}	
+}
+
+bool AFMWeapon::CanUse() const {
+	bool bCanUse = MyPawn && MyPawn->CanUse();
+	bool bEnoughStamina = MyPawn && (MyPawn->GetCurrentStamina() > WeaponConfig.StaminaCost);
+	//bool bStateOKToUse = (CurrentState == EWeaponState::Idle) || (CurrentState == EWeaponState::Using);
+	return bCanUse && bEnoughStamina && !bPendingCooldown;
+}
+
+bool AFMWeapon::CanCharge() const {
+	bool bCanUse = MyPawn && MyPawn->CanUse();
+	bool bEnoughStamina = MyPawn && (MyPawn->GetCurrentStamina() > WeaponConfig.StaminaCostCharging);
+	//bool bStateOKToUse = (CurrentState == EWeaponState::Idle) || (CurrentState == EWeaponState::Using);
+	return bCanUse && bEnoughStamina && !bPendingCooldown;
+	return false;
+}
 
 void AFMWeapon::StartCooldown(bool bFromReplication){
 	if (!bFromReplication && Role < ROLE_Authority){
 		//ServerStartCooldown();
 	}
-	
+
 	/*
 	if (bFromReplication || CanReload())
 	{
-		bPendingReload = true;
-		DetermineWeaponState();
+	bPendingReload = true;
+	DetermineWeaponState();
 
-		float AnimDuration = PlayWeaponAnimation(ReloadAnim);
-		if (AnimDuration <= 0.0f)
-		{
-			AnimDuration = WeaponConfig.NoAnimReloadDuration;
-		}
+	float AnimDuration = PlayWeaponAnimation(ReloadAnim);
+	if (AnimDuration <= 0.0f)
+	{
+	AnimDuration = WeaponConfig.NoAnimReloadDuration;
+	}
 
-		GetWorldTimerManager().SetTimer(this, &AShooterWeapon::StopReload, AnimDuration, false);
-		if (Role == ROLE_Authority)
-		{
-			GetWorldTimerManager().SetTimer(this, &AShooterWeapon::ReloadWeapon, FMath::Max(0.1f, AnimDuration - 0.1f), false);
-		}
+	GetWorldTimerManager().SetTimer(this, &AShooterWeapon::StopReload, AnimDuration, false);
+	if (Role == ROLE_Authority)
+	{
+	GetWorldTimerManager().SetTimer(this, &AShooterWeapon::ReloadWeapon, FMath::Max(0.1f, AnimDuration - 0.1f), false);
+	}
 
-		if (MyPawn && MyPawn->IsLocallyControlled())
-		{
-			PlayWeaponSound(ReloadSound);
-		}
+	if (MyPawn && MyPawn->IsLocallyControlled())
+	{
+	PlayWeaponSound(ReloadSound);
+	}
 	}
 	*/
 }
-
 
 void AFMWeapon::StopCooldown(){
 	/*
 	if (CurrentState == EWeaponState::Reloading){
-		bPendingReload = false;
-		DetermineWeaponState();
-		StopWeaponAnimation(ReloadAnim);
+	bPendingReload = false;
+	DetermineWeaponState();
+	StopWeaponAnimation(ReloadAnim);
 	}
 	*/
 }
-
-
 
 bool AFMWeapon::ServerStopUseWeapon_Validate(){
 	return true;
 }
 
-
 void AFMWeapon::ServerStopUseWeapon_Implementation(){
 	//StopUseWeapon();
 }
-
-
 
 bool AFMWeapon::ServerStartCooldown_Validate(){
 	return true;
@@ -268,7 +421,6 @@ void AFMWeapon::ServerStartCooldown_Implementation(){
 	StartCooldown();
 }
 
-
 bool AFMWeapon::ServerStopCooldown_Validate(){
 	return true;
 }
@@ -277,59 +429,53 @@ void AFMWeapon::ServerStopCooldown_Implementation(){
 	StopCooldown();
 }
 
-
 void AFMWeapon::ClientStartCooldown_Implementation(){
 	StartCooldown();
 }
 
-//////////////////////////////////////////////////////////////////////////
-// WEAPON USAGE
-/*
-void AFMWeapon::GiveStamina(int AddAmount){
-	
-	const int32 MissingAmmo = FMath::Max(0, WeaponConfig.MaxAmmo - CurrentAmmo);
-	AddAmount = FMath::Min(AddAmount, MissingAmmo);
-	CurrentAmmo += AddAmount;
+void AFMWeapon::OnUseWeaponStarted(){
 
-	AShooterAIController* BotAI = MyPawn ? Cast<AShooterAIController>(MyPawn->GetController()) : NULL;
-	if (BotAI)
+
+	HandleUseWeapon();
+
+	/*
+	// start using, can be delayed to satisfy TimeBetweenShots
+	const float GameTime = GetWorld()->GetTimeSeconds();
+	if (LastFireTime > 0 && WeaponConfig.TimeBetweenShots > 0.0f &&	LastFireTime + WeaponConfig.TimeBetweenShots > GameTime){
+	GetWorldTimerManager().SetTimer(this, &AShooterWeapon::HandleFiring, LastFireTime + WeaponConfig.TimeBetweenShots - GameTime, false);
+	}else{
+	HandleFiring();
+	}
+	*/
+}
+
+void AFMWeapon::OnUseWeaponFinished(){
+	/*
+	// stop firing FX on remote clients
+	BurstCounter = 0;
+
+	// stop firing FX locally, unless it's a dedicated server
+	if (GetNetMode() != NM_DedicatedServer)
 	{
-		BotAI->CheckAmmo(this);
+	StopSimulatingWeaponFire();
 	}
 
-	// start reload if clip was empty
-	if (GetCurrentAmmoInClip() <= 0 &&
-		CanReload() &&
-		MyPawn->GetWeapon() == this)
-	{
-		ClientStartReload();
-	}
-	
+	GetWorldTimerManager().ClearTimer(this, &AShooterWeapon::HandleFiring);
+	bRefiring = false;
+	*/
 }
-*/
-
-
-void AFMWeapon::UseStamina(){
-	
-	// check for buffs or whatever 
-	//MyPawn->UseStamina(StaminaCost);
-	
-}
-
-bool AFMWeapon::CanUse() const {
-
-	return false;
-}
-
-bool AFMWeapon::CanCharge() const {
-
-	return false;
-}
-
-
 
 void AFMWeapon::HandleUseWeapon(){
 	
+	if (CanUse()){
+		if (GetNetMode() != NM_DedicatedServer){
+			SimulateWeaponUse();
+		}
+	}
+
+	// virtual function to actually use the weapon, do the things in child weapon classes
+	UseWeapon();
+
 	/*
 	if ((CurrentAmmoInClip > 0 || HasInfiniteClip() || HasInfiniteAmmo()) && CanFire())
 	{
@@ -420,117 +566,6 @@ void AFMWeapon::ServerHandleUseWeapon_Implementation(){
 	*/
 }
 
-
-void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
-	
-	// odd state change structure with a chargable weapon... explination:
-	/*
-	Click use chargable weapon -> state goes to charging
-	Release use chargable weapon -> state goes to using
-	Weapon being used
-	Click to use chargable weapon again ->state goes to charging
-	Release us chargable weapon again -> state goes to using
-	????? -> ???? [charged combo?]
-	*/
-
-	const EWeaponState::Type PrevState = CurrentState;
-
-	// initial click and start initial charge
-	if (PrevState == EWeaponState::Idle && NewState == EWeaponState::Charging){
-		bIsCharging = true;
-	}
-
-	// release click to end charge and fire
-	if (PrevState == EWeaponState::Charging && NewState == EWeaponState::Using){
-		bIsCharging = false;
-		// DO USE WEAPON / HANDLE COMBO
-		// OnUseWeaponStarted()
-
-		// for combos we need to know if already in use...
-		// we will need an array to hold use types [Swings] and can do a check for currentSwing
-		// if currentSwing != firstSwing, manage combo stuff [if in combo window -> do combo | else -> end use] 
-		
-		//otherwise just start first swing
-
-	}
-
-	// end of using weapon
-	if (PrevState == EWeaponState::Using && NewState != EWeaponState::Using){
-		// STOP USE WEAPON
-		// OnUseWeaponFinished()
-	}
-
-	CurrentState = NewState;
-
-	// non chargable weapon initial use
-	if (PrevState != EWeaponState::Using && NewState == EWeaponState::Using){
-		// DO USE WEAPON
-		// OnUseWeaponStarted()
-
-	}
-
-	// non charge weapon try to use while currently using
-	if (PrevState == EWeaponState::Using && NewState == EWeaponState::Using){
-		// HANDLE COMBO
-		// OnUseWeaponStarted()
-		// for combos we need to know if already in use...
-		// we will need an array to hold use types [Swings] and can do a check for currentSwing
-		// if currentSwing != firstSwing, manage combo stuff [if in combo window -> do combo | else -> end use] 
-
-		//otherwise just start first swing
-	}
-	
-}
-
-void AFMWeapon::DetermineWeaponState(){
-	
-	EWeaponState::Type NewState = EWeaponState::Idle;
-	// if weapon is equipped
-	if (bIsEquipped){
-		// if is trying to use
-		if (bWantsToUse){
-			// is able(stamina)
-			if (CanUse()){
-				// if this is a chargable weapon
-				if (bIsChargable){
-					// if is trying to charge and is able (stamina), not sure if checking charge stamina is necessary
-					if (bWantsToCharge && CanCharge()){
-						NewState = EWeaponState::Charging;
-					}else{
-						// not enough stamina to start charge					
-					}
-				}else{ 
-					// not chargable
-					NewState = EWeaponState::Using;
-				}
-			}else{ 
-				// not enough stamina to use weapon
-			}						
-		}else{ 
-			// on press released
-
-			// some of these checks are redundant
-			// is a chargable weapon
-			if (bIsChargable){
-				// check for currently charging
-				if (bWantsToCharge && bIsCharging){
-					NewState = EWeaponState::Using;
-				}else{
-					// not currently charging
-					// i have no idea when this would happen
-				}
-			}
-
-			// if not a chargable weapon, do nothing
-		}
-	}else if (bPendingEquip){
-		// weapon is being equipped
-		NewState = EWeaponState::Equipping;
-	}
-
-	SetWeaponState(NewState);	
-}
-
 void AFMWeapon::SetOwningPawn(AFMCharacter* NewOwner){
 	
 	// I HAVE NO IDEA WHY THE CODE BELOW SHOWS ERRORS.
@@ -544,39 +579,6 @@ void AFMWeapon::SetOwningPawn(AFMCharacter* NewOwner){
 		//SetOwner(NewOwner);
 	}	
 }
-
-
-
-void AFMWeapon::OnUseWeaponStarted(){
-	/*
-	// start using, can be delayed to satisfy TimeBetweenShots
-	const float GameTime = GetWorld()->GetTimeSeconds();
-	if (LastFireTime > 0 && WeaponConfig.TimeBetweenShots > 0.0f &&	LastFireTime + WeaponConfig.TimeBetweenShots > GameTime){
-		GetWorldTimerManager().SetTimer(this, &AShooterWeapon::HandleFiring, LastFireTime + WeaponConfig.TimeBetweenShots - GameTime, false);
-	}else{
-		HandleFiring();
-	}
-	*/
-}
-
-
-
-void AFMWeapon::OnUseWeaponFinished(){
-	/*
-	// stop firing FX on remote clients
-	BurstCounter = 0;
-
-	// stop firing FX locally, unless it's a dedicated server
-	if (GetNetMode() != NM_DedicatedServer)
-	{
-		StopSimulatingWeaponFire();
-	}
-
-	GetWorldTimerManager().ClearTimer(this, &AShooterWeapon::HandleFiring);
-	bRefiring = false;
-	*/
-}
-
 
 void AFMWeapon::HandleFiring(){
 	/*
@@ -668,16 +670,123 @@ void AFMWeapon::ServerHandleFiring_Implementation(){
 	*/
 }
 
+void AFMWeapon::SimulateWeaponUse(){
+
+	if (Role == ROLE_Authority && CurrentState != EWeaponState::Using){
+		return;
+	}
+
+	// this is where we do the animations for weapon usage
+
+
+	/*
+	if (Role == ROLE_Authority && CurrentState != EWeaponState::Firing)
+	{
+		return;
+	}
+
+	if (MuzzleFX)
+	{
+	USkeletalMeshComponent* UseWeaponMesh = GetWeaponMesh();
+	if (!bLoopedMuzzleFX || MuzzlePSC == NULL)
+	{
+	// Split screen requires we create 2 effects. One that we see and one that the other player sees.
+	if ((MyPawn != NULL) && (MyPawn->IsLocallyControlled() == true))
+	{
+	AController* PlayerCon = MyPawn->GetController();
+	if (PlayerCon != NULL)
+	{
+	Mesh1P->GetSocketLocation(MuzzleAttachPoint);
+	MuzzlePSC = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh1P, MuzzleAttachPoint);
+	MuzzlePSC->bOwnerNoSee = false;
+	MuzzlePSC->bOnlyOwnerSee = true;
+
+	Mesh3P->GetSocketLocation(MuzzleAttachPoint);
+	MuzzlePSCSecondary = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh3P, MuzzleAttachPoint);
+	MuzzlePSCSecondary->bOwnerNoSee = true;
+	MuzzlePSCSecondary->bOnlyOwnerSee = false;
+	}
+	}
+	else
+	{
+	MuzzlePSC = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, UseWeaponMesh, MuzzleAttachPoint);
+	}
+	}
+	}
+
+	if (!bLoopedFireAnim || !bPlayingFireAnim)
+	{
+	PlayWeaponAnimation(FireAnim);
+	bPlayingFireAnim = true;
+	}
+
+	if (bLoopedFireSound)
+	{
+	if (FireAC == NULL)
+	{
+	FireAC = PlayWeaponSound(FireLoopSound);
+	}
+	}
+	else
+	{
+	PlayWeaponSound(FireSound);
+	}
+
+	AShooterPlayerController* PC = (MyPawn != NULL) ? Cast<AShooterPlayerController>(MyPawn->Controller) : NULL;
+	if (PC != NULL && PC->IsLocalController())
+	{
+	if (FireCameraShake != NULL)
+	{
+	PC->ClientPlayCameraShake(FireCameraShake, 1);
+	}
+	if (FireForceFeedback != NULL)
+	{
+	PC->ClientPlayForceFeedback(FireForceFeedback, false, "Weapon");
+	}
+	}
+	*/
+}
+
+void AFMWeapon::StopSimulatingWeaponUse(){
+
+	// this is where we stop animations for whatever reason
+
+
+
+	/*
+	if (bLoopedMuzzleFX)
+	{
+	if (MuzzlePSC != NULL)
+	{
+	MuzzlePSC->DeactivateSystem();
+	MuzzlePSC = NULL;
+	}
+	if (MuzzlePSCSecondary != NULL)
+	{
+	MuzzlePSCSecondary->DeactivateSystem();
+	MuzzlePSCSecondary = NULL;
+	}
+	}
+
+	if (bLoopedFireAnim && bPlayingFireAnim)
+	{
+	StopWeaponAnimation(FireAnim);
+	bPlayingFireAnim = false;
+	}
+
+	if (FireAC)
+	{
+	FireAC->FadeOut(0.1f, 0.0f);
+	FireAC = NULL;
+
+	PlayWeaponSound(FireFinishSound);
+	}
+	*/
+}
+
+
 /////////////////////////////////////////////////////////////////////////
 // REPLICATION & EFFECTS
-
-void AFMWeapon::OnRep_MyPawn(){
-	if (MyPawn){
-		//OnEnterInventory(MyPawn);
-	}else{
-		//OnLeaveInventory();
-	}
-}
 
 void AFMWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -692,6 +801,13 @@ void AFMWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLife
 
 }
 
+void AFMWeapon::OnRep_MyPawn(){
+	if (MyPawn){
+		//OnEnterInventory(MyPawn);
+	}else{
+		//OnLeaveInventory();
+	}
+}
 
 void AFMWeapon::OnRep_Cooldown(){
 	/*
@@ -703,160 +819,21 @@ void AFMWeapon::OnRep_Cooldown(){
 	*/
 }
 
-
-/*
-void AFMWeapon::SimulateWeaponUse(){
-	
-	if (Role == ROLE_Authority && CurrentState != EWeaponState::Firing)
-	{
-		return;
-	}
-
-	if (MuzzleFX)
-	{
-		USkeletalMeshComponent* UseWeaponMesh = GetWeaponMesh();
-		if (!bLoopedMuzzleFX || MuzzlePSC == NULL)
-		{
-			// Split screen requires we create 2 effects. One that we see and one that the other player sees.
-			if ((MyPawn != NULL) && (MyPawn->IsLocallyControlled() == true))
-			{
-				AController* PlayerCon = MyPawn->GetController();
-				if (PlayerCon != NULL)
-				{
-					Mesh1P->GetSocketLocation(MuzzleAttachPoint);
-					MuzzlePSC = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh1P, MuzzleAttachPoint);
-					MuzzlePSC->bOwnerNoSee = false;
-					MuzzlePSC->bOnlyOwnerSee = true;
-
-					Mesh3P->GetSocketLocation(MuzzleAttachPoint);
-					MuzzlePSCSecondary = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh3P, MuzzleAttachPoint);
-					MuzzlePSCSecondary->bOwnerNoSee = true;
-					MuzzlePSCSecondary->bOnlyOwnerSee = false;
-				}
-			}
-			else
-			{
-				MuzzlePSC = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, UseWeaponMesh, MuzzleAttachPoint);
-			}
-		}
-	}
-
-	if (!bLoopedFireAnim || !bPlayingFireAnim)
-	{
-		PlayWeaponAnimation(FireAnim);
-		bPlayingFireAnim = true;
-	}
-
-	if (bLoopedFireSound)
-	{
-		if (FireAC == NULL)
-		{
-			FireAC = PlayWeaponSound(FireLoopSound);
-		}
-	}
-	else
-	{
-		PlayWeaponSound(FireSound);
-	}
-
-	AShooterPlayerController* PC = (MyPawn != NULL) ? Cast<AShooterPlayerController>(MyPawn->Controller) : NULL;
-	if (PC != NULL && PC->IsLocalController())
-	{
-		if (FireCameraShake != NULL)
-		{
-			PC->ClientPlayCameraShake(FireCameraShake, 1);
-		}
-		if (FireForceFeedback != NULL)
-		{
-			PC->ClientPlayForceFeedback(FireForceFeedback, false, "Weapon");
-		}
-	}
-	
-}
-*/
-/*
-void AFMWeapon::StopSimulatingWeaponUse(){
-	
-	if (bLoopedMuzzleFX)
-	{
-		if (MuzzlePSC != NULL)
-		{
-			MuzzlePSC->DeactivateSystem();
-			MuzzlePSC = NULL;
-		}
-		if (MuzzlePSCSecondary != NULL)
-		{
-			MuzzlePSCSecondary->DeactivateSystem();
-			MuzzlePSCSecondary = NULL;
-		}
-	}
-
-	if (bLoopedFireAnim && bPlayingFireAnim)
-	{
-		StopWeaponAnimation(FireAnim);
-		bPlayingFireAnim = false;
-	}
-
-	if (FireAC)
-	{
-		FireAC->FadeOut(0.1f, 0.0f);
-		FireAC = NULL;
-
-		PlayWeaponSound(FireFinishSound);
-	}
-	
-}
-*/
-
-
-
-/*
-USkeletalMeshComponent* AFMWeapon::GetWeaponMesh() const
-{
-	return (MyPawn != NULL && MyPawn->IsFirstPerson()) ? Mesh1P : Mesh3P;
-}
-*/
-
 class AFMCharacter* AFMWeapon::GetPawnOwner() const {
 	return MyPawn;
 }
-
-
-bool AFMWeapon::IsEquipped() const {
-	return bIsEquipped;
-}
-
-
 
 bool AFMWeapon::IsAttachedToPawn() const {
 	return bIsEquipped || bPendingEquip;
 }
 
 
-EWeaponState::Type AFMWeapon::GetCurrentState() const{
-	return CurrentState;
-}
-
-/*
-int32 AFMWeapon::GetStaminaCost() const {
-	return StaminaCost;
-}
-*/
-/*
-float AFMWeapon::GetEquipStartedTime() const {
-	return EquipStartedTime;
-}
-*/
-/*
-float AFMWeapon::GetEquipDuration() const {
-	return EquipDuration;
-}
-*/
-
-
 //////////////////////////////////////////////////////////////////////////
-// Inventory
+// INVENTORY
 
+bool AFMWeapon::IsEquipped() const {
+	return bIsEquipped;
+}
 
 void AFMWeapon::OnEquip(){
 	
@@ -875,7 +852,7 @@ void AFMWeapon::OnEquip(){
 	// END NO ANIMATION YET
 
 	// Local variable to track time of start equip time
-	EquipStartedTime = GetWorld()->GetTimeSeconds();
+	//EquipStartedTime = GetWorld()->GetTimeSeconds();
 
 	// local variable for equip weapon duration
 	EquipDuration = Duration;
@@ -1002,3 +979,46 @@ void AFMWeapon::DetachMeshFromPawn(){
 	Mesh3P->SetHiddenInGame(true);
 	
 }
+
+float AFMWeapon::GetEquipDuration() const {
+	return EquipDuration;
+}
+
+
+//////////////////////////////////////////////////////
+// NOT IMPLEMENTED
+
+//USkeletalMeshComponent* AFMWeapon::GetWeaponMesh() const{
+	/*
+return (MyPawn != NULL && MyPawn->IsFirstPerson()) ? Mesh1P : Mesh3P;
+}
+*/
+
+//void AFMWeapon::GiveStamina(int AddAmount){
+	/*
+const int32 MissingAmmo = FMath::Max(0, WeaponConfig.MaxAmmo - CurrentAmmo);
+AddAmount = FMath::Min(AddAmount, MissingAmmo);
+CurrentAmmo += AddAmount;
+
+AShooterAIController* BotAI = MyPawn ? Cast<AShooterAIController>(MyPawn->GetController()) : NULL;
+if (BotAI)
+{
+BotAI->CheckAmmo(this);
+}
+
+// start reload if clip was empty
+if (GetCurrentAmmoInClip() <= 0 &&
+CanReload() &&
+MyPawn->GetWeapon() == this)
+{
+ClientStartReload();
+}
+
+}
+*/
+
+//float AFMWeapon::GetEquipStartedTime() const {
+	/*
+return EquipStartedTime;
+}
+*/

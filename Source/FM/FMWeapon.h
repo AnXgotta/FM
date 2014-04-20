@@ -63,6 +63,9 @@ class AFMWeapon : public AActor
 {
 	GENERATED_UCLASS_BODY()
 
+	///////////////////////////////////////////////////////////////
+	// OVERRIDEN CLASS FUNCTIONS
+
 	// perform initial setup 
 	// called after all components of object have been established
 	virtual void PostInitializeComponents() OVERRIDE;
@@ -70,17 +73,42 @@ class AFMWeapon : public AActor
 	//  Update the weapon (charging)
 	virtual void Tick(float DeltaSeconds) OVERRIDE;
 
+	virtual void Destroyed() OVERRIDE;
 
-protected:
+
+	//////////////////////////////////////////////////////////////////
+	// WEAPON CONFIG/OWNER PAWN
+
+	// weapon data 
+	UPROPERTY(EditDefaultsOnly, Category = Config)
+		FMWeaponData WeaponConfig;
+
 	// pawn owner of this object
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_MyPawn)
 	class AFMCharacter* MyPawn;
+
+	// set the weapon's owning pawn 
+	void SetOwningPawn(AFMCharacter* NewOwner);
+
+	// get pawn owner 
+	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")
+	class AFMCharacter* GetPawnOwner() const;
+
 
 	//////////////////////////////////////////////////////
 	// STATE
 
 	// current weapon state 
 	EWeaponState::Type CurrentState;
+
+	// get current weapon state 
+	EWeaponState::Type GetCurrentState() const;
+
+	// update weapon state
+	void SetWeaponState(EWeaponState::Type NewState);
+
+	// determine current weapon state 
+	void DetermineWeaponState();
 
 	//////////////////////////////////////////////////////
 	// MESH
@@ -89,22 +117,16 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	TSubobjectPtr<USkeletalMeshComponent> Mesh3P;
 
+	// get weapon mesh (needs pawn owner to determine variant) 
+	//USkeletalMeshComponent* GetWeaponMesh() const;
 
 
 	//////////////////////////////////////////////////////
 	// INVENTORY
 
-protected:
-
-	// weapon data 
-	UPROPERTY(EditDefaultsOnly, Category = Config)
-		FMWeaponData WeaponConfig;
-
 	// how much time weapon needs to be equipped 
+	UPROPERTY(EditDefaultsOnly, Category = Inventory)
 	float EquipDuration;
-
-	// last time when this weapon was switched to 
-	float EquipStartedTime;
 
 	// is reload animation playing? 
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_Cooldown)
@@ -115,18 +137,6 @@ protected:
 
 	// is equip animation playing? 
 	uint32 bPendingEquip : 1;
-
-	// time of last successful weapon fire 
-	float LastFireTime;
-
-
-public:
-
-	// attaches weapon mesh to pawn's mesh 
-	void AttachMeshToPawn();
-
-	// detaches weapon mesh from pawn 
-	void DetachMeshFromPawn();
 
 	// weapon is being equipped by owner pawn 
 	virtual void OnEquip();
@@ -149,8 +159,76 @@ public:
 	// check if mesh is already attached 
 	bool IsAttachedToPawn() const;
 
+	// attaches weapon mesh to pawn's mesh 
+	void AttachMeshToPawn();
+
+	// detaches weapon mesh from pawn 
+	void DetachMeshFromPawn();
+
+	// gets the duration of equipping weapon
+	float GetEquipDuration() const;
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// INPUT
+
+	// [local + server] start weapon use 
+	virtual void StartUseWeaponPressed();
+
+	// [local + server] start weapon use
+	virtual void StartUseWeaponReleased();
+
+	// [local + server] stop weapon use 
+	//virtual void StopUseWeapon();
+
+	// [all] start weapon cooldown 
+	virtual void StartCooldown(bool bFromReplication = false);
+
+	// [local + server] interrupt weapon cooldown 
+	virtual void StopCooldown();
+
+	// [server] performs actual cooldown 
+	//virtual void CooldownWeapon();
+
+	// trigger cooldown from server 
+	UFUNCTION(reliable, client)
+		void ClientStartCooldown();
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// INPUT - SERVER
+
+	UFUNCTION(reliable, server, WithValidation)
+		void ServerStartUseWeaponPressed();
+
+	UFUNCTION(reliable, server, WithValidation)
+		void ServerStartUseWeaponReleased();
+
+	UFUNCTION(reliable, server, WithValidation)
+		void ServerStopUseWeapon();
+
+	UFUNCTION(reliable, server, WithValidation)
+		void ServerStartCooldown();
+
+	UFUNCTION(reliable, server, WithValidation)
+		void ServerStopCooldown();
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// USAGE CONTROL
+
+	// check if weapon can use 
+	bool CanUse() const;
+
+	// check if weapon can charge
+	bool CanCharge() const;
+
+	// check if weapon can be cooled 
+	bool CanCooldown() const;
+
+
 	/////////////////////////////////////////////////////////////////////////
-	// HANDLE FIRING
+	// HANDLE USAGE
 
 	/** [local + server] weapon usage started */
 	virtual void OnUseWeaponStarted();
@@ -185,6 +263,23 @@ public:
 	// is weapon fire active? 
 	uint32 bWantsToUse : 1;
 
+	// [local] weapon specific fire implementation 
+	virtual void UseWeapon() PURE_VIRTUAL(AFMCharacter::UseWeapon, );
+
+	// [server] fire & update ammo 
+	UFUNCTION(reliable, server, WithValidation)
+		void ServerHandleUseWeapon();
+
+	// [local + server] handle weapon fire 
+	void HandleUseWeapon();
+
+	// Called in network play to do the cosmetic fx for firing 
+	virtual void SimulateWeaponUse();
+
+	// Called in network play to stop cosmetic fx (e.g. for a looping shot). 
+	virtual void StopSimulatingWeaponUse();
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// REPLICATION AND EFFECTS
 
@@ -194,52 +289,19 @@ public:
 	UFUNCTION()
 		void OnRep_Cooldown();
 
-	/*
-	// perform initial setup 
-	virtual void PostInitializeComponents() OVERRIDE;
-
-	//virtual void Destroyed() OVERRIDE;
-
-	*/
 
 	//////////////////////////////////////////////////////////////////////////
-	// Stamina
+	// STAMINA
 
-	// consume stamina 
-	void UseStamina();
-	
+	// Use stamina for usage or charging 
+	void UseStamina(bool bIsCharging);
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Reading data
+	// NOT IMPLEMENTED
 
-	// set the weapon's owning pawn 
-	void SetOwningPawn(AFMCharacter* NewOwner);
-
-	// get pawn owner 
-	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")
-	class AFMCharacter* GetPawnOwner() const;
-
-	// get current weapon state 
-	EWeaponState::Type GetCurrentState() const;
-
-	// gets last time when this weapon was switched to 
-	float GetEquipStartedTime() const;
-
-	// gets the duration of equipping weapon
-	float GetEquipDuration() const;
-
-
-
+	// HUD THINGS
 	/*
-	// get stamina cost amount 
-	int32 GetStaminaCost() const;
-
-	// get weapon mesh (needs pawn owner to determine variant) 
-	USkeletalMeshComponent* GetWeaponMesh() const;
-
-	
-
 	// icon displayed on the HUD when weapon is equipped as primary 
 	UPROPERTY(EditDefaultsOnly, Category = HUD)
 		FCanvasIcon PrimaryIcon;
@@ -290,20 +352,13 @@ public:
 		bool bHideCrosshairWhileNotAiming;
 
 */
-	//////////////////////////////////////////////////////////////////////////
-	// INVENTORY
 
-protected:
-
-	
-
-	
+	// ANIMATIONS AND EFFECTS
+	/*
 
 	// weapon mesh: 1st person view 
 	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		//TSubobjectPtr<USkeletalMeshComponent> Mesh1P;
-
-	
 
 	// firing audio (bLoopedFireSound set) 
 //	UPROPERTY(Transient)
@@ -364,114 +419,12 @@ protected:
 	// is fire animation playing? 
 //	uint32 bPlayingUseAnim : 1;
 
-	
-
-	
-
-	
-
-	
-
-	
-
-public:
-	//////////////////////////////////////////////////////////////////////////
-	// INPUT
-
-	// [local + server] start weapon use 
-	virtual void StartUseWeaponPressed();
-
-	// [local + server] start weapon use
-	virtual void StartUseWeaponReleased();
-
-	// [local + server] stop weapon use 
-	//virtual void StopUseWeapon();
-
-	// [all] start weapon cooldown 
-	virtual void StartCooldown(bool bFromReplication = false);
-
-	// [local + server] interrupt weapon cooldown 
-	virtual void StopCooldown();
-
-	// [server] performs actual cooldown 
-	//virtual void CooldownWeapon();
-
-	// trigger cooldown from server 
-	UFUNCTION(reliable, client)
-		void ClientStartCooldown();
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// CONTROL
-
-	// check if weapon can use 
-	bool CanUse() const;
-
-	// check if weapon can charge
-	bool CanCharge() const;
-
-	// check if weapon can be cooled 
-	bool CanCooldown() const;
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// INPUT - SERVER
-
-	UFUNCTION(reliable, server, WithValidation)
-	void ServerStartUseWeaponPressed();
-
-	UFUNCTION(reliable, server, WithValidation)
-	void ServerStartUseWeaponReleased();
-
-	UFUNCTION(reliable, server, WithValidation)
-	void ServerStopUseWeapon();
-
-	UFUNCTION(reliable, server, WithValidation)
-	void ServerStartCooldown();
-
-	UFUNCTION(reliable, server, WithValidation)
-	void ServerStopCooldown();
-
-	
-
-	/*
-	
-
-	// Called in network play to do the cosmetic fx for firing 
-	virtual void SimulateWeaponUse();
-
-	// Called in network play to stop cosmetic fx (e.g. for a looping shot). 
-	virtual void StopSimulatingWeaponUse();
-
 	*/
-	//////////////////////////////////////////////////////////////////////////
-	// WEAPON USAGE
 
-	// update weapon state
-	void SetWeaponState(EWeaponState::Type NewState);
-
-	// determine current weapon state 
-	void DetermineWeaponState();
-
-	// [local] weapon specific fire implementation 
-	virtual void UseWeapon() PURE_VIRTUAL(AFMCharacter::UseWeapon, );
-
-	// [server] fire & update ammo 
-	UFUNCTION(reliable, server, WithValidation)
-		void ServerHandleUseWeapon();
-
-	// [local + server] handle weapon fire 
-	void HandleUseWeapon();
-
+	// WEAPON USAGE HELPERS [AIM, ANIMATIONS?]
 	/*
-
-	
-
-	//////////////////////////////////////////////////////////////////////////
-	// Weapon usage helpers
-
 	// play weapon sounds 
-	UAudioComponent* PlayWeaponSound(USoundCue* Sound);
+	//UAudioComponent* PlayWeaponSound(USoundCue* Sound);
 
 	// play weapon animations 
 	//float PlayWeaponAnimation(const FWeaponAnim& Animation);
