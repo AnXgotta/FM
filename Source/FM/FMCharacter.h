@@ -33,56 +33,81 @@ class AFMCharacter : public ACharacter
 
 	// Current health of the Pawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Health)
-		int32 currentHealth;
+		float currentHealth;
 
 	// Current Max health of the Pawn
 	// May want to change replication -- not monitored regularly
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Health)
-		int32 currentMaxHealth;
+		float currentMaxHealth;
 
 	// Default Max health of the Pawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
-		int32 defaultMaxHealth;
+		float defaultMaxHealth;
 
 	// Current stamina of the Pawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Stamina)
-	int32 currentStamina;
+		float currentStamina;
 
 	// Current Max stamina of the Pawn
 	// May want to change replication -- not monitored regularly
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Stamina)
-		int32 currentMaxStamina;
+		float currentMaxStamina;
 
 	// Default Max stamina of the Pawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stamina)
-		int32 defaultMaxStamina;
+		float defaultMaxStamina;
 
+	// Default Max stamina of the Pawn
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stamina)
+		float staminaRegenerationCooldown;
+
+	// bool to manage stamina regeneration state
+	bool bRegenerateStamina;
+
+	// bool to manage stamina regeneration cooldown
+	bool bStaminaRegenerationInCooldown;
+
+	// amount to regenerate stamina per second
+	// May want to change replication -- not monitored regularly
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Stamina)
+	float staminaRegenerationPerSecond;
 	
 	//GET health and stamina
 
 	// get default max health
-	int32 GetDefaultMaxHealth() const;
+	float GetDefaultMaxHealth() const;
 
 	// get current max health
-	int32 GetCurrentMaxHealth() const;
+	float GetCurrentMaxHealth() const;
 	
 	// get current health
-	int32 GetCurrentHealth() const;
+	float GetCurrentHealth() const;
 
 	// get default max stamina
-	int32 GetDefaultMaxStamina() const;
+	float GetDefaultMaxStamina() const;
 
 	// get current max stamina
-	int32 GetCurrentMaxStamina() const;
+	float GetCurrentMaxStamina() const;
 
 	// get current stamina
-	int32 GetCurrentStamina() const;
+	float GetCurrentStamina() const;
 
 	// return percent of current stamina available given a staminaCost
-	float AFMCharacter::PercentStaminaAvailable(int32 StaminaCost);
+	float AFMCharacter::PercentStaminaAvailable(float StaminaCost);
 
+	// MUST BE CALLED ON BOTH SERVER AND CLIENT
 	// reduce current stamina by amount
-	void UseStamina(int32 Amount);
+	void UseStamina(float Amount);
+
+	// increase current stamina by amount
+	void AddStamina(float Amount);
+
+	// stamina regeneration control
+	void StartRegenerateStamina();
+	void StopRegenerateStamina();
+
+	// start cooldown for stamina regeneration
+	void ResetStaminaCooldown();
 
 	// when low health effects should start
 	float LowHealthPercentage;
@@ -113,6 +138,9 @@ public:
 	// sets run flag when key pressed
 	UFUNCTION()
 		void OnStartRunning();
+
+	// stamina cost per second while running
+	float RunningStaminaCostPerSecond;
 
 	// clears run flag when key released
 	UFUNCTION()

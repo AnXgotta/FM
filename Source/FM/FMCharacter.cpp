@@ -6,6 +6,7 @@
 #include "FMCharacter.h"
 #include "FMWeapon.h"
 #include "FMDamageType.h"
+#include "FMCharacterMovementComponent.h"
 
 // temp include while goofing around with projetcile
 #include "FMProjectile.h"
@@ -13,7 +14,7 @@
 
 
 AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
-	: Super(PCIP)//.SetDefaultSubobjectClass<UFMCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
+	: Super(PCIP.SetDefaultSubobjectClass<UFMCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	// Configure character movement
 	CharacterMovement->JumpZVelocity = 400.0f;
@@ -69,16 +70,23 @@ AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
 	bWantsToUse = false;
 	*/
 
-	currentStamina = 100;
-	currentMaxStamina = 100;
-	defaultMaxStamina = 100;
+	currentStamina = 100.0f;
+	currentMaxStamina = 100.0f;
+	defaultMaxStamina = 100.0f;
+	staminaRegenerationCooldown = 5.0f;
+	staminaRegenerationPerSecond = 10.0f;
+	bRegenerateStamina = false;
 
-	currentHealth = 100;
-	currentMaxHealth = 100;
-	defaultMaxHealth = 100;
 
-	RunningSpeedModifier = 10.0f;
+	currentHealth = 100.0f;
+	currentMaxHealth = 100.0f;
+	defaultMaxHealth = 100.0f;
+
+	RunningStaminaCostPerSecond = 10.0f;
+	RunningSpeedModifier = 1.5f;
 	bWantsToRun = false;
+
+
 	LowHealthPercentage = 0.20f;
 	
 
@@ -124,6 +132,24 @@ void AFMCharacter::PostInitializeComponents(){
 
 void AFMCharacter::Tick(float DeltaSeconds){
 	Super::Tick(DeltaSeconds);
+
+	// sprinting
+	if (bWantsToRun && IsRunning()){
+		if (GetCurrentStamina() > 0.5f){
+			UseStamina(DeltaSeconds * RunningStaminaCostPerSecond);
+		}else{
+			SetRunning(false, false);
+		}
+	}
+
+	// stamina regeneration
+	if (bRegenerateStamina){
+		if (GetCurrentStamina() < 100.0f){
+			AddStamina(DeltaSeconds * staminaRegenerationPerSecond);
+		}else{
+			StopRegenerateStamina();
+		}
+	}
 
 	/*
 	if (bWantsToRunToggled && !IsRunning()){
@@ -300,7 +326,7 @@ bool AFMCharacter::Die(float KillingDamage, FDamageEvent const& DamageEvent, ACo
 		return false;
 	}
 
-	currentHealth = FMath::Min(0, currentHealth);
+	currentHealth = FMath::Max(0.0f, currentHealth);
 
 	// if this is an environmental death then refer to the previous killer so that they receive credit (knocked into lava pits, etc)
 	UDamageType const* const DamageType = DamageEvent.DamageTypeClass ? DamageEvent.DamageTypeClass->GetDefaultObject<UDamageType>() : GetDefault<UDamageType>();
@@ -644,6 +670,8 @@ void AFMCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutL
 	DOREPLIFETIME_CONDITION(AFMCharacter, currentStamina, COND_OwnerOnly);
 	//Unsure about rep style for currentMaxStamina
 	DOREPLIFETIME_CONDITION(AFMCharacter, currentMaxStamina, COND_OwnerOnly);
+	//Unsure about rep style for staminaRegenerationPerSecond
+	DOREPLIFETIME_CONDITION(AFMCharacter, staminaRegenerationPerSecond, COND_OwnerOnly);
 	
 	// everyone except local owner: flag change is locally instigated
 	//DOREPLIFETIME_CONDITION(AFMCharacter, bIsTargeting, COND_SkipOwner);
@@ -672,40 +700,64 @@ AFMWeapon* AFMCharacter::GetInventoryWeapon(int32 index) const {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// GETS AND SETS
 
-int32 AFMCharacter::GetDefaultMaxHealth() const {
+float AFMCharacter::GetDefaultMaxHealth() const {
 	return defaultMaxHealth;
 }
 
-int32 AFMCharacter::GetCurrentMaxHealth() const {
+float AFMCharacter::GetCurrentMaxHealth() const {
 	return currentMaxHealth;
 }
 
-int32 AFMCharacter::GetCurrentHealth() const{
+float AFMCharacter::GetCurrentHealth() const{
 	return currentHealth;
 }
 
-int32 AFMCharacter::GetDefaultMaxStamina() const {
+float AFMCharacter::GetDefaultMaxStamina() const {
 	return defaultMaxStamina;
 }
 
-int32 AFMCharacter::GetCurrentMaxStamina() const {
+float AFMCharacter::GetCurrentMaxStamina() const {
 	return currentMaxStamina;
 }
 
-int32 AFMCharacter::GetCurrentStamina() const {
+float AFMCharacter::GetCurrentStamina() const {
 	return currentStamina;
-}
-
-float AFMCharacter::PercentStaminaAvailable(int32 StaminaCost){
-	return (float)currentStamina / (float)StaminaCost;
-}
-
-void AFMCharacter::UseStamina(int32 Value){
-	currentStamina = FMath::Min(0, currentStamina - Value);
 }
 
 USkeletalMeshComponent* AFMCharacter::GetPawnMesh() const {
 	return Mesh; // IsFirstPerson() ? Mesh1P : Mesh;
+}
+
+
+/////////////////////////////////////////////////////////////////////////
+// HEALTH AND STAMINA MANAGEMENT
+
+float AFMCharacter::PercentStaminaAvailable(float StaminaCost){
+	return currentStamina/StaminaCost;
+}
+
+// MUST BE CALLED ON BOTH SERVER AND CLIENT
+// ALL THINGS THAT USE STAMINA MUST PERFORM ON SERVER AND CLIENT< THEN CALL THIS THERE
+void AFMCharacter::UseStamina(float Value){
+	currentStamina = FMath::Max(0.0f, currentStamina - Value);
+	ResetStaminaCooldown();
+}
+
+void AFMCharacter::ResetStaminaCooldown(){
+	bRegenerateStamina = false;
+	GetWorldTimerManager().SetTimer(this, &AFMCharacter::StartRegenerateStamina, staminaRegenerationCooldown, false);
+}
+
+void AFMCharacter::AddStamina(float Value){
+	currentStamina = FMath::Min(currentMaxStamina, currentStamina + Value);
+}
+
+void AFMCharacter::StartRegenerateStamina(){
+	bRegenerateStamina = true;
+}
+
+void AFMCharacter::StopRegenerateStamina(){
+	bRegenerateStamina = false;
 }
 
 
@@ -837,7 +889,6 @@ void AFMCharacter::SetRunning(bool bNewSprint, bool bToggle){
 	//bWantsToSprintToggled = bNewSprint && bToggle;
 
 	// UpdateRunningSounds(bNewSprint);
-
 }
 
 bool AFMCharacter::ServerSetRunning_Validate(bool bNewSprint, bool bToggle){
