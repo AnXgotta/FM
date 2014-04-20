@@ -1,6 +1,7 @@
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
 
 #include "FM.h"
+#include "FMHUD.h"
 #include "FMGameMode.h"
 #include "FMGameSession.h"
 #include "FMGameState.h"
@@ -17,6 +18,7 @@ AFMGameMode::AFMGameMode(const class FPostConstructInitializeProperties& PCIP)
 		DefaultPawnClass = (UClass*)PlayerPawnObject.Object->GeneratedClass;
 	}
 
+	HUDClass = AFMHUD::StaticClass();
 	PlayerControllerClass = AFMPlayerController::StaticClass();
 	PlayerStateClass = AFMPlayerState::StaticClass();
 	GameStateClass = AFMGameState::StaticClass();

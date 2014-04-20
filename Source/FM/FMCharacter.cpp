@@ -300,7 +300,7 @@ bool AFMCharacter::Die(float KillingDamage, FDamageEvent const& DamageEvent, ACo
 		return false;
 	}
 
-	currentHealth = FMath::Min(0.0f, currentHealth);
+	currentHealth = FMath::Min(0, currentHealth);
 
 	// if this is an environmental death then refer to the previous killer so that they receive credit (knocked into lava pits, etc)
 	UDamageType const* const DamageType = DamageEvent.DamageTypeClass ? DamageEvent.DamageTypeClass->GetDefaultObject<UDamageType>() : GetDefault<UDamageType>();
@@ -672,23 +672,27 @@ AFMWeapon* AFMCharacter::GetInventoryWeapon(int32 index) const {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// GETS AND SETS
 
-int32 AFMCharacter::GetDefaultMaxHealth() {
+int32 AFMCharacter::GetDefaultMaxHealth() const {
 	return defaultMaxHealth;
 }
 
-int32 AFMCharacter::GetCurrentMaxHealth() {
+int32 AFMCharacter::GetCurrentMaxHealth() const {
 	return currentMaxHealth;
 }
 
-int32 AFMCharacter::GetDefaultMaxStamina() {
+int32 AFMCharacter::GetCurrentHealth() const{
+	return currentHealth;
+}
+
+int32 AFMCharacter::GetDefaultMaxStamina() const {
 	return defaultMaxStamina;
 }
 
-int32 AFMCharacter::GetCurrentMaxStamina() {
+int32 AFMCharacter::GetCurrentMaxStamina() const {
 	return currentMaxStamina;
 }
 
-int32 AFMCharacter::GetCurrentStamina() {
+int32 AFMCharacter::GetCurrentStamina() const {
 	return currentStamina;
 }
 
@@ -697,7 +701,7 @@ float AFMCharacter::PercentStaminaAvailable(int32 StaminaCost){
 }
 
 void AFMCharacter::UseStamina(int32 Value){
-	currentStamina -= Value;
+	currentStamina = FMath::Min(0, currentStamina - Value);
 }
 
 USkeletalMeshComponent* AFMCharacter::GetPawnMesh() const {

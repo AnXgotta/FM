@@ -33,47 +33,50 @@ class AFMCharacter : public ACharacter
 
 	// Current health of the Pawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Health)
-	float currentHealth;
+		int32 currentHealth;
 
 	// Current Max health of the Pawn
 	// May want to change replication -- not monitored regularly
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Health)
-	float currentMaxHealth;
+		int32 currentMaxHealth;
 
 	// Default Max health of the Pawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
-	float defaultMaxHealth;
+		int32 defaultMaxHealth;
 
 	// Current stamina of the Pawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Stamina)
-	float currentStamina;
+	int32 currentStamina;
 
 	// Current Max stamina of the Pawn
 	// May want to change replication -- not monitored regularly
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Stamina)
-		float currentMaxStamina;
+		int32 currentMaxStamina;
 
 	// Default Max stamina of the Pawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stamina)
-		float defaultMaxStamina;
+		int32 defaultMaxStamina;
 
 	
 	//GET health and stamina
 
 	// get default max health
-	int32 GetDefaultMaxHealth();
+	int32 GetDefaultMaxHealth() const;
 
 	// get current max health
-	int32 GetCurrentMaxHealth();
+	int32 GetCurrentMaxHealth() const;
 	
+	// get current health
+	int32 GetCurrentHealth() const;
+
 	// get default max stamina
-	int32 GetDefaultMaxStamina();
+	int32 GetDefaultMaxStamina() const;
 
 	// get current max stamina
-	int32 GetCurrentMaxStamina();
+	int32 GetCurrentMaxStamina() const;
 
 	// get current stamina
-	int32 GetCurrentStamina();
+	int32 GetCurrentStamina() const;
 
 	// return percent of current stamina available given a staminaCost
 	float AFMCharacter::PercentStaminaAvailable(int32 StaminaCost);
