@@ -15,11 +15,23 @@ namespace EWeaponState{
 	};
 }
 
+UENUM()
+namespace EWeaponType{
+	enum Type{
+		Primary,
+		Secondary,
+		Tertiary,
+		Shield,
+	};
+}
 
 USTRUCT()
 struct FMWeaponData{
 
 	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditDefaultsOnly, Category = Usage)
+	TEnumAsByte<EWeaponType::Type> WeaponType;
 
 	//  total uses (Combos/ammo) 
 	UPROPERTY(EditDefaultsOnly, Category = Usage)
@@ -35,6 +47,7 @@ struct FMWeaponData{
 
 	// defaults 
 	FMWeaponData(){
+		WeaponType = EWeaponType::Primary;
 		StaminaCost = 25;
 		StaminaCostCharging = 5;
 		timeBetweenUses = 1.0f;
@@ -43,8 +56,7 @@ struct FMWeaponData{
 };
 
 USTRUCT()
-struct FWeaponAnim
-{
+struct FWeaponAnim{
 	GENERATED_USTRUCT_BODY()
 
 	// animation played on pawn (1st person view) 

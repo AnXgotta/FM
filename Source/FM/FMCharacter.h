@@ -71,6 +71,10 @@ class AFMCharacter : public ACharacter
 	// May want to change replication -- not monitored regularly
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Stamina)
 	float staminaRegenerationPerSecond;
+
+	// stamina cost per second while running
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stamina)
+		float RunningStaminaCostPerSecond;
 	
 	//GET health and stamina
 
@@ -138,9 +142,6 @@ public:
 	// sets run flag when key pressed
 	UFUNCTION()
 		void OnStartRunning();
-
-	// stamina cost per second while running
-	float RunningStaminaCostPerSecond;
 
 	// clears run flag when key released
 	UFUNCTION()

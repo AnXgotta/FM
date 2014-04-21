@@ -941,8 +941,36 @@ void AFMWeapon::AttachMeshToPawn(){
 		// DEPENDING ON WEAPON, IT WILL BE ATTACHED DIFFERENTLY.  [TWO HAND, ONE HAND, ETC]
 		// MUST CUSTOMIZE
 
+		// WHILE WE ARE PLAYING THE SPECIFIC SWITCH WEAPON ANIMATION...
+		// RightHand -> Back || RightHand -> LeftHip || RightHand -> RightHip || etc...
+		// WE TAKE THE WEAPON AND ATTACH IT TO THE PROPER SOCKET
+		// THIS IS SIMPLY GOING TO BE A SOCKET EXCHANGE
 
+		//MyPawn->Mesh->GetSocketByName(TEXT("SocketName"))->A
+		
 		if (MyPawn->IsLocallyControlled() == true){
+		/*	
+			switch (WeaponConfig.WeaponType){
+				case EWeaponType::Primary:
+
+				break;
+				case EWeaponType::Secondary:
+
+				break;
+				case EWeaponType::Tertiary:
+
+				break;
+				case EWeaponType::Shield:
+
+				break;
+				default:
+				// shouldnt happen...
+			}
+						
+*/
+
+
+
 			// 'MyPawn->GetSpecificPawnMesh(bool WantFirstPerson)' is a custom Character class
 			//USkeletalMeshComponent* PawnMesh1p = MyPawn->GetSpecifcPawnMesh(true);
 			USkeletalMeshComponent* PawnMesh3p = MyPawn->GetSpecifcPawnMesh(false);
@@ -965,6 +993,34 @@ void AFMWeapon::AttachMeshToPawn(){
 }
 
 void AFMWeapon::DetachMeshFromPawn(){
+
+	// WHILE WE ARE PLAYING THE SPECIFIC SWITCH WEAPON ANIMATION...
+	// RightHand -> Back || RightHand -> LeftHip || RightHand -> RightHip || etc...
+	// WE TAKE THE WEAPON AND ATTACH IT TO THE PROPER SOCKET
+	// THIS IS SIMPLY GOING TO BE A SOCKET EXCHANGE
+
+	/*
+	if (MyPawn->IsLocallyControlled() == true){
+
+	switch (){
+	case EWeaponType::Primary:
+
+	break;
+	case EWeaponType::Secondary:
+
+	break;
+	case EWeaponType::Tertiary:
+
+	break;
+	case EWeaponType::Shield:
+
+	break;
+	default:
+	// shouldnt happen...
+	}
+	*/
+
+
 	// not worried about 1st person right now
 	//Mesh1P->DetachFromParent();
 	//Mesh1P->SetHiddenInGame(true);
