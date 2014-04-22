@@ -573,10 +573,10 @@ void AFMWeapon::SetOwningPawn(AFMCharacter* NewOwner){
 	// THIS MAKES NO SENSE BECAUSE AFMCharacter inherits from AActor.... it is an AActor
 	// also, this is done in the shooter game with no problem
 	if (MyPawn != NewOwner){
-		//Instigator = NewOwner;
-		//MyPawn = NewOwner;
+		Instigator = NewOwner;
+		MyPawn = NewOwner;
 		// net owner for RPC calls
-		//SetOwner(NewOwner);
+		SetOwner(NewOwner);
 	}	
 }
 
@@ -837,7 +837,12 @@ bool AFMWeapon::IsEquipped() const {
 
 void AFMWeapon::OnEquip(){
 	
-	AttachMeshToPawn();
+
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("Weapon: OnEquip "));
+	}
+
+	EquipForUse();
 
 	bPendingEquip = true;
 	DetermineWeaponState();
@@ -871,7 +876,7 @@ void AFMWeapon::OnEquip(){
 
 void AFMWeapon::OnEquipFinished(){
 	
-	AttachMeshToPawn();
+	//AttachMeshToPawn();
 
 	bIsEquipped = true;
 	bPendingEquip = false;
@@ -889,7 +894,7 @@ void AFMWeapon::OnEquipFinished(){
 
 void AFMWeapon::OnUnEquip(){
 	
-	DetachMeshFromPawn();
+	UnequipFromUse();
 	bIsEquipped = false;
 	//StopFire();
 
@@ -913,7 +918,8 @@ void AFMWeapon::OnUnEquip(){
 }
 
 void AFMWeapon::OnEnterInventory(AFMCharacter* NewOwner){	
-	SetOwningPawn(NewOwner);	
+	SetOwningPawn(NewOwner);
+	UnequipFromUse();
 }
 
 void AFMWeapon::OnLeaveInventory(){
@@ -928,12 +934,13 @@ void AFMWeapon::OnLeaveInventory(){
 
 }
 
-void AFMWeapon::AttachMeshToPawn(){
-	
+void AFMWeapon::EquipForUse(){
+
 	if (MyPawn){
 		// Remove and hide both first and third person meshes
 		// in current case, only 3rd person mesh
-		DetachMeshFromPawn();
+		//DetachMeshFromPawn();
+
 
 		// NO-> For locally controller players we attach weapons and let the bOnlyOwnerSee, bOwnerNoSee flags deal with visibility.
 		// NO-> FName AttachPoint = MyPawn->GetWeaponAttachPoint();
@@ -949,25 +956,23 @@ void AFMWeapon::AttachMeshToPawn(){
 		//MyPawn->Mesh->GetSocketByName(TEXT("SocketName"))->A
 		
 		if (MyPawn->IsLocallyControlled() == true){
-		/*	
 			switch (WeaponConfig.WeaponType){
 				case EWeaponType::Primary:
-
+					Mesh3P->AttachTo(MyPawn->Mesh, TEXT("RightHandSocket"), EAttachLocation::SnapToTarget);
 				break;
 				case EWeaponType::Secondary:
-
+					Mesh3P->AttachTo(MyPawn->Mesh, TEXT("RightHandSocket"), EAttachLocation::SnapToTarget);
 				break;
 				case EWeaponType::Tertiary:
-
+					Mesh3P->AttachTo(MyPawn->Mesh, TEXT("RightHandSocket"), EAttachLocation::SnapToTarget);
 				break;
 				case EWeaponType::Shield:
-
+					Mesh3P->AttachTo(MyPawn->Mesh, TEXT("LeftHandSocket"), EAttachLocation::SnapToTarget);
 				break;
-				default:
 				// shouldnt happen...
 			}
 						
-*/
+
 
 
 
@@ -978,6 +983,7 @@ void AFMWeapon::AttachMeshToPawn(){
 			// hide visibility?
 			//Mesh1P->SetHiddenInGame(false);
 			Mesh3P->SetHiddenInGame(false);
+
 
 			// call Weapon method to attach to pawn where you want
 			//Mesh1P->AttachTo(PawnMesh1p, AttachPoint);
@@ -992,48 +998,49 @@ void AFMWeapon::AttachMeshToPawn(){
 	
 }
 
-void AFMWeapon::DetachMeshFromPawn(){
+void AFMWeapon::UnequipFromUse(){
+
+	if (MyPawn){
 
 	// WHILE WE ARE PLAYING THE SPECIFIC SWITCH WEAPON ANIMATION...
 	// RightHand -> Back || RightHand -> LeftHip || RightHand -> RightHip || etc...
 	// WE TAKE THE WEAPON AND ATTACH IT TO THE PROPER SOCKET
 	// THIS IS SIMPLY GOING TO BE A SOCKET EXCHANGE
 
-	/*
-	if (MyPawn->IsLocallyControlled() == true){
-
-	switch (){
-	case EWeaponType::Primary:
-
-	break;
-	case EWeaponType::Secondary:
-
-	break;
-	case EWeaponType::Tertiary:
-
-	break;
-	case EWeaponType::Shield:
-
-	break;
-	default:
-	// shouldnt happen...
-	}
-	*/
-
-
-	// not worried about 1st person right now
-	//Mesh1P->DetachFromParent();
-	//Mesh1P->SetHiddenInGame(true);
-
-	// USceneComponenet
-	// "Detach this component from whatever it is attached to"
-	Mesh3P->DetachFromParent();
-
-	// USceneComponenet
-	// "Changes the value of HiddenGame"
-	// [Whether to completely hide the primitive in the game; if true, the primitive is not drawn, does not cast a shadow, and does not affect voxel lighting.]
-	Mesh3P->SetHiddenInGame(true);
 	
+		if (MyPawn->IsLocallyControlled() == true){
+
+			switch (WeaponConfig.WeaponType){
+			case EWeaponType::Primary:
+				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("BackCenter0"), EAttachLocation::SnapToTarget);
+				break;
+			case EWeaponType::Secondary:
+				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("HipLeft"), EAttachLocation::SnapToTarget);
+				break;
+			case EWeaponType::Tertiary:
+				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("HipRight"), EAttachLocation::SnapToTarget);
+				break;
+			case EWeaponType::Shield:
+				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("BackCenter1"), EAttachLocation::SnapToTarget);
+				break;
+				// shouldnt happen...
+			}
+			Mesh3P->SetHiddenInGame(false);
+		}
+			// not worried about 1st person right now
+			//Mesh1P->DetachFromParent();
+			//Mesh1P->SetHiddenInGame(true);
+
+			// USceneComponenet
+			// "Detach this component from whatever it is attached to"
+			//Mesh3P->DetachFromParent();
+
+			// USceneComponenet
+			// "Changes the value of HiddenGame"
+			// [Whether to completely hide the primitive in the game; if true, the primitive is not drawn, does not cast a shadow, and does not affect voxel lighting.]
+			
+
+		}
 }
 
 float AFMWeapon::GetEquipDuration() const {

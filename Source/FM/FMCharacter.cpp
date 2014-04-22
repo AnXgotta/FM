@@ -106,7 +106,7 @@ void AFMCharacter::PostInitializeComponents(){
 	if (Role == ROLE_Authority)	{
 		currentHealth = GetDefaultMaxHealth();
 		currentStamina = GetDefaultMaxStamina();
-//		SpawnDefaultInventory();
+		SpawnDefaultInventory();
 	}
 	
 	// set initial mesh visibility

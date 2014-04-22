@@ -4,7 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "FMWeapon.generated.h"
 
-
+UENUM()
 namespace EWeaponState{
 	enum Type{
 		Idle,
@@ -172,10 +172,10 @@ class AFMWeapon : public AActor
 	bool IsAttachedToPawn() const;
 
 	// attaches weapon mesh to pawn's mesh 
-	void AttachMeshToPawn();
+	void EquipForUse();
 
 	// detaches weapon mesh from pawn 
-	void DetachMeshFromPawn();
+	void UnequipFromUse();
 
 	// gets the duration of equipping weapon
 	float GetEquipDuration() const;
