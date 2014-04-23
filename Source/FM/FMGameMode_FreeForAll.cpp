@@ -10,7 +10,7 @@ AFMGameMode_FreeForAll::AFMGameMode_FreeForAll(const class FPostConstructInitial
 {
 	bDelayedStart = true;
 }
-
+/*
 void AFMGameMode_FreeForAll::DetermineMatchWinner(){
 	AFMGameState const* const MyGameState = CastChecked<AFMGameState>(GameState);
 	float BestScore = MAX_FLT;
@@ -34,3 +34,4 @@ void AFMGameMode_FreeForAll::DetermineMatchWinner(){
 bool AFMGameMode_FreeForAll::IsWinner(class AFMPlayerState* PlayerState) const {
 	return PlayerState && PlayerState == WinnerPlayerState;
 }
+*/

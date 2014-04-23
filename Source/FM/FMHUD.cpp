@@ -75,11 +75,12 @@ void AFMHUD::DrawDebugInfoString(const FString& Text, float PosX, float PosY, bo
 
 void AFMHUD::DrawDebugHealthStamina(){
 	AFMCharacter* MyPawn = Cast<AFMCharacter>(GetOwningPawn());
-	const float healthAmount = MyPawn->GetCurrentHealth();
-	const float staminaAmount = MyPawn->GetCurrentStamina();
+	if (MyPawn){
+		const float healthAmount = MyPawn->GetCurrentHealth();
+		const float staminaAmount = MyPawn->GetCurrentStamina();
 
-	const FString displayText = FString::Printf(TEXT("HEALTH:  %f    STAMINA:  %f"), healthAmount, staminaAmount);
+		const FString displayText = FString::Printf(TEXT("HEALTH:  %f    STAMINA:  %f"), healthAmount, staminaAmount);
 
-	DrawDebugInfoString(displayText, 600.0f, 50.0f, false, false, HUDLight);
-
+		DrawDebugInfoString(displayText, 600.0f, 50.0f, false, false, HUDLight);
+	}
 }

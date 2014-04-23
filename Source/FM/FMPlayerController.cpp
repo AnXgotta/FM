@@ -26,7 +26,7 @@ AFMPlayerController::AFMPlayerController(const class FPostConstructInitializePro
 
 void AFMPlayerController::SetupInputComponent(){
 	Super::SetupInputComponent();
-
+	/*
 	// UI input
 	InputComponent->BindAction("InGameMenu", IE_Pressed, this, &AFMPlayerController::OnToggleInGameMenu);
 	InputComponent->BindAction("Scoreboard", IE_Pressed, this, &AFMPlayerController::OnShowScoreboard);
@@ -37,15 +37,13 @@ void AFMPlayerController::SetupInputComponent(){
 	InputComponent->BindAction("PushToTalk", IE_Released, this, &APlayerController::StopTalking);
 
 	InputComponent->BindAction("ToggleChat", IE_Pressed, this, &AFMPlayerController::ToggleChatWindow);
+	*/
 }
 
 
 void AFMPlayerController::PostInitializeComponents(){
 	Super::PostInitializeComponents();
 
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, TEXT("PlayerController: PostInit "));
-	}
 	//Build menu only after game is initialized
 	//FShooterStyle::Initialize();
 	//ShooterIngameMenu = MakeShareable(new FShooterIngameMenu());
@@ -494,6 +492,7 @@ void AFMPlayerController::SetCinematicMode(bool bInCinematicMode, bool bHidePlay
 	*/
 }
 
+/*
 void AFMPlayerController::InitInputSystem(){
 	Super::InitInputSystem();
 
@@ -502,6 +501,7 @@ void AFMPlayerController::InitInputSystem(){
 		//UserSettings->ApplySettings();
 	}
 }
+*/
 
 /*
 void AFMPlayerController::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
@@ -590,7 +590,8 @@ UFMPersistentUser* AFMPlayerController::GetPersistentUser() const
 }
 */
 
-bool AFMPlayerController::SetPause(bool bPause, FCanUnpause CanUnpauseDelegate /*= FCanUnpause()*/){
+/*
+bool AFMPlayerController::SetPause(bool bPause, FCanUnpause CanUnpauseDelegate = FCanUnpause()){
 	const bool Result = APlayerController::SetPause(bPause, CanUnpauseDelegate);
 
 	// Update rich presence.
@@ -607,3 +608,4 @@ bool AFMPlayerController::SetPause(bool bPause, FCanUnpause CanUnpauseDelegate /
 
 	return Result;
 }
+*/

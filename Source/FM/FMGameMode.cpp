@@ -18,14 +18,15 @@ AFMGameMode::AFMGameMode(const class FPostConstructInitializeProperties& PCIP)
 		DefaultPawnClass = (UClass*)PlayerPawnObject.Object->GeneratedClass;
 	}
 
-	HUDClass = AFMHUD::StaticClass();
+	//HUDClass = AFMHUD::StaticClass();
 	PlayerControllerClass = AFMPlayerController::StaticClass();
-	PlayerStateClass = AFMPlayerState::StaticClass();
-	GameStateClass = AFMGameState::StaticClass();
+	//PlayerStateClass = AFMPlayerState::StaticClass();
+	//GameStateClass = AFMGameState::StaticClass();
+
 
 }
 
-
+/*
 void AFMGameMode::BeginPlay(){
 	Super::BeginPlay();
 
@@ -44,12 +45,13 @@ void AFMGameMode::InitGame(const FString& MapName, const FString& Options, FStri
 }
 
 
-/** Returns game session class to use */
+// Returns game session class to use
 TSubclassOf<AGameSession> AFMGameMode::GetGameSessionClass() const {
-	return AFMGameSession::StaticClass();
 	if (GEngine){
 		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: GetGameSessionClass "));
 	}
+	return AFMGameSession::StaticClass();
+	
 }
 
 void AFMGameMode::DefaultTimer(){
@@ -95,7 +97,7 @@ void AFMGameMode::StartMatch(){
 		for (FConstControllerIterator It = GetWorld()->GetControllerIterator(); It; ++It)		{
 			AFMPlayerController* PC = Cast<AFMPlayerController>(*It);
 			if (PC)			{
-				PC->ClientGameStarted();
+				//PC->ClientGameStarted();
 			}
 		}
 	}
@@ -140,14 +142,19 @@ bool AFMGameMode::IsWinner(class AFMPlayerState* PlayerState) const {
 void AFMGameMode::PreLogin(const FString& Options, const FString& Address, const TSharedPtr<FUniqueNetId>& UniqueId, FString& ErrorMessage){
 	Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
 	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: PreLogin "));
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: START PreLogin 0 "));
 	}
 
 	AFMGameState* const MyGameState = Cast<AFMGameState>(GameState);
 	const bool bMatchIsOver = MyGameState && MyGameState->bMatchIsOver;
 	const FString EndGameError = TEXT("Match is over!");
-
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: START PreLogin 1"));
+	}
 	ErrorMessage = bMatchIsOver ? *EndGameError : GameSession->ApproveLogin(Options);
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: START PreLogin 2"));
+	}
 }
 
 
@@ -155,13 +162,13 @@ void AFMGameMode::PostLogin(APlayerController* NewPlayer){
 	Super::PostLogin(NewPlayer);
 
 	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: PostLogin "));
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: PostLogin START"));
 	}
 
 	// update spectator location for client
 	AFMPlayerController* NewPC = Cast<AFMPlayerController>(NewPlayer);
 	if (NewPC && NewPC->GetPawn() == NULL){
-		NewPC->ClientSetSpectatorCamera(NewPC->GetSpawnLocation(), NewPC->GetControlRotation());
+		//NewPC->ClientSetSpectatorCamera(NewPC->GetSpawnLocation(), NewPC->GetControlRotation());
 	}
 
 	// start warmup if needed
@@ -177,8 +184,11 @@ void AFMGameMode::PostLogin(APlayerController* NewPlayer){
 
 	// notify new player if match is already in progress
 	if (NewPC && MyGameState && MyGameState->bMatchHasBegun){
-		NewPC->ClientGameStarted();
-		NewPC->ClientStartOnlineGame();
+		//NewPC->ClientGameStarted();
+		//NewPC->ClientStartOnlineGame();
+	}
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: PostLogin END"));
 	}
 }
 
@@ -229,7 +239,7 @@ bool AFMGameMode::CanDealDamage(class AFMPlayerState* DamageInstigator, class AF
 }
 
 bool AFMGameMode::AllowCheats(APlayerController* P){
-	return true;
+	return false;
 }
 
 bool AFMGameMode::ShouldSpawnAtStartSpot(AController* Player){
@@ -239,13 +249,18 @@ bool AFMGameMode::ShouldSpawnAtStartSpot(AController* Player){
 UClass* AFMGameMode::GetDefaultPawnClassForController(AController* InController){
 	return Super::GetDefaultPawnClassForController(InController);
 }
+*/
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+// PLAYER SPAWNING
 
 AActor* AFMGameMode::ChoosePlayerStart(AController* Player){
 	TArray<APlayerStart*> PreferredSpawns;
 	TArray<APlayerStart*> FallbackSpawns;
 
 	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: ChoosePlayerStart "));
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("GameMode: ChoosePlayerStart"));
 	}
 
 	for (int32 i = 0; i < PlayerStarts.Num(); i++)	{
@@ -270,8 +285,8 @@ AActor* AFMGameMode::ChoosePlayerStart(AController* Player){
 }
 
 bool AFMGameMode::IsSpawnpointAllowed(APlayerStart* SpawnPoint, AController* Player) const {
-	/*
-	AShooterTeamStart* ShooterSpawnPoint = Cast<AShooterTeamStart>(SpawnPoint);
+	
+	/*AShooterTeamStart* ShooterSpawnPoint = Cast<AShooterTeamStart>(SpawnPoint);
 	if (ShooterSpawnPoint){
 		AShooterAIController* AIController = Cast<AShooterAIController>(Player);
 		if (ShooterSpawnPoint->bNotForBots && AIController)
@@ -283,8 +298,8 @@ bool AFMGameMode::IsSpawnpointAllowed(APlayerStart* SpawnPoint, AController* Pla
 		{
 			return false;
 		}
-	}
-	*/
+	}*/
+	
 	return true;
 }
 

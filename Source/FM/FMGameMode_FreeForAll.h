@@ -11,17 +11,17 @@ UCLASS()
 class AFMGameMode_FreeForAll : public AFMGameMode
 {
 	GENERATED_UCLASS_BODY()
-
+	/*
 protected:
 
-	/** best player */
+	// best player
 	UPROPERTY(transient)
 	class AFMPlayerState* WinnerPlayerState;
 
-	/** check who won */
+	// check who won
 	virtual void DetermineMatchWinner() OVERRIDE;
 
-	/** check if PlayerState is a winner */
+	// check if PlayerState is a winner
 	virtual bool IsWinner(class AFMPlayerState* PlayerState) const OVERRIDE;
-	
+	*/
 };

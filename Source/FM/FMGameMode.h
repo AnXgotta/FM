@@ -11,7 +11,7 @@ UCLASS(config=game)
 class AFMGameMode : public AGameMode
 {
 	GENERATED_UCLASS_BODY()
-
+	/*
 	virtual void BeginPlay() OVERRIDE;
 
 
@@ -27,8 +27,7 @@ class AFMGameMode : public AGameMode
 	// disable respawns outside current match 
 	virtual bool PlayerCanRestart(APlayerController* Player) OVERRIDE;
 
-	// select best spawn point for player 
-	virtual AActor* ChoosePlayerStart(AController* Player) OVERRIDE;
+	
 
 	// always pick new random spawn 
 	virtual bool ShouldSpawnAtStartSpot(AController* Player) OVERRIDE;
@@ -88,13 +87,23 @@ protected:
 
 	// check if PlayerState is a winner 
 	virtual bool IsWinner(class AFMPlayerState* PlayerState) const;
+	*/
+
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// PLAYER SPAWNING
+
+	// select best spawn point for player 
+	virtual AActor* ChoosePlayerStart(AController* Player) OVERRIDE;
 
 	// check if player can use spawnpoint 
 	virtual bool IsSpawnpointAllowed(APlayerStart* SpawnPoint, AController* Player) const;
 
 	// check if player should use spawnpoint 
 	virtual bool IsSpawnpointPreferred(APlayerStart* SpawnPoint, AController* Player) const;
-
+	
+	
+	/*
 	// Returns game session class to use 
 	virtual TSubclassOf<AGameSession> GetGameSessionClass() const OVERRIDE;
 
@@ -110,7 +119,7 @@ public:
 	//UPROPERTY()
 	//	TArray<class AShooterPickup*> LevelPickups;
 
-
+	*/
 };
 
 

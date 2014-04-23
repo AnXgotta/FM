@@ -12,7 +12,6 @@
 #include "FMProjectile.h"
 
 
-
 AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP.SetDefaultSubobjectClass<UFMCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
@@ -70,6 +69,8 @@ AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
 	bWantsToUse = false;
 	*/
 
+	bWantsToUseWeapon = false;
+
 	currentStamina = 100.0f;
 	currentMaxStamina = 100.0f;
 	defaultMaxStamina = 100.0f;
@@ -94,10 +95,16 @@ AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
 
 void AFMCharacter::BeginPlay(){
 	Super::BeginPlay();
-
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: BeginPlay Called"));
+	if (Role == ROLE_Authority){
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Character : SERVER : BeginPlay Called %s"), *this->GetName()));
+		}
+	}else{
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Character : CLIENT : BeginPlay Called %s"), *this->GetName()));
+		}
 	}
+	
 }
 
 void AFMCharacter::PostInitializeComponents(){
@@ -137,6 +144,16 @@ void AFMCharacter::Tick(float DeltaSeconds){
 	if (bWantsToRun && IsRunning()){
 		if (GetCurrentStamina() > 0.5f){
 			UseStamina(DeltaSeconds * RunningStaminaCostPerSecond);
+			if (Role == ROLE_Authority){
+				if (GEngine){
+					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("Character: SERVER : %s Stamina = %f"), *this->GetName(), currentStamina));
+				}
+			}
+			else{
+				if (GEngine){
+					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("Character: CLIENT : %s Stamina = %f"), *this->GetName(), currentStamina));
+				}
+			}
 		}else{
 			SetRunning(false, false);
 		}
@@ -146,6 +163,16 @@ void AFMCharacter::Tick(float DeltaSeconds){
 	if (bRegenerateStamina){
 		if (GetCurrentStamina() < 100.0f){
 			AddStamina(DeltaSeconds * staminaRegenerationPerSecond);
+			if (Role == ROLE_Authority){
+				if (GEngine){
+					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("Character: SERVER : %s Stamina = %f"), *this->GetName(), currentStamina));
+				}
+			}
+			else{
+				if (GEngine){
+					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("Character: CLIENT : %s Stamina = %f"), *this->GetName(), currentStamina));
+				}
+			}
 		}else{
 			StopRegenerateStamina();
 		}
@@ -260,7 +287,7 @@ void AFMCharacter::StopAllAnimMontages(){
 
 //////////////////////////////////////////////////////////////////////////
 // DAMAGE AND DEATH
-
+/*
 void AFMCharacter::FellOutOfWorld(const class UDamageType& dmgType){
 	Die(currentHealth, FDamageEvent(dmgType.GetClass()), NULL, NULL);
 }
@@ -400,13 +427,13 @@ void AFMCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& Damag
 
 	// Death anim
 	//float DeathAnimDuration = PlayAnimMontage(DeathAnim);
-	/*
+	
 	// Ragdoll
 	if (DeathAnimDuration > 0.f){
 		GetWorldTimerManager().SetTimer(this, &AShooterCharacter::SetRagdollPhysics, FMath::Min(0.1f, DeathAnimDuration), false);
 	}else{
 		SetRagdollPhysics();
-	}*/
+	}
 	
 }
 
@@ -523,7 +550,7 @@ void AFMCharacter::TornOff(){
 bool AFMCharacter::IsAlive() const{
 	return currentHealth > 0;
 }
-
+*/
 //////////////////////////////////////////////////////////////////////////
 // INVENTORY (WEAPON MANAGEMENT (Adding to default inventory ) HANDLED IN BLUEPRINT!)
 
@@ -542,7 +569,6 @@ void AFMCharacter::SpawnDefaultInventory(){
 		}
 	}
 
-	// equip first weapon in inventory
 	if (Inventory.Num() > 0){
 		EquipWeapon(Inventory[0]);
 	}
@@ -609,6 +635,15 @@ void AFMCharacter::ServerEquipWeapon_Implementation(AFMWeapon* Weapon){
 
 void AFMCharacter::OnRep_CurrentWeapon(AFMWeapon* LastWeapon){
 	SetCurrentWeapon(CurrentWeapon, LastWeapon);
+	if (Role == ROLE_Authority){
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: SERVER : OnRep_CurrentWeapon"));
+		}
+	}else{
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: CLIENT : OnRep_CurrentWeapon"));
+		}
+	}
 }
 
 void AFMCharacter::SetCurrentWeapon(class AFMWeapon* NewWeapon, class AFMWeapon* LastWeapon){
@@ -626,18 +661,40 @@ void AFMCharacter::SetCurrentWeapon(class AFMWeapon* NewWeapon, class AFMWeapon*
 	}
 
 	CurrentWeapon = NewWeapon;
+	if (Role == ROLE_Authority){
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: SERVER : SetCurrentWeapon"));
+		}
+	}
+	else{
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: CLIENT : SetCurrentWeapon"));
+		}
+	}
+	
 
 	// equip new one
 	if (NewWeapon){
+		if (Role == ROLE_Authority){
+			if (GEngine){
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Character: SERVER : SetCurrentWeapon %s"), *NewWeapon->GetName()));
+			}
+		}
+		else{
+			if (GEngine){
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Character: CLIENT : SetCurrentWeapon %s"), *NewWeapon->GetName()));
+			}
+		}
 		NewWeapon->SetOwningPawn(this);	// Make sure weapon's MyPawn is pointing back to us. During replication, we can't guarantee APawn::CurrentWeapon will rep after AWeapon::MyPawn!
 		NewWeapon->OnEquip();
+
 	}
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 // REPLICATION
-
+/*
 void AFMCharacter::PreReplication(IRepChangedPropertyTracker & ChangedPropertyTracker){
 	Super::PreReplication(ChangedPropertyTracker);
 	
@@ -645,7 +702,7 @@ void AFMCharacter::PreReplication(IRepChangedPropertyTracker & ChangedPropertyTr
 	DOREPLIFETIME_ACTIVE_OVERRIDE(AFMCharacter, LastTakeHitInfo, GetWorld() && GetWorld()->GetTimeSeconds() < LastTakeHitTimeTimeout);
 	
 }
-
+*/
 void AFMCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
@@ -677,10 +734,10 @@ void AFMCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutL
 	//DOREPLIFETIME_CONDITION(AFMCharacter, bIsTargeting, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(AFMCharacter, bWantsToRun, COND_SkipOwner);
 
-	DOREPLIFETIME_CONDITION(AFMCharacter, LastTakeHitInfo, COND_Custom);
+	//DOREPLIFETIME_CONDITION(AFMCharacter, LastTakeHitInfo, COND_Custom);
 
 	// everyone
-	//DOREPLIFETIME(AFMCharacter, CurrentWeapon);
+	DOREPLIFETIME(AFMCharacter, CurrentWeapon);
 	DOREPLIFETIME(AFMCharacter, currentHealth);	
 }
 
@@ -783,7 +840,7 @@ void AFMCharacter::StopWeaponUse(){
 }
 
 bool AFMCharacter::CanUse() const {
-	return IsAlive();
+	return true;// IsAlive();
 	//return true;
 }
 
@@ -857,17 +914,11 @@ void AFMCharacter::OnStopJump(){
 void AFMCharacter::OnStartRunning(){
 	AFMPlayerController* MyPC = Cast<AFMPlayerController>(Controller);
 	if (MyPC && MyPC->IsGameInputAllowed()){
-		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: StartSprint "));
-		}
 		SetRunning(true, false);
 	}
 }
 
 void AFMCharacter::OnStopRunning(){
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: StopSprint "));
-	}
 	SetRunning(false, false);
 }
 
@@ -881,7 +932,9 @@ void AFMCharacter::SetRunning(bool bNewSprint, bool bToggle){
 	
 	if (Role < ROLE_Authority){
 		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: SERVERStartSprint "));
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: CLIENT : StartSprint "));
+		}else{
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: CLIENT : StopSprint "));
 		}
 		ServerSetRunning(bNewSprint, bToggle);
 	}
@@ -896,6 +949,13 @@ bool AFMCharacter::ServerSetRunning_Validate(bool bNewSprint, bool bToggle){
 }
 
 void AFMCharacter::ServerSetRunning_Implementation(bool bNewSprint, bool bToggle){
+	if (GEngine){
+		if (bNewSprint){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: SERVER : StartSprint "));
+		}else{
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: SERVER : StopSprint "));
+		}
+	}
 	SetRunning(bNewSprint, bToggle);
 }
 
@@ -938,19 +998,13 @@ void AFMCharacter::OnFire0Pressed(){
 
 	// startuseweaponpressed
 
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0Pressed"));
-	}
-	
+
 }
 
 void AFMCharacter::OnFire0Released(){
 
 	// startuseweaponreleased
 
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire0Release"));
-	}
 		// try and fire a projectile
 	//if (ProjectileClass){
 	//	
@@ -979,19 +1033,13 @@ void AFMCharacter::OnFire0Released(){
 
 
 void AFMCharacter::OnFire1(){
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire1"));
-	}
+	EquipWeapon(Inventory[0]);
 }
 
 void AFMCharacter::OnFire2(){
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire2"));
-	}
+	EquipWeapon(Inventory[1]);
 }
 
 void AFMCharacter::OnFire3(){
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: OnFire3"));
-	}
+	
 }

@@ -291,18 +291,18 @@ protected:
 	float LastTakeHitTimeTimeout;
 
 	//  Replicate where this pawn was last hit and damaged
-	UPROPERTY(Transient, ReplicatedUsing = OnRep_LastTakeHitInfo)
-	struct FTakeHitInfo LastTakeHitInfo;
+	//UPROPERTY(Transient, ReplicatedUsing = OnRep_LastTakeHitInfo)
+	//struct FTakeHitInfo LastTakeHitInfo;
 
 	//  Responsible for cleaning up bodies on clients.
-	virtual void TornOff();
+	//virtual void TornOff();
 
 	//  handle mesh visibility and updates
 	void UpdatePawnMeshes();
 
 	//////////////////////////////////////////////////////////////////////////
 	// DAMAGE AND DEATH
-
+	/*
 	public:
 
 	//  Identifies if pawn is in its dying state
@@ -320,7 +320,7 @@ protected:
 
 	//  Returns True if the pawn can die in the current state
 	virtual bool CanDie(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser) const;
-
+	*/
 	//  player pressed Use Weapon action
 	void OnStartUseWeapon();
 
@@ -332,7 +332,7 @@ protected:
 
 	//  player pressed prev weapon action
 	//void OnPrevWeapon();
-
+	/*
 
 	//Kills pawn.  Server/authority only.
 	// @param KillingDamage - Damage amount of the killing blow
@@ -368,7 +368,7 @@ protected:
 
 	// check if pawn is still alive
 	bool IsAlive() const;
-
+	*/
 public:
 
 	//////////////////////////////////////////////////////////////////////////

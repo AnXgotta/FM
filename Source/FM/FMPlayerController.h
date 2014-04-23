@@ -133,9 +133,9 @@ public:
 	virtual void SetCinematicMode(bool bInCinematicMode, bool bHidePlayer, bool bAffectsHUD, bool bAffectsMovement, bool bAffectsTurning) OVERRIDE;
 
 	/** initialize the input system from the player settings */
-	virtual void InitInputSystem() OVERRIDE;
+	//virtual void InitInputSystem() OVERRIDE;
 
-	virtual bool SetPause(bool bPause, FCanUnpause CanUnpauseDelegate = FCanUnpause()) OVERRIDE;
+	//virtual bool SetPause(bool bPause, FCanUnpause CanUnpauseDelegate = FCanUnpause()) OVERRIDE;
 
 	// End APlayerController interface
 

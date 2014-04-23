@@ -32,11 +32,11 @@ AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 	// USkinnedMeshComponent
 	// "This is update frequency flag even when our Owner has not been rendered recently." 
 	// (namespace EMeshComponentUpdateFlag( enumType ==> AlwaysTickPoseAndRefreshBones, AlwaysTickPose, OnlyTickPoseWhenRendered)
-	//Mesh3P->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered;
+	Mesh3P->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered;
 
 	// USkinnedMeshComponent
 	// "If true, DistanceFactor for this SkinnedMeshComponent will be added to the global chart"
-	//Mesh3P->bChartDistanceFactor = true;
+	Mesh3P->bChartDistanceFactor = true;
 
 	// UPrimitiveComponent
 	// "Whether the primitive receives decals."
@@ -44,7 +44,7 @@ AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 
 	// UPrimitiveComponent
 	// "Whether the primitive should cast a shadow or not."
-	//Mesh3P->CastShadow = true;
+	Mesh3P->CastShadow = true;
 
 	// UPrimitiveComponent
 	// "Changes the collision channel that this object uses when it moves."
@@ -79,18 +79,20 @@ AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 	// USceneComponent
 	// "What we are currently attached to."
 	// I want 3d person mesh as primary... it should be primary.. not attached to 1st person
-	//Mesh3P->AttachParent = Mesh1P;
+	//Mesh3P->AttachParent = Mesh;
 
 
 	// XXX: START WEAPON CLASS VARIABLES ####################################
 
-	//bWantsToUse = false;
+	
 	//bPendingCooldown = false;
 	//CurrentState = EWeaponState::Idle;
 	//StaminaCost = 25.0f;
 	//LastFireTime = 0.0f;
 
 	CurrentState = EWeaponState::Idle;
+
+	bWantsToUse = false;
 
 	bIsEquipped = false;
 	bPendingEquip = false;
@@ -876,7 +878,7 @@ void AFMWeapon::OnEquip(){
 
 void AFMWeapon::OnEquipFinished(){
 	
-	//AttachMeshToPawn();
+	EquipForUse();
 
 	bIsEquipped = true;
 	bPendingEquip = false;
@@ -955,19 +957,19 @@ void AFMWeapon::EquipForUse(){
 
 		//MyPawn->Mesh->GetSocketByName(TEXT("SocketName"))->A
 		
-		if (MyPawn->IsLocallyControlled() == true){
+		//if (MyPawn->IsLocallyControlled() == true){
 			switch (WeaponConfig.WeaponType){
-				case EWeaponType::Primary:
-					Mesh3P->AttachTo(MyPawn->Mesh, TEXT("RightHandSocket"), EAttachLocation::SnapToTarget);
+			case EWeaponType::Primary:
+				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("RightHandSocket"), EAttachLocation::SnapToTarget);
 				break;
-				case EWeaponType::Secondary:
-					Mesh3P->AttachTo(MyPawn->Mesh, TEXT("RightHandSocket"), EAttachLocation::SnapToTarget);
+			case EWeaponType::Secondary:
+				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("RightHandSocket"), EAttachLocation::SnapToTarget);
 				break;
-				case EWeaponType::Tertiary:
-					Mesh3P->AttachTo(MyPawn->Mesh, TEXT("RightHandSocket"), EAttachLocation::SnapToTarget);
+			case EWeaponType::Tertiary:
+				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("RightHandSocket"), EAttachLocation::SnapToTarget);
 				break;
-				case EWeaponType::Shield:
-					Mesh3P->AttachTo(MyPawn->Mesh, TEXT("LeftHandSocket"), EAttachLocation::SnapToTarget);
+			case EWeaponType::Shield:
+				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("LeftHandSocket"), EAttachLocation::SnapToTarget);
 				break;
 				// shouldnt happen...
 			}
@@ -988,12 +990,12 @@ void AFMWeapon::EquipForUse(){
 			// call Weapon method to attach to pawn where you want
 			//Mesh1P->AttachTo(PawnMesh1p, AttachPoint);
 			//Mesh3P->AttachTo(PawnMesh3p, AttachPoint);
-		}else{
+		//}else{
 			//USkeletalMeshComponent* UseWeaponMesh = GetWeaponMesh();
 			//USkeletalMeshComponent* UsePawnMesh = MyPawn->GetPawnMesh();
 			//UseWeaponMesh->AttachTo(UsePawnMesh, AttachPoint);
 			//UseWeaponMesh->SetHiddenInGame(false);
-		}
+		//}
 	}
 	
 }
@@ -1008,25 +1010,25 @@ void AFMWeapon::UnequipFromUse(){
 	// THIS IS SIMPLY GOING TO BE A SOCKET EXCHANGE
 
 	
-		if (MyPawn->IsLocallyControlled() == true){
+		//if (MyPawn->IsLocallyControlled() == true){
 
 			switch (WeaponConfig.WeaponType){
 			case EWeaponType::Primary:
-				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("BackCenter0"), EAttachLocation::SnapToTarget);
+				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("BackSocket0"), EAttachLocation::SnapToTarget);
 				break;
 			case EWeaponType::Secondary:
-				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("HipLeft"), EAttachLocation::SnapToTarget);
+				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("LeftHipSocket"), EAttachLocation::SnapToTarget);
 				break;
 			case EWeaponType::Tertiary:
-				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("HipRight"), EAttachLocation::SnapToTarget);
+				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("RightHipSocket"), EAttachLocation::SnapToTarget);
 				break;
 			case EWeaponType::Shield:
-				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("BackCenter1"), EAttachLocation::SnapToTarget);
+				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("BackSocket1"), EAttachLocation::SnapToTarget);
 				break;
 				// shouldnt happen...
 			}
 			Mesh3P->SetHiddenInGame(false);
-		}
+		//}
 			// not worried about 1st person right now
 			//Mesh1P->DetachFromParent();
 			//Mesh1P->SetHiddenInGame(true);
