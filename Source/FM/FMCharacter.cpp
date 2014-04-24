@@ -633,19 +633,6 @@ void AFMCharacter::ServerEquipWeapon_Implementation(AFMWeapon* Weapon){
 	EquipWeapon(Weapon);
 }
 
-void AFMCharacter::OnRep_CurrentWeapon(AFMWeapon* LastWeapon){
-	SetCurrentWeapon(CurrentWeapon, LastWeapon);
-	if (Role == ROLE_Authority){
-		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: SERVER : OnRep_CurrentWeapon"));
-		}
-	}else{
-		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: CLIENT : OnRep_CurrentWeapon"));
-		}
-	}
-}
-
 void AFMCharacter::SetCurrentWeapon(class AFMWeapon* NewWeapon, class AFMWeapon* LastWeapon){
 	AFMWeapon* LocalLastWeapon = NULL;
 
@@ -694,6 +681,7 @@ void AFMCharacter::SetCurrentWeapon(class AFMWeapon* NewWeapon, class AFMWeapon*
 
 //////////////////////////////////////////////////////////////////////////
 // REPLICATION
+
 /*
 void AFMCharacter::PreReplication(IRepChangedPropertyTracker & ChangedPropertyTracker){
 	Super::PreReplication(ChangedPropertyTracker);
@@ -703,6 +691,7 @@ void AFMCharacter::PreReplication(IRepChangedPropertyTracker & ChangedPropertyTr
 	
 }
 */
+
 void AFMCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
@@ -738,21 +727,23 @@ void AFMCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutL
 
 	// everyone
 	DOREPLIFETIME(AFMCharacter, CurrentWeapon);
+
 	DOREPLIFETIME(AFMCharacter, currentHealth);	
 }
 
-AFMWeapon* AFMCharacter::GetWeapon() const {
-	return CurrentWeapon;
+void AFMCharacter::OnRep_CurrentWeapon(AFMWeapon* LastWeapon){
+	SetCurrentWeapon(CurrentWeapon, LastWeapon);
+	if (Role == ROLE_Authority){
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: SERVER : OnRep_CurrentWeapon"));
+		}
+	}
+	else{
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: CLIENT : OnRep_CurrentWeapon"));
+		}
+	}
 }
-
-int32 AFMCharacter::GetInventoryCount() const {
-	return Inventory.Num();
-}
-
-AFMWeapon* AFMCharacter::GetInventoryWeapon(int32 index) const {
-	return Inventory[index];
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// GETS AND SETS
@@ -783,6 +774,18 @@ float AFMCharacter::GetCurrentStamina() const {
 
 USkeletalMeshComponent* AFMCharacter::GetPawnMesh() const {
 	return Mesh; // IsFirstPerson() ? Mesh1P : Mesh;
+}
+
+AFMWeapon* AFMCharacter::GetWeapon() const {
+	return CurrentWeapon;
+}
+
+int32 AFMCharacter::GetInventoryCount() const {
+	return Inventory.Num();
+}
+
+AFMWeapon* AFMCharacter::GetInventoryWeapon(int32 index) const {
+	return Inventory[index];
 }
 
 
@@ -964,9 +967,8 @@ float AFMCharacter::GetRunningSpeedModifier() const{
 }
 
 
-
-//////////////////////////////////////////////////////////////////////////////////////
-// INPUT
+///////////////////////////////////////////////////////////////////////////////////////
+// INPUT HANDLERS
 
 void AFMCharacter::SetupPlayerInputComponent(class UInputComponent* InputComponent){
 
@@ -988,12 +990,6 @@ void AFMCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompone
 
 }
 
-
-
-///////////////////////////////////////////////////////////////////////////////////////
-// INPUT HANDLERS
-
-//
 void AFMCharacter::OnFire0Pressed(){	
 
 	// startuseweaponpressed

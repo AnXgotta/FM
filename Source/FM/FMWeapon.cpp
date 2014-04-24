@@ -805,7 +805,7 @@ void AFMWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLife
 
 void AFMWeapon::OnRep_MyPawn(){
 	if (MyPawn){
-		//OnEnterInventory(MyPawn);
+		OnEnterInventory(MyPawn);
 	}else{
 		//OnLeaveInventory();
 	}
@@ -838,7 +838,6 @@ bool AFMWeapon::IsEquipped() const {
 }
 
 void AFMWeapon::OnEquip(){
-	
 
 	if (GEngine){
 		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("Weapon: OnEquip "));
@@ -879,17 +878,8 @@ void AFMWeapon::OnEquip(){
 void AFMWeapon::OnEquipFinished(){
 	
 	EquipForUse();
-
 	bIsEquipped = true;
 	bPendingEquip = false;
-
-	if (MyPawn) {
-		// try to reload empty clip
-		//if (MyPawn->IsLocallyControlled() && CurrentAmmoInClip <= 0 && CanReload()) {
-		//	StartReload();
-		//}
-	}
-
 	DetermineWeaponState();
 	
 }
@@ -938,26 +928,8 @@ void AFMWeapon::OnLeaveInventory(){
 
 void AFMWeapon::EquipForUse(){
 
-	if (MyPawn){
-		// Remove and hide both first and third person meshes
-		// in current case, only 3rd person mesh
-		//DetachMeshFromPawn();
+	if (MyPawn){		
 
-
-		// NO-> For locally controller players we attach weapons and let the bOnlyOwnerSee, bOwnerNoSee flags deal with visibility.
-		// NO-> FName AttachPoint = MyPawn->GetWeaponAttachPoint();
-		// WE NEED TO ATTACH WEAPON WHERE IT BELONGS, THIS MIGHT BE ASSUMING ATTACH TO CURRENTLY EQUIPPED WEAPON
-		// DEPENDING ON WEAPON, IT WILL BE ATTACHED DIFFERENTLY.  [TWO HAND, ONE HAND, ETC]
-		// MUST CUSTOMIZE
-
-		// WHILE WE ARE PLAYING THE SPECIFIC SWITCH WEAPON ANIMATION...
-		// RightHand -> Back || RightHand -> LeftHip || RightHand -> RightHip || etc...
-		// WE TAKE THE WEAPON AND ATTACH IT TO THE PROPER SOCKET
-		// THIS IS SIMPLY GOING TO BE A SOCKET EXCHANGE
-
-		//MyPawn->Mesh->GetSocketByName(TEXT("SocketName"))->A
-		
-		//if (MyPawn->IsLocallyControlled() == true){
 			switch (WeaponConfig.WeaponType){
 			case EWeaponType::Primary:
 				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("RightHandSocket"), EAttachLocation::SnapToTarget);
@@ -971,31 +943,12 @@ void AFMWeapon::EquipForUse(){
 			case EWeaponType::Shield:
 				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("LeftHandSocket"), EAttachLocation::SnapToTarget);
 				break;
-				// shouldnt happen...
 			}
-						
 
-
-
-
-			// 'MyPawn->GetSpecificPawnMesh(bool WantFirstPerson)' is a custom Character class
-			//USkeletalMeshComponent* PawnMesh1p = MyPawn->GetSpecifcPawnMesh(true);
 			USkeletalMeshComponent* PawnMesh3p = MyPawn->GetSpecifcPawnMesh(false);
 
-			// hide visibility?
-			//Mesh1P->SetHiddenInGame(false);
 			Mesh3P->SetHiddenInGame(false);
 
-
-			// call Weapon method to attach to pawn where you want
-			//Mesh1P->AttachTo(PawnMesh1p, AttachPoint);
-			//Mesh3P->AttachTo(PawnMesh3p, AttachPoint);
-		//}else{
-			//USkeletalMeshComponent* UseWeaponMesh = GetWeaponMesh();
-			//USkeletalMeshComponent* UsePawnMesh = MyPawn->GetPawnMesh();
-			//UseWeaponMesh->AttachTo(UsePawnMesh, AttachPoint);
-			//UseWeaponMesh->SetHiddenInGame(false);
-		//}
 	}
 	
 }
@@ -1004,15 +957,7 @@ void AFMWeapon::UnequipFromUse(){
 
 	if (MyPawn){
 
-	// WHILE WE ARE PLAYING THE SPECIFIC SWITCH WEAPON ANIMATION...
-	// RightHand -> Back || RightHand -> LeftHip || RightHand -> RightHip || etc...
-	// WE TAKE THE WEAPON AND ATTACH IT TO THE PROPER SOCKET
-	// THIS IS SIMPLY GOING TO BE A SOCKET EXCHANGE
-
-	
-		//if (MyPawn->IsLocallyControlled() == true){
-
-			switch (WeaponConfig.WeaponType){
+		switch (WeaponConfig.WeaponType){
 			case EWeaponType::Primary:
 				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("BackSocket0"), EAttachLocation::SnapToTarget);
 				break;
@@ -1025,24 +970,11 @@ void AFMWeapon::UnequipFromUse(){
 			case EWeaponType::Shield:
 				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("BackSocket1"), EAttachLocation::SnapToTarget);
 				break;
-				// shouldnt happen...
-			}
-			Mesh3P->SetHiddenInGame(false);
-		//}
-			// not worried about 1st person right now
-			//Mesh1P->DetachFromParent();
-			//Mesh1P->SetHiddenInGame(true);
-
-			// USceneComponenet
-			// "Detach this component from whatever it is attached to"
-			//Mesh3P->DetachFromParent();
-
-			// USceneComponenet
-			// "Changes the value of HiddenGame"
-			// [Whether to completely hide the primitive in the game; if true, the primitive is not drawn, does not cast a shadow, and does not affect voxel lighting.]
-			
-
 		}
+	
+		Mesh3P->SetHiddenInGame(false);
+
+	}
 }
 
 float AFMWeapon::GetEquipDuration() const {

@@ -118,10 +118,7 @@ class AFMCharacter : public ACharacter
 
 public:
 	//////////////////////////////////////////////////////////////////////////
-	// INPUT HANDLERS
-
-	//  setup pawn specific input handlers 
-	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) OVERRIDE;
+	// MOVEMENT
 
 	// handle moving forward/backward
 	UFUNCTION()
@@ -152,12 +149,33 @@ public:
 	// [server + local] change sprint state
 	void SetRunning(bool bNewSprint, bool bToggle);
 
+	/** modifier for max movement speed */
+	UPROPERTY(EditDefaultsOnly, Category = Pawn)
+		float RunningSpeedModifier;
+
+	/** current running state */
+	UPROPERTY(Transient, Replicated)
+		uint8 bWantsToRun : 1;
+
+	/** from gamepad running is toggled */
+	uint8 bWantsToRunToggled : 1;
+
+	/** current firing state */
+	uint8 bWantsToFire : 1;
+
 	/** get the modifier value for running speed */
 	UFUNCTION(BlueprintCallable, Category = Pawn)
 		float GetRunningSpeedModifier() const;
 
 	UFUNCTION(reliable, server, WithValidation)
 		void ServerSetRunning(bool bNewSprint, bool bToggle);
+
+
+	////////////////////////////////////////////////////////////////////
+	// INPUT HANDLERS
+
+	//  setup pawn specific input handlers 
+	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) OVERRIDE;
 
 	// change pressed state
 	UFUNCTION()
@@ -176,10 +194,10 @@ public:
 		void OnFire3();
 
 
-
-protected:
 	/////////////////////////////////////////////////////////////////////////
 	// INVENTORY
+
+protected:
 
 	//  default inventory list
 	UPROPERTY(EditDefaultsOnly, Category = Inventory)
@@ -207,10 +225,6 @@ protected:
 	//  updates current weapon
 	void SetCurrentWeapon(class AFMWeapon* NewWeapon, class AFMWeapon* LastWeapon = NULL);
 
-	//  current weapon rep handler
-	UFUNCTION()
-	void OnRep_CurrentWeapon(class AFMWeapon* LastWeapon);
-
 	//  [server] remove all weapons from inventory and destroy them
 	void DestroyInventory();
 
@@ -218,6 +232,13 @@ protected:
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerEquipWeapon(class AFMWeapon* NewWeapon);
 
+public:
+	
+	//  get total number of inventory items
+	int32 GetInventoryCount() const;
+
+	// get weapon from inventory at index.Index validity is not checked.
+	class AFMWeapon* GetInventoryWeapon(int32 index) const;
 
 	///////////////////////////////////////////////////////////////////////////
 	// ACHARACTER OVERRIDES
@@ -254,6 +275,12 @@ protected:
 	//////////////////////////////////////////////////////////////////////////
 	// WEAPON USAGE
 	
+	//  player pressed Use Weapon action
+	void OnStartUseWeapon();
+
+	//  player released Use Weapon action
+	void OnStopUseWeapon();
+
 	//  [local] starts weapon Use
 	void StartWeaponUse();
 
@@ -272,20 +299,34 @@ public:
 	bool IsUsingWeapon() const;
 	
 protected:
+
+	//  current weapon use state
+	uint8 bWantsToUseWeapon : 1;
+
+
 	//  pawn mesh: 1st person view
 	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	//TSubobjectPtr<USkeletalMeshComponent> Mesh1P;
 
-	//  socket or bone name for attaching weapon mesh
-	UPROPERTY(EditDefaultsOnly, Category = Inventory)
-	FName WeaponAttachPoint;
+	///////////////////////////////////////////////////////////////////
+	// WEAPON VARIABLES FOR REPLICATION
 
 	//  currently equipped weapon
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_CurrentWeapon)
 	class AFMWeapon* CurrentWeapon;
+	
 
-	//  current weapon use state
-	uint8 bWantsToUseWeapon : 1;
+	////////////////////////////////////////////////////////////////////
+	// WEAPON METHODS FOR REPLICATION
+
+	//  [client + server] sets currently active weapon for replication
+	UFUNCTION()
+		void OnRep_CurrentWeapon(class AFMWeapon* LastWeapon);
+
+
+
+
+
 
 	//  Time at which point the last take hit info for the actor times out and won't be replicated; Used to stop join-in-progress effects all over the screen
 	float LastTakeHitTimeTimeout;
@@ -321,11 +362,7 @@ protected:
 	//  Returns True if the pawn can die in the current state
 	virtual bool CanDie(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser) const;
 	*/
-	//  player pressed Use Weapon action
-	void OnStartUseWeapon();
-
-	//  player released Use Weapon action
-	void OnStopUseWeapon();
+	
 
 	//  player pressed next weapon action
 	//void OnNextWeapon();
@@ -372,7 +409,11 @@ protected:
 public:
 
 	//////////////////////////////////////////////////////////////////////////
-	// Reading data
+	// GETTERS / SETTERS
+
+	//  get currently equipped weapon
+	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")
+	class AFMWeapon* GetWeapon() const;
 
 	//  get mesh component
 	USkeletalMeshComponent* GetPawnMesh() const;
@@ -380,35 +421,12 @@ public:
 	// Get either first or third person mesh.
 	USkeletalMeshComponent* GetSpecifcPawnMesh( bool WantFirstPerson ) const;
 
-	/** modifier for max movement speed */
-	UPROPERTY(EditDefaultsOnly, Category = Pawn)
-		float RunningSpeedModifier;
-
-	/** current running state */
-	UPROPERTY(Transient, Replicated)
-	uint8 bWantsToRun : 1;
-
-	/** from gamepad running is toggled */
-	uint8 bWantsToRunToggled : 1;
-
-	/** current firing state */
-	uint8 bWantsToFire : 1;
+	
 
 	/** handles sounds for running */
 	void UpdateRunSounds(bool bNewRunning);
 
-	//  get currently equipped weapon
-	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")
-	class AFMWeapon* GetWeapon() const;
-
-	//  get weapon attach point
-	FName GetWeaponAttachPoint() const;
-
-	//  get total number of inventory items
-	int32 GetInventoryCount() const;
-
-	// get weapon from inventory at index.Index validity is not checked.
-	class AFMWeapon* GetInventoryWeapon(int32 index) const;
+	
 
 	/** material instances for setting team color in mesh (3rd person view) */
 //	UPROPERTY(Transient)
