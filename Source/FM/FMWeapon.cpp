@@ -96,6 +96,7 @@ AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 
 	bIsEquipped = false;
 	bPendingEquip = false;
+	bPendingUnEquip = false;
 	bWantsToCharge = false;
 	chargeValue = 0.0f;
 
@@ -227,8 +228,6 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 		bWantsToUse = false;
 	}
 
-	CurrentState = NewState;
-
 	// non chargable weapon initial use
 	if (PrevState != EWeaponState::Using && NewState == EWeaponState::Using){
 		// DO USE WEAPON
@@ -259,6 +258,8 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 		//otherwise just start first swing
 	}
 
+	CurrentState = NewState;
+
 }
 
 void AFMWeapon::DetermineWeaponState(){
@@ -286,21 +287,7 @@ void AFMWeapon::DetermineWeaponState(){
 				// not enough stamina to use weapon
 			}
 		}else{
-			// on press released
-
-			// some of these checks are redundant
-			// is a chargable weapon
-			if (WeaponConfig.bIsChargable){
-				// check for currently charging
-				if (bWantsToCharge && bIsCharging){
-					NewState = EWeaponState::Using;
-				}else{
-					// not currently charging
-					// i have no idea when this would happen
-				}
-			}
-
-			// if not a chargable weapon, do nothing
+			// idle or ?
 		}
 	}else if (bPendingEquip){
 		// weapon is being equipped
@@ -867,8 +854,6 @@ void AFMWeapon::OnEquip(){
 		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("Weapon: OnEquip "));
 	}
 
-	EquipForUse();
-
 	bPendingEquip = true;
 	DetermineWeaponState();
 
@@ -885,7 +870,7 @@ void AFMWeapon::OnEquip(){
 	//EquipStartedTime = GetWorld()->GetTimeSeconds();
 
 	// local variable for equip weapon duration
-	EquipDuration = Duration;
+	//EquipDuration = Duration;
 
 	// "Class to globally manage timers"."Version that takes any generic delegate."
 	// SET A TIMER TO CALL A FUNCTION VIA FUNCTION POINTER AFTER SET AMOUNT OF TIME
@@ -901,6 +886,10 @@ void AFMWeapon::OnEquip(){
 
 void AFMWeapon::OnEquipFinished(){
 	
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("Weapon: OnEquipFinished "));
+	}
+
 	EquipForUse();
 	bIsEquipped = true;
 	bPendingEquip = false;
@@ -910,9 +899,21 @@ void AFMWeapon::OnEquipFinished(){
 
 void AFMWeapon::OnUnEquip(){
 	
-	UnequipFromUse();
-	bIsEquipped = false;
-	//StopFire();
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("Weapon: OnUnEquip "));
+	}
+	
+	bPendingUnEquip = true;
+
+	// Weapon swapping mid-weapon-swap
+	if (bPendingEquip){
+		//StopWeaponAnimation(EquipAnim);
+		bPendingEquip = false;
+		GetWorldTimerManager().ClearTimer(this, &AFMWeapon::OnEquipFinished);
+
+	}
+
+	DetermineWeaponState();
 
 	//if (bPendingReload){
 	//	StopWeaponAnimation(ReloadAnim);
@@ -922,15 +923,44 @@ void AFMWeapon::OnUnEquip(){
 	//	GetWorldTimerManager().ClearTimer(this, &AShooterWeapon::ReloadWeapon);
 	//}
 
-	if (bPendingEquip){
-		//StopWeaponAnimation(EquipAnim);
-		bPendingEquip = false;
+	// XXX: START NO ANIMATION YET
+	//float Duration = PlayWeaponAnimation(EquipAnim);
+	float Duration = 0.25f; // temp value until animations set
+	if (Duration <= 0.0f) {
+		// failsafe
+		Duration = 0.5f;
+	}
+	// END NO ANIMATION YET
 
-		GetWorldTimerManager().ClearTimer(this, &AFMWeapon::OnEquipFinished);
+	// Local variable to track time of start equip time
+	//EquipStartedTime = GetWorld()->GetTimeSeconds();
+
+	// local variable for equip weapon duration
+	//UnequipDuration = Duration;
+
+	// "Class to globally manage timers"."Version that takes any generic delegate."
+	// SET A TIMER TO CALL A FUNCTION VIA FUNCTION POINTER AFTER SET AMOUNT OF TIME
+	GetWorldTimerManager().SetTimer(this, &AFMWeapon::OnUnEquipFinished, Duration, false);
+
+	// DONT CARE ABOUT SOUND NOW
+	// Play equip sound locally
+	//if (MyPawn && MyPawn->IsLocallyControlled()){ // [APawn->IsLocallyControlled ==> true if controlled by a local (not network) Controller
+	//	PlayWeaponSound(EquipSound);
+	//}
+	
+}
+
+void AFMWeapon::OnUnEquipFinished(){
+
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("Weapon: OnUnEquipFinished "));
 	}
 
+	UnequipFromUse();
+	bIsEquipped = false;
+	bPendingUnEquip = false;
 	DetermineWeaponState();
-	
+
 }
 
 void AFMWeapon::OnEnterInventory(AFMCharacter* NewOwner){	

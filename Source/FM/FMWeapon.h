@@ -160,6 +160,9 @@ class AFMWeapon : public AActor
 	// is equip animation playing? 
 	uint32 bPendingEquip : 1;
 
+	// is unequip animation playing? 
+	uint32 bPendingUnEquip : 1;
+
 	// weapon is being equipped by owner pawn 
 	virtual void OnEquip();
 
@@ -168,6 +171,9 @@ class AFMWeapon : public AActor
 
 	// weapon is holstered by owner pawn 
 	virtual void OnUnEquip();
+
+	// weapon is now unequipped by owner pawn 
+	virtual void OnUnEquipFinished();
 
 	// [server] weapon was added to pawn's inventory 
 	virtual void OnEnterInventory(AFMCharacter* NewOwner);
