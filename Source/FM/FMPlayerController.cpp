@@ -192,7 +192,6 @@ bool AFMPlayerController::FindDeathCameraSpot(FVector& CameraLocation, FRotator&
 	return false;
 }
 
-
 void AFMPlayerController::SimulateInputKey(FKey Key, bool bPressed){
 	InputKey(Key, bPressed ? IE_Pressed : IE_Released, 1, false);
 }
@@ -294,6 +293,8 @@ bool AFMPlayerController::IsGameMenuVisible() const {
 	return Result;
 }
 
+
+
 void AFMPlayerController::ClientGameStarted_Implementation(){
 	if (GEngine){
 		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, TEXT("PlayerController: GameStarted"));
@@ -308,6 +309,10 @@ void AFMPlayerController::ClientGameStarted_Implementation(){
 	ReadAchievements();
 	*/
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+// ONLINE GAME
 
 /** Starts the online game using the session name in the PlayerState */
 void AFMPlayerController::ClientStartOnlineGame_Implementation(){
@@ -350,6 +355,10 @@ void AFMPlayerController::ClientReturnToMainMenu_Implementation(const FString& R
 	OnHideScoreboard();
 	CleanupSessionOnReturnToMenu();
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+// SESSION
 
 /** Ends and/or destroys game session */
 void AFMPlayerController::CleanupSessionOnReturnToMenu(){

@@ -28,10 +28,10 @@ class AFMGameMode : public AGameMode
 	virtual bool PlayerCanRestart(APlayerController* Player) OVERRIDE;
 
 	
+	*/
+	
 
-	// always pick new random spawn 
-	virtual bool ShouldSpawnAtStartSpot(AController* Player) OVERRIDE;
-
+	/*
 	// returns default pawn class for given controller 
 	virtual UClass* GetDefaultPawnClassForController(AController* InController) OVERRIDE;
 
@@ -47,22 +47,12 @@ class AFMGameMode : public AGameMode
 	// always create cheat manager 
 	virtual bool AllowCheats(APlayerController* P) OVERRIDE;
 
-	// update remaining time 
-	virtual void DefaultTimer() OVERRIDE;
-
-	// starts new match 
-	virtual void StartMatch() OVERRIDE;
+	
 
 
 protected:
 
-	// delay between first player login and starting match 
-	UPROPERTY(config)
-		int32 WarmupTime;
-
-	// match duration 
-	UPROPERTY(config)
-		int32 RoundTime;
+	
 
 	UPROPERTY(config)
 		int32 TimeBetweenMatches;
@@ -89,9 +79,32 @@ protected:
 	virtual bool IsWinner(class AFMPlayerState* PlayerState) const;
 	*/
 
+	///////////////////////////////////////////////////////////////////////////////////////
+	// MATCH CONTROL
+
+	// delay between first player login and starting match 
+	UPROPERTY(config)
+	int32 WarmupTime;
+
+	// match duration 
+	UPROPERTY(config)
+	int32 RoundTime;
+
+	// update remaining time 
+	virtual void DefaultTimer() OVERRIDE;
+
+	// starts new match 
+	virtual void StartMatch() OVERRIDE;
+
+	// finish current match and lock players 
+	UFUNCTION(exec)
+	void FinishMatch();
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// PLAYER SPAWNING
+
+	// always pick new random spawn 
+	virtual bool ShouldSpawnAtStartSpot(AController* Player) OVERRIDE;
 
 	// select best spawn point for player 
 	virtual AActor* ChoosePlayerStart(AController* Player) OVERRIDE;
@@ -102,16 +115,16 @@ protected:
 	// check if player should use spawnpoint 
 	virtual bool IsSpawnpointPreferred(APlayerStart* SpawnPoint, AController* Player) const;
 	
+	////////////////////////////////////////////////////////////////////////////////////
+	// GAME SESSION
 	
-	/*
 	// Returns game session class to use 
 	virtual TSubclassOf<AGameSession> GetGameSessionClass() const OVERRIDE;
-
+	
+	/*
 public:
 
-	// finish current match and lock players 
-	UFUNCTION(exec)
-		void FinishMatch();
+	
 
 	// get the name of the bots count option used in server travel URL 
 	static FString GetBotsCountOptionName();

@@ -936,8 +936,6 @@ void AFMCharacter::SetRunning(bool bNewSprint, bool bToggle){
 	if (Role < ROLE_Authority){
 		if (GEngine){
 			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: CLIENT : StartSprint "));
-		}else{
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: CLIENT : StopSprint "));
 		}
 		ServerSetRunning(bNewSprint, bToggle);
 	}
@@ -955,8 +953,6 @@ void AFMCharacter::ServerSetRunning_Implementation(bool bNewSprint, bool bToggle
 	if (GEngine){
 		if (bNewSprint){
 			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: SERVER : StartSprint "));
-		}else{
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: SERVER : StopSprint "));
 		}
 	}
 	SetRunning(bNewSprint, bToggle);
@@ -991,7 +987,10 @@ void AFMCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompone
 }
 
 void AFMCharacter::OnFire0Pressed(){	
-
+	if (CurrentWeapon){
+		CurrentWeapon->StartUseWeaponPressed();
+	}
+	
 	// startuseweaponpressed
 
 

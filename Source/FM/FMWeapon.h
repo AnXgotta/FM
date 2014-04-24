@@ -30,7 +30,7 @@ struct FMWeaponData{
 
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditDefaultsOnly, Category = Usage)
+	UPROPERTY(EditDefaultsOnly, Category = Type)
 	TEnumAsByte<EWeaponType::Type> WeaponType;
 
 	//  total uses (Combos/ammo) 
@@ -45,12 +45,22 @@ struct FMWeaponData{
 	UPROPERTY(EditDefaultsOnly, Category = Usage)
 	float timeBetweenUses;
 
+	// determines if this weapon has the ability to charge
+	UPROPERTY(EditDefaultsOnly, Category = Charging)
+		bool bIsChargable;
+
+	// determines if this weapon has the ability to charge
+	UPROPERTY(EditDefaultsOnly, Category = Charging)
+		float maxChargeValue;
+
 	// defaults 
 	FMWeaponData(){
 		WeaponType = EWeaponType::Primary;
 		StaminaCost = 25;
 		StaminaCostCharging = 5;
 		timeBetweenUses = 1.0f;
+		bIsChargable = false;
+		maxChargeValue = 3.0f;
 	}
 
 };
@@ -255,13 +265,6 @@ class AFMWeapon : public AActor
 	/** [local + server] handle weapon fire */
 	void HandleFiring();
 
-	// determines if this weapon has the ability to charge
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Charging)
-	bool bIsChargable;
-
-	// determines if this weapon has the ability to charge
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Charging)
-		float maxChargeValue;
 
 	// is weapon charge active?
 	bool bWantsToCharge;

@@ -1,6 +1,7 @@
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
 
 #include "FM.h"
+#include "FMGameState.h"
 #include "FMCharacter.h"
 #include "FMHUD.h"
 
@@ -24,7 +25,7 @@ void AFMHUD::DrawHUD(){
 
 	DrawDebugHealthStamina();
 
-	
+	DrawDebugTimer();
 
 
 }
@@ -83,4 +84,12 @@ void AFMHUD::DrawDebugHealthStamina(){
 
 		DrawDebugInfoString(displayText, 600.0f, 50.0f, false, false, HUDLight);
 	}
+}
+
+void AFMHUD::DrawDebugTimer(){
+	AFMGameState* const MyGameState = Cast<AFMGameState>(GetWorld()->GameState);
+	if (MyGameState){
+		DrawDebugInfoString(FString::FromInt(MyGameState->RemainingTime), 650.0f, 150.0f, false, false, HUDLight);
+	}
+
 }

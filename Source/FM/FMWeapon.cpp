@@ -96,10 +96,7 @@ AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 
 	bIsEquipped = false;
 	bPendingEquip = false;
-
-	bIsChargable = false;
 	bWantsToCharge = false;
-	maxChargeValue = 3.0f;
 	chargeValue = 0.0f;
 
 	// XXX: END WEAPON CLASS VARIABLES #######################################
@@ -152,7 +149,7 @@ void AFMWeapon::Tick(float DeltaSeconds){
 	Super::Tick(DeltaSeconds);
 
 	if (bIsCharging){
-		chargeValue = FMath::Min(chargeValue + DeltaSeconds, maxChargeValue);
+		chargeValue = FMath::Min(chargeValue + DeltaSeconds, WeaponConfig.maxChargeValue);
 	}
 
 }
@@ -186,7 +183,18 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 
 	// initial click and start initial charge
 	if (PrevState == EWeaponState::Idle && NewState == EWeaponState::Charging){
+		bWantsToCharge = false;
 		bIsCharging = true;
+		if (Role == ROLE_Authority){
+			if (GEngine){
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: SERVER : Charging %f"), chargeValue));
+			}
+		}
+		else{
+			if (GEngine){
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: CLIENT : Charging %f"), chargeValue));
+			}
+		}
 	}
 
 	// release click to end charge and fire
@@ -200,13 +208,23 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 		// if currentSwing != firstSwing, manage combo stuff [if in combo window -> do combo | else -> end use] 
 
 		//otherwise just start first swing
-
+		if (Role == ROLE_Authority){
+			if (GEngine){
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: SERVER : Using %f"), chargeValue));
+			}
+		}
+		else{
+			if (GEngine){
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: CLIENT : Using %f"), chargeValue));
+			}
+		}
 	}
 
 	// end of using weapon
 	if (PrevState == EWeaponState::Using && NewState != EWeaponState::Using){
 		// STOP USE WEAPON
 		// OnUseWeaponFinished()
+		bWantsToUse = false;
 	}
 
 	CurrentState = NewState;
@@ -215,6 +233,18 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 	if (PrevState != EWeaponState::Using && NewState == EWeaponState::Using){
 		// DO USE WEAPON
 		// OnUseWeaponStarted()
+		if (Role == ROLE_Authority){
+			if (GEngine){
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: SERVER : Use Charge %f"), chargeValue));
+			}
+		}
+		else{
+			if (GEngine){
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: CLIENT : Use Charge %f"), chargeValue));
+			}
+		}
+
+
 
 	}
 
@@ -241,35 +271,30 @@ void AFMWeapon::DetermineWeaponState(){
 			// is able(stamina)
 			if (CanUse()){
 				// if this is a chargable weapon
-				if (bIsChargable){
+				if (WeaponConfig.bIsChargable){
 					// if is trying to charge and is able (stamina), not sure if checking charge stamina is necessary
 					if (bWantsToCharge && CanCharge()){
 						NewState = EWeaponState::Charging;
+					}else if (bIsCharging) {
+						NewState = EWeaponState::Using;
 					}
-					else{
-						// not enough stamina to start charge					
-					}
-				}
-				else{
+				}else{
 					// not chargable
 					NewState = EWeaponState::Using;
 				}
-			}
-			else{
+			}else{
 				// not enough stamina to use weapon
 			}
-		}
-		else{
+		}else{
 			// on press released
 
 			// some of these checks are redundant
 			// is a chargable weapon
-			if (bIsChargable){
+			if (WeaponConfig.bIsChargable){
 				// check for currently charging
 				if (bWantsToCharge && bIsCharging){
 					NewState = EWeaponState::Using;
-				}
-				else{
+				}else{
 					// not currently charging
 					// i have no idea when this would happen
 				}
@@ -277,8 +302,7 @@ void AFMWeapon::DetermineWeaponState(){
 
 			// if not a chargable weapon, do nothing
 		}
-	}
-	else if (bPendingEquip){
+	}else if (bPendingEquip){
 		// weapon is being equipped
 		NewState = EWeaponState::Equipping;
 	}
@@ -298,7 +322,7 @@ void AFMWeapon::StartUseWeaponPressed(){
 
 	if (!bWantsToUse){
 		bWantsToUse = true;
-		if(bIsChargable){
+		if(WeaponConfig.bIsChargable){
 			bWantsToCharge = true;
 		}
 			
@@ -313,10 +337,10 @@ void AFMWeapon::StartUseWeaponReleased(){
 
 	if (!bWantsToUse){
 		bWantsToUse = false;
-		if(bIsChargable){
-			bWantsToCharge = false;
-			DetermineWeaponState();
+		if(WeaponConfig.bIsChargable){
+			bWantsToCharge = false;	
 		}
+		DetermineWeaponState();
 	}
 }
 

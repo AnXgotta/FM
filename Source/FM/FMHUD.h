@@ -178,4 +178,5 @@ public:
 
 	void DrawDebugHealthStamina();
 
+	void DrawDebugTimer();
 };

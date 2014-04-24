@@ -325,9 +325,6 @@ protected:
 
 
 
-
-
-
 	//  Time at which point the last take hit info for the actor times out and won't be replicated; Used to stop join-in-progress effects all over the screen
 	float LastTakeHitTimeTimeout;
 

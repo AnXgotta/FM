@@ -18,11 +18,15 @@ AFMGameMode::AFMGameMode(const class FPostConstructInitializeProperties& PCIP)
 		DefaultPawnClass = (UClass*)PlayerPawnObject.Object->GeneratedClass;
 	}
 
-	//HUDClass = AFMHUD::StaticClass();
+	HUDClass = AFMHUD::StaticClass();
 	PlayerControllerClass = AFMPlayerController::StaticClass();
 	//PlayerStateClass = AFMPlayerState::StaticClass();
-	//GameStateClass = AFMGameState::StaticClass();
+	GameStateClass = AFMGameState::StaticClass();
 
+
+	WarmupTime = 0;
+
+	RoundTime = 240;
 
 }
 
@@ -45,91 +49,9 @@ void AFMGameMode::InitGame(const FString& MapName, const FString& Options, FStri
 }
 
 
-// Returns game session class to use
-TSubclassOf<AGameSession> AFMGameMode::GetGameSessionClass() const {
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: GetGameSessionClass "));
-	}
-	return AFMGameSession::StaticClass();
-	
-}
 
-void AFMGameMode::DefaultTimer(){
-	Super::DefaultTimer();
 
-	// don't update timers for Play In Editor mode, it's not real match
-	if (GetWorld()->IsPlayInEditor()){
-		return;
-	}
 
-	AFMGameState* const MyGameState = Cast<AFMGameState>(GameState);
-	if (MyGameState && MyGameState->RemainingTime > 0 && !MyGameState->bTimerPaused){
-		MyGameState->RemainingTime--;
-
-		if (MyGameState->RemainingTime <= 0){
-			if (MyGameState->bMatchIsOver){
-				RestartGame();
-			}else if (MyGameState->bMatchHasBegun){
-				FinishMatch();
-			}else{
-				StartMatch();
-			}
-		}
-	}
-}
-
-void AFMGameMode::StartMatch(){
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: StartMatch"));
-	}
-
-	AFMGameState* const MyGameState = Cast<AFMGameState>(GameState);
-	const bool bWasStarted = MyGameState && MyGameState->bMatchHasBegun;
-
-	Super::StartMatch();
-
-	const bool bIsStarted = MyGameState && MyGameState->bMatchHasBegun;
-	if (!bWasStarted && bIsStarted)	{
-		MyGameState->RemainingTime = RoundTime;
-		bDelayedStart = false;
-
-		// notify players
-		for (FConstControllerIterator It = GetWorld()->GetControllerIterator(); It; ++It)		{
-			AFMPlayerController* PC = Cast<AFMPlayerController>(*It);
-			if (PC)			{
-				//PC->ClientGameStarted();
-			}
-		}
-	}
-}
-
-void AFMGameMode::FinishMatch(){
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: FinishMatch"));
-	}
-
-	AFMGameState* const MyGameState = Cast<AFMGameState>(GameState);
-	if (!MyGameState->bMatchIsOver)	{
-		PerformEndGameHandling();
-		DetermineMatchWinner();
-
-		// notify players
-		for (FConstControllerIterator It = GetWorld()->GetControllerIterator(); It; ++It)		{
-			AFMPlayerState* PlayerState = Cast<AFMPlayerState>((*It)->PlayerState);
-			const bool bIsWinner = IsWinner(PlayerState);
-
-			(*It)->GameHasEnded(NULL, bIsWinner);
-		}
-
-		// lock all pawns
-		for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)		{
-			(*It)->TurnOff();
-		}
-
-		// set up to restart the match
-		MyGameState->RemainingTime = TimeBetweenMatches;
-	}
-}
 
 void AFMGameMode::DetermineMatchWinner(){
 	// nothing to do here
@@ -242,18 +164,105 @@ bool AFMGameMode::AllowCheats(APlayerController* P){
 	return false;
 }
 
-bool AFMGameMode::ShouldSpawnAtStartSpot(AController* Player){
-	return false;
-}
+*/
 
+
+
+/*
 UClass* AFMGameMode::GetDefaultPawnClassForController(AController* InController){
 	return Super::GetDefaultPawnClassForController(InController);
 }
 */
 
+/////////////////////////////////////////////////////////////////////////////////////
+// MATCH CONTROL
+
+void AFMGameMode::DefaultTimer(){
+	Super::DefaultTimer();
+
+	// don't update timers for Play In Editor mode, it's not real match
+	if (GetWorld()->IsPlayInEditor()){
+		return;
+	}
+
+	AFMGameState* const MyGameState = Cast<AFMGameState>(GameState);
+	if (MyGameState && MyGameState->RemainingTime > 0 && !MyGameState->bTimerPaused){
+		MyGameState->RemainingTime--;
+
+		if (MyGameState->RemainingTime <= 0){
+			if (MyGameState->bMatchIsOver){
+				RestartGame();
+			}
+			else if (MyGameState->bMatchHasBegun){
+				FinishMatch();
+			}
+			else{
+				StartMatch();
+			}
+		}
+	}
+}
+
+void AFMGameMode::StartMatch(){
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: StartMatch"));
+	}
+
+	AFMGameState* const MyGameState = Cast<AFMGameState>(GameState);
+	const bool bWasStarted = MyGameState && MyGameState->bMatchHasBegun;
+
+	Super::StartMatch();
+
+	const bool bIsStarted = MyGameState && MyGameState->bMatchHasBegun;
+	if (!bWasStarted && bIsStarted)	{
+		MyGameState->RemainingTime = RoundTime;
+		bDelayedStart = false;
+
+		// notify players
+		for (FConstControllerIterator It = GetWorld()->GetControllerIterator(); It; ++It)		{
+			AFMPlayerController* PC = Cast<AFMPlayerController>(*It);
+			if (PC)	{
+				PC->ClientGameStarted();
+			}
+		}
+	}
+}
+
+void AFMGameMode::FinishMatch(){
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: FinishMatch"));
+	}
+
+	AFMGameState* const MyGameState = Cast<AFMGameState>(GameState);
+	if (!MyGameState->bMatchIsOver)	{
+		PerformEndGameHandling();
+		//DetermineMatchWinner();
+
+		// notify players
+		for (FConstControllerIterator It = GetWorld()->GetControllerIterator(); It; ++It)		{
+			AFMPlayerState* PlayerState = Cast<AFMPlayerState>((*It)->PlayerState);
+			//const bool bIsWinner = IsWinner(PlayerState);
+
+			//(*It)->GameHasEnded(NULL, bIsWinner);
+		}
+
+		// lock all pawns
+		for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)		{
+			(*It)->TurnOff();
+		}
+
+		// set up to restart the match
+		//MyGameState->RemainingTime = TimeBetweenMatches;
+	}
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 // PLAYER SPAWNING
+
+bool AFMGameMode::ShouldSpawnAtStartSpot(AController* Player){
+	return false;
+}
 
 AActor* AFMGameMode::ChoosePlayerStart(AController* Player){
 	TArray<APlayerStart*> PreferredSpawns;
@@ -324,4 +333,17 @@ bool AFMGameMode::IsSpawnpointPreferred(APlayerStart* SpawnPoint, AController* P
 	}
 
 	return true;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// GAME SESSEION
+
+// Returns game session class to use
+TSubclassOf<AGameSession> AFMGameMode::GetGameSessionClass() const {
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: GetGameSessionClass "));
+	}
+	return AFMGameSession::StaticClass();
+
 }
