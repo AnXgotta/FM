@@ -201,14 +201,9 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 	// release click to end charge and fire
 	if (PrevState == EWeaponState::Charging && NewState == EWeaponState::Using){
 		bIsCharging = false;
-		// DO USE WEAPON / HANDLE COMBO
-		// OnUseWeaponStarted()
+		// Start using weapon
+		OnUseWeaponStarted();
 
-		// for combos we need to know if already in use...
-		// we will need an array to hold use types [Swings] and can do a check for currentSwing
-		// if currentSwing != firstSwing, manage combo stuff [if in combo window -> do combo | else -> end use] 
-
-		//otherwise just start first swing
 		if (Role == ROLE_Authority){
 			if (GEngine){
 				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: SERVER : Using %f"), chargeValue));
