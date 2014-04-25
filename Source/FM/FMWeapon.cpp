@@ -151,6 +151,16 @@ void AFMWeapon::Tick(float DeltaSeconds){
 
 	if (bIsCharging){
 		chargeValue = FMath::Min(chargeValue + DeltaSeconds, WeaponConfig.maxChargeValue);
+		if (Role == ROLE_Authority){
+			if (GEngine){
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: SERVER : Charging!! %f"), chargeValue));
+			}
+		}
+		else{
+			if (GEngine){
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: CLIENT : Charging!! %f"), chargeValue));
+			}
+		}
 	}
 
 }
