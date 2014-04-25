@@ -219,6 +219,9 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: CLIENT : Using %f"), chargeValue));
 			}
 		}
+
+		chargeValue = 0.0f;
+
 	}
 
 	// end of using weapon
