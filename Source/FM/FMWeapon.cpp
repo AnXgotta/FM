@@ -277,7 +277,7 @@ void AFMWeapon::DetermineWeaponState(){
 			NewState = EWeaponState::UnEquipping;
 		}else{
 			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Doesn't want to use, wtf."), chargeValue));
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Idle weapon."), chargeValue));
 			}
 		}
 	}else if (bPendingEquip){
