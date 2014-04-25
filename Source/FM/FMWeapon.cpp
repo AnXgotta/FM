@@ -170,16 +170,6 @@ EWeaponState::Type AFMWeapon::GetCurrentState() const{
 
 void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 
-	// odd state change structure with a chargable weapon... explination:
-	/*
-	Click use chargable weapon -> state goes to charging
-	Release use chargable weapon -> state goes to using
-	Weapon being used
-	Click to use chargable weapon again ->state goes to charging
-	Release us chargable weapon again -> state goes to using
-	????? -> ???? [charged combo?]
-	*/
-
 	const EWeaponState::Type PrevState = CurrentState;
 
 	// initial click and start initial charge
@@ -225,27 +215,11 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 	if (PrevState == EWeaponState::Using && NewState != EWeaponState::Using){
 		// STOP USE WEAPON
 		// OnUseWeaponFinished()
-		bWantsToUse = false;
+		
 	}
 
 	// non chargable weapon initial use
-	if (PrevState != EWeaponState::Using && NewState == EWeaponState::Using){
-		// DO USE WEAPON
-		// OnUseWeaponStarted()
-		if (Role == ROLE_Authority){
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: SERVER : Use Charge %f"), chargeValue));
-			}
-		}
-		else{
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: CLIENT : Use Charge %f"), chargeValue));
-			}
-		}
-
-
-
-	}
+	
 
 	// non charge weapon try to use while currently using
 	if (PrevState == EWeaponState::Using && NewState == EWeaponState::Using){
@@ -254,7 +228,9 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 		// for combos we need to know if already in use...
 		// we will need an array to hold use types [Swings] and can do a check for currentSwing
 		// if currentSwing != firstSwing, manage combo stuff [if in combo window -> do combo | else -> end use] 
-
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("If Previously using and currently charging."), chargeValue));
+		}
 		//otherwise just start first swing
 	}
 
@@ -277,6 +253,12 @@ void AFMWeapon::DetermineWeaponState(){
 					if (bWantsToCharge && CanCharge()){
 						NewState = EWeaponState::Charging;
 					}else if (bIsCharging) {
+						//run out of stamina while charging to force fire?
+						if (GEngine){
+							GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Wants to use and is charging"), chargeValue));
+						}
+						NewState = EWeaponState::Using;
+					}else{
 						NewState = EWeaponState::Using;
 					}
 				}else{
@@ -284,10 +266,19 @@ void AFMWeapon::DetermineWeaponState(){
 					NewState = EWeaponState::Using;
 				}
 			}else{
-				// not enough stamina to use weapon
+				// HANDLE not enough stamina to use weapon
 			}
+		}else if(bPendingUnEquip){
+			NewState = EWeaponState::UnEquipping;
+		}else if(bIsCharging){
+			if (GEngine){
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Use during a charge"), chargeValue));
+			}
+			NewState = EWeaponState::Using;
 		}else{
-			// idle or ?
+			if (GEngine){
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Doesn't want to use, wtf."), chargeValue));
+			}
 		}
 	}else if (bPendingEquip){
 		// weapon is being equipped
@@ -322,7 +313,7 @@ void AFMWeapon::StartUseWeaponReleased(){
 		ServerStartUseWeaponReleased();
 	}
 
-	if (!bWantsToUse){
+	if (bWantsToUse){
 		bWantsToUse = false;
 		if(WeaponConfig.bIsChargable){
 			bWantsToCharge = false;	
@@ -371,7 +362,7 @@ bool AFMWeapon::CanUse() const {
 
 bool AFMWeapon::CanCharge() const {
 	bool bCanUse = MyPawn && MyPawn->CanUse();
-	bool bEnoughStamina = MyPawn && (MyPawn->GetCurrentStamina() > WeaponConfig.StaminaCostCharging);
+	bool bEnoughStamina = MyPawn && (MyPawn->GetCurrentStamina() > WeaponConfig.StaminaCostCharging + WeaponConfig.StaminaCost);
 	//bool bStateOKToUse = (CurrentState == EWeaponState::Idle) || (CurrentState == EWeaponState::Using);
 	return bCanUse && bEnoughStamina && !bPendingCooldown;
 	return false;

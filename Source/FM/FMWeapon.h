@@ -11,6 +11,7 @@ namespace EWeaponState{
 		Using,
 		Cooldown,
 		Equipping,
+		UnEquipping,
 		Charging,
 	};
 }
