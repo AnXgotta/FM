@@ -998,6 +998,10 @@ void AFMCharacter::OnFire0Pressed(){
 
 void AFMCharacter::OnFire0Released(){
 
+	if (CurrentWeapon){
+		CurrentWeapon->StartUseWeaponReleased();
+	}
+
 	// startuseweaponreleased
 
 		// try and fire a projectile
