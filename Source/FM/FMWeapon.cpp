@@ -422,11 +422,6 @@ void AFMWeapon::OnUseWeaponStarted(){
 }
 
 void AFMWeapon::SetOwningPawn(AFMCharacter* NewOwner){
-	
-	// I HAVE NO IDEA WHY THE CODE BELOW SHOWS ERRORS.
-	// "cannot convert arg 1 from AFMCharacter* to AActor* in SetOwner(arg1)"
-	// THIS MAKES NO SENSE BECAUSE AFMCharacter inherits from AActor.... it is an AActor
-	// also, this is done in the shooter game with no problem
 	if (MyPawn != NewOwner){
 		Instigator = NewOwner;
 		MyPawn = NewOwner;
@@ -445,13 +440,6 @@ void AFMWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AFMWeapon, MyPawn);
-
-	//DOREPLIFETIME_CONDITION(AShooterWeapon, CurrentAmmo, COND_OwnerOnly);
-	//DOREPLIFETIME_CONDITION(AShooterWeapon, CurrentAmmoInClip, COND_OwnerOnly);
-
-	//DOREPLIFETIME_CONDITION(AShooterWeapon, BurstCounter, COND_SkipOwner);
-	//DOREPLIFETIME_CONDITION(AShooterWeapon, bPendingReload, COND_SkipOwner);
-
 }
 
 void AFMWeapon::OnRep_MyPawn(){
@@ -460,16 +448,6 @@ void AFMWeapon::OnRep_MyPawn(){
 	}else{
 		//OnLeaveInventory();
 	}
-}
-
-void AFMWeapon::OnRep_Cooldown(){
-	/*
-	if (bPendingReload){
-		StartReload(true);
-	}else{
-		StopReload();
-	}
-	*/
 }
 
 class AFMCharacter* AFMWeapon::GetPawnOwner() const {

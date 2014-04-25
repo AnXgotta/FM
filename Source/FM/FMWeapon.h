@@ -152,7 +152,7 @@ class AFMWeapon : public AActor
 	float EquipDuration;
 
 	// is reload animation playing? 
-	UPROPERTY(Transient, ReplicatedUsing = OnRep_Cooldown)
+	//UPROPERTY(Transient, ReplicatedUsing = OnRep_Cooldown)
 		uint32 bPendingCooldown : 1;
 
 	// is weapon currently equipped? 
@@ -219,10 +219,6 @@ class AFMWeapon : public AActor
 	// [server] performs actual cooldown 
 	//virtual void CooldownWeapon();
 
-	// trigger cooldown from server 
-	UFUNCTION(reliable, client)
-		void ClientStartCooldown();
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// INPUT - SERVER
@@ -233,14 +229,6 @@ class AFMWeapon : public AActor
 	UFUNCTION(reliable, server, WithValidation)
 		void ServerStartUseWeaponReleased();
 
-	UFUNCTION(reliable, server, WithValidation)
-		void ServerStopUseWeapon();
-
-	UFUNCTION(reliable, server, WithValidation)
-		void ServerStartCooldown();
-
-	UFUNCTION(reliable, server, WithValidation)
-		void ServerStopCooldown();
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -262,17 +250,6 @@ class AFMWeapon : public AActor
 	/** [local + server] weapon usage started */
 	virtual void OnUseWeaponStarted();
 
-	/** [local + server] weapon usage finished */
-	virtual void OnUseWeaponFinished();
-
-	/** [server] fire & update ammo */
-	UFUNCTION(reliable, server, WithValidation)
-		void ServerHandleFiring();
-
-	/** [local + server] handle weapon fire */
-	void HandleFiring();
-
-
 	// is weapon charge active?
 	bool bWantsToCharge;
 
@@ -288,29 +265,13 @@ class AFMWeapon : public AActor
 	// [local] weapon specific fire implementation 
 	virtual void UseWeapon() PURE_VIRTUAL(AFMCharacter::UseWeapon, );
 
-	// [server] fire & update ammo 
-	UFUNCTION(reliable, server, WithValidation)
-		void ServerHandleUseWeapon();
-
-	// [local + server] handle weapon fire 
-	void HandleUseWeapon();
-
-	// Called in network play to do the cosmetic fx for firing 
-	virtual void SimulateWeaponUse();
-
-	// Called in network play to stop cosmetic fx (e.g. for a looping shot). 
-	virtual void StopSimulatingWeaponUse();
-
-
 	//////////////////////////////////////////////////////////////////////////
 	// REPLICATION AND EFFECTS
 
 	UFUNCTION()
 		void OnRep_MyPawn();
 
-	UFUNCTION()
-		void OnRep_Cooldown();
-
+	
 
 	//////////////////////////////////////////////////////////////////////////
 	// STAMINA
