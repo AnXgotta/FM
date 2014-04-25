@@ -268,13 +268,13 @@ void AFMWeapon::DetermineWeaponState(){
 			}else{
 				// HANDLE not enough stamina to use weapon
 			}
-		}else if(bPendingUnEquip){
-			NewState = EWeaponState::UnEquipping;
 		}else if(bIsCharging){
 			if (GEngine){
 				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Use during a charge"), chargeValue));
 			}
 			NewState = EWeaponState::Using;
+		}else if (bPendingUnEquip){
+			NewState = EWeaponState::UnEquipping;
 		}else{
 			if (GEngine){
 				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Doesn't want to use, wtf."), chargeValue));
