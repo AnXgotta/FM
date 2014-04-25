@@ -15,10 +15,10 @@ AFMPlayerController::AFMPlayerController(const class FPostConstructInitializePro
 	bAllowGameActions = true;
 
 	if (!HasAnyFlags(RF_ClassDefaultObject)){
-		OnStartSessionCompleteEndItDelegate = FOnEndSessionCompleteDelegate::CreateUObject(this, &AFMPlayerController::OnStartSessionCompleteEndIt);
-		OnEndSessionCompleteDelegate = FOnEndSessionCompleteDelegate::CreateUObject(this, &AFMPlayerController::OnEndSessionComplete);
-		OnDestroySessionCompleteDelegate = FOnDestroySessionCompleteDelegate::CreateUObject(this, &AFMPlayerController::OnDestroySessionComplete);
-		OnAchievementsReadDelegate = FOnAchievementsReadDelegate::CreateUObject(this, &AFMPlayerController::OnAchievementsRead);
+		//OnStartSessionCompleteEndItDelegate = FOnEndSessionCompleteDelegate::CreateUObject(this, &AFMPlayerController::OnStartSessionCompleteEndIt);
+		//OnEndSessionCompleteDelegate = FOnEndSessionCompleteDelegate::CreateUObject(this, &AFMPlayerController::OnEndSessionComplete);
+		//OnDestroySessionCompleteDelegate = FOnDestroySessionCompleteDelegate::CreateUObject(this, &AFMPlayerController::OnDestroySessionComplete);
+		//OnAchievementsReadDelegate = FOnAchievementsReadDelegate::CreateUObject(this, &AFMPlayerController::OnAchievementsRead);
 	}
 	ServerSayString = TEXT("Say");
 }
@@ -64,8 +64,8 @@ void AFMPlayerController::ReadAchievements(){
 					IOnlineAchievementsPtr Achievements = OnlineSub->GetAchievementsInterface();
 
 					if (Achievements.IsValid())	{
-						Achievements->AddOnAchievementsReadDelegate(OnAchievementsReadDelegate);
-						Achievements->ReadAchievements(*UserId.Get());
+					//	Achievements->AddOnAchievementsReadDelegate(OnAchievementsReadDelegate);
+					//	Achievements->ReadAchievements(*UserId.Get());
 					}
 				}else{
 					UE_LOG(LogOnline, Warning, TEXT("No valid user id for this controller."));
@@ -80,7 +80,7 @@ void AFMPlayerController::ReadAchievements(){
 		UE_LOG(LogOnline, Warning, TEXT("No local player, cannot read achievements."));
 	}
 }
-
+/*
 void AFMPlayerController::OnAchievementsRead(const FUniqueNetId& PlayerId, bool bWasSuccessful){
 	UE_LOG(LogOnline, Display, TEXT("AShooterPlayerController::OnAchievementsRead(bWasSuccessful = %s)"), bWasSuccessful ? TEXT("TRUE") : TEXT("FALSE"));
 
@@ -93,7 +93,7 @@ void AFMPlayerController::OnAchievementsRead(const FUniqueNetId& PlayerId, bool 
 		}
 	}
 }
-
+*/
 void AFMPlayerController::UnFreeze(){
 	ServerRestartPlayer();
 }
@@ -376,25 +376,25 @@ void AFMPlayerController::CleanupSessionOnReturnToMenu(){
 
 				if (EOnlineSessionState::InProgress == SessionState){
 					UE_LOG(LogOnline, Log, TEXT("Ending session %s on return to main menu"), *FMPlayerState->SessionName.ToString());
-					Sessions->AddOnEndSessionCompleteDelegate(OnEndSessionCompleteDelegate);
+//					Sessions->AddOnEndSessionCompleteDelegate(OnEndSessionCompleteDelegate);
 					bPendingOnlineOp = Sessions->EndSession(FMPlayerState->SessionName);
 					if (!bPendingOnlineOp)	{
-						Sessions->ClearOnEndSessionCompleteDelegate(OnEndSessionCompleteDelegate);
+//						Sessions->ClearOnEndSessionCompleteDelegate(OnEndSessionCompleteDelegate);
 					}
 				}else if (EOnlineSessionState::Ending == SessionState){
 					UE_LOG(LogOnline, Log, TEXT("Waiting for session %s to end on return to main menu"), *FMPlayerState->SessionName.ToString());
-					Sessions->AddOnEndSessionCompleteDelegate(OnEndSessionCompleteDelegate);
+//					Sessions->AddOnEndSessionCompleteDelegate(OnEndSessionCompleteDelegate);
 					bPendingOnlineOp = true;
 				}else if (EOnlineSessionState::Ended == SessionState ||	EOnlineSessionState::Pending == SessionState){
 					UE_LOG(LogOnline, Log, TEXT("Destroying session %s on return to main menu"), *FMPlayerState->SessionName.ToString());
-					Sessions->AddOnDestroySessionCompleteDelegate(OnDestroySessionCompleteDelegate);
+//					Sessions->AddOnDestroySessionCompleteDelegate(OnDestroySessionCompleteDelegate);
 					bPendingOnlineOp = Sessions->DestroySession(FMPlayerState->SessionName);
 					if (!bPendingOnlineOp){
-						Sessions->ClearOnDestroySessionCompleteDelegate(OnDestroySessionCompleteDelegate);
+//						Sessions->ClearOnDestroySessionCompleteDelegate(OnDestroySessionCompleteDelegate);
 					}
 				}else if (EOnlineSessionState::Starting == SessionState){
 					UE_LOG(LogOnline, Log, TEXT("Waiting for session %s to start, and then we will end it to return to main menu"), *FMPlayerState->SessionName.ToString());
-					Sessions->AddOnStartSessionCompleteDelegate(OnStartSessionCompleteEndItDelegate);
+//					Sessions->AddOnStartSessionCompleteDelegate(OnStartSessionCompleteEndItDelegate);
 					bPendingOnlineOp = true;
 				}
 			}
@@ -406,6 +406,7 @@ void AFMPlayerController::CleanupSessionOnReturnToMenu(){
 	}
 }
 
+/*
 void AFMPlayerController::OnStartSessionCompleteEndIt(FName SessionName, bool bWasSuccessful){
 	UE_LOG(LogOnline, Log, TEXT("OnStartSessionCompleteEndIt: Session=%s bWasSuccessful=%s"), *SessionName.ToString(), bWasSuccessful ? TEXT("true") : TEXT("false"));
 
@@ -420,13 +421,13 @@ void AFMPlayerController::OnStartSessionCompleteEndIt(FName SessionName, bool bW
 	// continue
 	CleanupSessionOnReturnToMenu();
 }
-
+*/
 /**
 * Delegate fired when ending an online session has completed
 *
 * @param SessionName the name of the session this callback is for
 * @param bWasSuccessful true if the async action completed without error, false if there was an error
-*/
+*//*
 void AFMPlayerController::OnEndSessionComplete(FName SessionName, bool bWasSuccessful){
 	UE_LOG(LogOnline, Log, TEXT("OnEndSessionComplete: Session=%s bWasSuccessful=%s"), *SessionName.ToString(), bWasSuccessful ? TEXT("true") : TEXT("false"));
 
@@ -441,13 +442,13 @@ void AFMPlayerController::OnEndSessionComplete(FName SessionName, bool bWasSucce
 	// continue
 	CleanupSessionOnReturnToMenu();
 }
-
+*/
 /**
 * Delegate fired when destroying an online session has completed
 *
 * @param SessionName the name of the session this callback is for
 * @param bWasSuccessful true if the async action completed without error, false if there was an error
-*/
+*//*
 void AFMPlayerController::OnDestroySessionComplete(FName SessionName, bool bWasSuccessful){
 	UE_LOG(LogOnline, Log, TEXT("OnDestroySessionComplete: Session=%s bWasSuccessful=%s"), *SessionName.ToString(), bWasSuccessful ? TEXT("true") : TEXT("false"));
 
@@ -462,6 +463,8 @@ void AFMPlayerController::OnDestroySessionComplete(FName SessionName, bool bWasS
 	// continue
 	CleanupSessionOnReturnToMenu();
 }
+*/
+
 
 void AFMPlayerController::ClientGameEnded_Implementation(class AActor* EndGameFocus, bool bIsWinner){
 	Super::ClientGameEnded_Implementation(EndGameFocus, bIsWinner);

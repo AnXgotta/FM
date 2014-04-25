@@ -4,7 +4,7 @@
 	<ItemGroup>
 		<None Include="..\..\FM.uproject" />
 		<Filter Include="Source">
-			<UniqueIdentifier>{FA99615B-E578-43BC-A92D-D61C907397A4}</UniqueIdentifier>
+			<UniqueIdentifier>{EB0C91AE-BA11-46CD-8D18-67E776D053C6}</UniqueIdentifier>
 		</Filter>
 		<None Include="..\..\Source\FM.Target.cs">
 			<Filter>Source</Filter>
@@ -13,7 +13,7 @@
 			<Filter>Source</Filter>
 		</None >
 		<Filter Include="Config">
-			<UniqueIdentifier>{19A424DF-FAC0-4E24-AC88-B71D01D37FBA}</UniqueIdentifier>
+			<UniqueIdentifier>{8C57C257-2340-4B0E-87F4-F8CFC3F25D0F}</UniqueIdentifier>
 		</Filter>
 		<None Include="..\..\Config\DefaultEditorUserSettings.ini">
 			<Filter>Config</Filter>
@@ -28,7 +28,7 @@
 			<Filter>Config</Filter>
 		</None >
 		<Filter Include="Source\FM">
-			<UniqueIdentifier>{BA572EEB-00B1-4EA0-8899-48793928AE67}</UniqueIdentifier>
+			<UniqueIdentifier>{A81F3EA3-18BB-4BE5-9125-E8840FE57365}</UniqueIdentifier>
 		</Filter>
 		<None Include="..\..\Source\FM\FM.Build.cs">
 			<Filter>Source\FM</Filter>
@@ -127,10 +127,10 @@
 			<Filter>Source\FM</Filter>
 		</ClInclude >
 		<Filter Include="Source\FM\Resources">
-			<UniqueIdentifier>{C709D0CB-2046-4501-A7ED-B8DEF049FFBE}</UniqueIdentifier>
+			<UniqueIdentifier>{0525DE98-9E13-49D6-B531-2F02ED3F4603}</UniqueIdentifier>
 		</Filter>
 		<Filter Include="Source\FM\Resources\Windows">
-			<UniqueIdentifier>{9FE21D3F-C15F-4E09-8BD5-3372A507E22D}</UniqueIdentifier>
+			<UniqueIdentifier>{F18D1F59-8AE8-464E-A314-BE9097564B94}</UniqueIdentifier>
 		</Filter>
 		<None Include="..\..\Source\FM\Resources\Windows\FM.ico">
 			<Filter>Source\FM\Resources\Windows</Filter>

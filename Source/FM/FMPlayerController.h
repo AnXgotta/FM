@@ -15,16 +15,16 @@ class AFMPlayerController : public APlayerController
 
 public:
 	/** Delegate for starting a session */
-	FOnEndSessionCompleteDelegate OnStartSessionCompleteEndItDelegate;
+//	FOnEndSessionCompleteDelegate OnStartSessionCompleteEndItDelegate;
 
 	/** Delegate for ending a session */
-	FOnEndSessionCompleteDelegate OnEndSessionCompleteDelegate;
+	//FOnEndSessionCompleteDelegate OnEndSessionCompleteDelegate;
 
 	/** Delegate for destroying a session */
-	FOnDestroySessionCompleteDelegate OnDestroySessionCompleteDelegate;
+	//FOnDestroySessionCompleteDelegate OnDestroySessionCompleteDelegate;
 
 	/** Delegate called when we have read/failed to read the achievements from the server */
-	FOnAchievementsReadDelegate OnAchievementsReadDelegate;
+//	FOnAchievementsReadDelegate OnAchievementsReadDelegate;
 
 	/** sets spectator location and rotation */
 	UFUNCTION(reliable, client)
@@ -101,7 +101,7 @@ public:
 	* @param SessionName the name of the session this callback is for
 	* @param bWasSuccessful true if the async action completed without error, false if there was an error
 	*/
-	virtual void OnStartSessionCompleteEndIt(FName SessionName, bool bWasSuccessful);
+	//virtual void OnStartSessionCompleteEndIt(FName SessionName, bool bWasSuccessful);
 
 	/**
 	* Delegate fired when ending an online session has completed
@@ -109,7 +109,7 @@ public:
 	* @param SessionName the name of the session this callback is for
 	* @param bWasSuccessful true if the async action completed without error, false if there was an error
 	*/
-	virtual void OnEndSessionComplete(FName SessionName, bool bWasSuccessful);
+//	virtual void OnEndSessionComplete(FName SessionName, bool bWasSuccessful);
 
 	/**
 	* Delegate fired when destroying an online session has completed
@@ -117,7 +117,7 @@ public:
 	* @param SessionName the name of the session this callback is for
 	* @param bWasSuccessful true if the async action completed without error, false if there was an error
 	*/
-	virtual void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
+	//virtual void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
 
 	/**
 	* Called when the read achievements request from the server is complete
@@ -125,7 +125,7 @@ public:
 	* @param PlayerId The player id who is responsible for this delegate being fired
 	* @param bWasSuccessful true if the server responded successfully to the request
 	*/
-	void OnAchievementsRead(const FUniqueNetId& PlayerId, bool bWasSuccessful);
+//	void OnAchievementsRead(const FUniqueNetId& PlayerId, bool bWasSuccessful);
 
 	// Begin APlayerController interface
 
