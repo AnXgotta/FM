@@ -149,16 +149,24 @@ void AFMWeapon::PostInitializeComponents(){
 void AFMWeapon::Tick(float DeltaSeconds){
 	Super::Tick(DeltaSeconds);
 
+	// if charging
 	if (bIsCharging){
-		chargeValue = FMath::Min(chargeValue + DeltaSeconds, WeaponConfig.maxChargeValue);
-		if (Role == ROLE_Authority){
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: SERVER : Charging!! %f"), chargeValue));
-			}
-		}
-		else{
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: CLIENT : Charging!! %f"), chargeValue));
+		// if not enough stamina or fully charged, then stop charging 
+		if (chargeValue == WeaponConfig.maxChargeValue || (MyPawn && !MyPawn->CheckIfStaminaGreaterThan((WeaponConfig.StaminaCostCharging * DeltaSeconds) + 1.0f))){
+			// do nothing
+		}else{
+			// determine new charge value
+			chargeValue = FMath::Min(chargeValue + DeltaSeconds, WeaponConfig.maxChargeValue);
+			// use stamina for this tick
+			UseStamina(true, DeltaSeconds);
+			if (Role == ROLE_Authority){
+				if (GEngine){
+					GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: SERVER : Charging!! %f"), chargeValue));
+				}
+			}else{
+				if (GEngine){
+					GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: CLIENT : Charging!! %f"), chargeValue));
+				}
 			}
 		}
 	}
@@ -184,6 +192,7 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 
 	// initial click and start initial charge
 	if (PrevState == EWeaponState::Idle && NewState == EWeaponState::Charging){
+		UseStamina(false, 0.0f);
 		bWantsToCharge = false;
 		bIsCharging = true;
 		if (Role == ROLE_Authority){
@@ -201,8 +210,6 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 	// release click to end charge and fire
 	if (PrevState == EWeaponState::Charging && NewState == EWeaponState::Using){
 		bIsCharging = false;
-		// Start using weapon
-		OnUseWeaponStarted();
 
 		if (Role == ROLE_Authority){
 			if (GEngine){
@@ -215,15 +222,46 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 			}
 		}
 
-		chargeValue = 0.0f;
-
+		// Start using weapon
+		OnUseWeaponStarted();
 	}
 
-	// end of using weapon
-	if (PrevState == EWeaponState::Using && NewState != EWeaponState::Using){
-		// STOP USE WEAPON
-		// OnUseWeaponFinished()
+	// use weapon for non-charging weapons
+	if (PrevState == EWeaponState::Idle && NewState == EWeaponState::Using){
+
+		if (Role == ROLE_Authority){
+			if (GEngine){
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: SERVER : Using No CHarge %f"), chargeValue));
+			}
+		}
+		else{
+			if (GEngine){
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: CLIENT : Using no charge %f"), chargeValue));
+			}
+		}
+
+		// Start using weapon
+		OnUseWeaponStarted();
+	}
+
+	// combo for charging weapon
+	if (PrevState == EWeaponState::Using && NewState == EWeaponState::Charging){
 		
+		// This might be handled in child weapon classes using timer
+		// to call OnUseWeaponEnded() to handle combos and swing time.
+		
+		// STOP USE WEAPON
+		//OnUseWeaponEnded();
+		if (Role == ROLE_Authority){
+			if (GEngine){
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: SERVER : Using Combo, charging weapon %f"), chargeValue));
+			}
+		}
+		else{
+			if (GEngine){
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: CLIENT : Using Combo, charging weapon %f"), chargeValue));
+			}
+		}
 	}
 
 	// non chargable weapon initial use
@@ -275,6 +313,9 @@ void AFMWeapon::DetermineWeaponState(){
 				}
 			}else{
 				// HANDLE not enough stamina to use weapon
+				if (GEngine){
+					GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Not Enough Stamina to USE"), chargeValue));
+				}
 			}
 		}else if(bIsCharging){
 			if (GEngine){
@@ -323,9 +364,11 @@ void AFMWeapon::StartUseWeaponReleased(){
 
 	if (bWantsToUse){
 		bWantsToUse = false;
+
 		if(WeaponConfig.bIsChargable){
 			bWantsToCharge = false;	
 		}
+
 		DetermineWeaponState();
 	}
 }
@@ -350,75 +393,60 @@ void AFMWeapon::ServerStartUseWeaponReleased_Implementation(){
 //////////////////////////////////////////////////////////////////////////
 // WEAPON USAGE
 
-void AFMWeapon::UseStamina(bool bIsCharging){
+void AFMWeapon::UseStamina(bool bIsCharging, float DeltaSeconds){
 	if (MyPawn){
 		if (!bIsCharging){
 			MyPawn->UseStamina(WeaponConfig.StaminaCost);
 		}else{
-			MyPawn->UseStamina(WeaponConfig.StaminaCostCharging);
+			MyPawn->UseStamina(WeaponConfig.StaminaCostCharging * DeltaSeconds);
 		}
 		
 	}	
 }
 
+void AFMWeapon::BeginStaminaCooldown(){
+	if (MyPawn){
+		MyPawn->ResetStaminaCooldown();
+	}
+}
+
 bool AFMWeapon::CanUse() const {
 	bool bCanUse = MyPawn && MyPawn->CanUse();
-	bool bEnoughStamina = MyPawn && (MyPawn->GetCurrentStamina() > WeaponConfig.StaminaCost);
+	bool bEnoughStamina = MyPawn && MyPawn->CheckIfStaminaGreaterThan(WeaponConfig.StaminaCost);
 	//bool bStateOKToUse = (CurrentState == EWeaponState::Idle) || (CurrentState == EWeaponState::Using);
 	return bCanUse && bEnoughStamina && !bPendingCooldown;
 }
 
 bool AFMWeapon::CanCharge() const {
 	bool bCanUse = MyPawn && MyPawn->CanUse();
-	bool bEnoughStamina = MyPawn && (MyPawn->GetCurrentStamina() > WeaponConfig.StaminaCostCharging + WeaponConfig.StaminaCost);
+	bool bEnoughStamina = MyPawn && MyPawn->CheckIfStaminaGreaterThan(WeaponConfig.StaminaCostCharging);
 	//bool bStateOKToUse = (CurrentState == EWeaponState::Idle) || (CurrentState == EWeaponState::Using);
 	return bCanUse && bEnoughStamina && !bPendingCooldown;
 	return false;
 }
 
-void AFMWeapon::StartCooldown(bool bFromReplication){
-	if (!bFromReplication && Role < ROLE_Authority){
-		//ServerStartCooldown();
-	}
-
-	/*
-	if (bFromReplication || CanReload())
-	{
-	bPendingReload = true;
-	DetermineWeaponState();
-
-	float AnimDuration = PlayWeaponAnimation(ReloadAnim);
-	if (AnimDuration <= 0.0f)
-	{
-	AnimDuration = WeaponConfig.NoAnimReloadDuration;
-	}
-
-	GetWorldTimerManager().SetTimer(this, &AShooterWeapon::StopReload, AnimDuration, false);
-	if (Role == ROLE_Authority)
-	{
-	GetWorldTimerManager().SetTimer(this, &AShooterWeapon::ReloadWeapon, FMath::Max(0.1f, AnimDuration - 0.1f), false);
-	}
-
-	if (MyPawn && MyPawn->IsLocallyControlled())
-	{
-	PlayWeaponSound(ReloadSound);
-	}
-	}
-	*/
-}
-
-void AFMWeapon::StopCooldown(){
-	/*
-	if (CurrentState == EWeaponState::Reloading){
-	bPendingReload = false;
-	DetermineWeaponState();
-	StopWeaponAnimation(ReloadAnim);
-	}
-	*/
-}
-
 void AFMWeapon::OnUseWeaponStarted(){
-		
+	float totalStaminaUse = WeaponConfig.StaminaCost + (WeaponConfig.StaminaCostCharging + chargeValue);
+
+	if (Role == ROLE_Authority){
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: SERVER : UseStart cost %f"), totalStaminaUse));
+		}
+	}
+	else{
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: CLIENT : UseStart cost %f"), totalStaminaUse));
+		}
+	}
+
+	UseWeapon();
+
+}
+
+void AFMWeapon::OnUseWeaponEnded(){
+
+	BeginStaminaCooldown();
+	DetermineWeaponState();
 }
 
 void AFMWeapon::SetOwningPawn(AFMCharacter* NewOwner){
@@ -604,16 +632,16 @@ void AFMWeapon::EquipForUse(){
 
 			switch (WeaponConfig.WeaponType){
 			case EWeaponType::Primary:
-				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("RightHandSocket"), EAttachLocation::SnapToTarget);
+				Mesh3P->AttachTo(MyPawn->Mesh, RIGHT_HAND_SOCKET, EAttachLocation::SnapToTarget);
 				break;
 			case EWeaponType::Secondary:
-				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("RightHandSocket"), EAttachLocation::SnapToTarget);
+				Mesh3P->AttachTo(MyPawn->Mesh, RIGHT_HAND_SOCKET, EAttachLocation::SnapToTarget);
 				break;
 			case EWeaponType::Tertiary:
-				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("RightHandSocket"), EAttachLocation::SnapToTarget);
+				Mesh3P->AttachTo(MyPawn->Mesh, RIGHT_HAND_SOCKET, EAttachLocation::SnapToTarget);
 				break;
 			case EWeaponType::Shield:
-				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("LeftHandSocket"), EAttachLocation::SnapToTarget);
+				Mesh3P->AttachTo(MyPawn->Mesh, LEFT_HAND_SOCKET, EAttachLocation::SnapToTarget);
 				break;
 			}
 
@@ -631,16 +659,16 @@ void AFMWeapon::UnequipFromUse(){
 
 		switch (WeaponConfig.WeaponType){
 			case EWeaponType::Primary:
-				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("BackSocket0"), EAttachLocation::SnapToTarget);
+				Mesh3P->AttachTo(MyPawn->Mesh, BACK_SOCKET_PRIMARY, EAttachLocation::SnapToTarget);
 				break;
 			case EWeaponType::Secondary:
-				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("LeftHipSocket"), EAttachLocation::SnapToTarget);
+				Mesh3P->AttachTo(MyPawn->Mesh, LEFT_HIP_SOCKET, EAttachLocation::SnapToTarget);
 				break;
 			case EWeaponType::Tertiary:
-				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("RightHipSocket"), EAttachLocation::SnapToTarget);
+				Mesh3P->AttachTo(MyPawn->Mesh, RIGHT_HIP_SOCKET, EAttachLocation::SnapToTarget);
 				break;
 			case EWeaponType::Shield:
-				Mesh3P->AttachTo(MyPawn->Mesh, TEXT("BackSocket1"), EAttachLocation::SnapToTarget);
+				Mesh3P->AttachTo(MyPawn->Mesh, BACK_SOCKET_SHIELD, EAttachLocation::SnapToTarget);
 				break;
 		}
 	

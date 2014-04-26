@@ -799,8 +799,8 @@ float AFMCharacter::PercentStaminaAvailable(float StaminaCost){
 // MUST BE CALLED ON BOTH SERVER AND CLIENT
 // ALL THINGS THAT USE STAMINA MUST PERFORM ON SERVER AND CLIENT< THEN CALL THIS THERE
 void AFMCharacter::UseStamina(float Value){
+	StopRegenerateStamina();
 	currentStamina = FMath::Max(0.0f, currentStamina - Value);
-	ResetStaminaCooldown();
 }
 
 void AFMCharacter::ResetStaminaCooldown(){
@@ -818,8 +818,12 @@ void AFMCharacter::StartRegenerateStamina(){
 
 void AFMCharacter::StopRegenerateStamina(){
 	bRegenerateStamina = false;
+	GetWorldTimerManager().ClearTimer(this, &AFMCharacter::StartRegenerateStamina);
 }
 
+bool AFMCharacter::CheckIfStaminaGreaterThan(float Value){
+	return currentStamina > Value;
+}
 
 //////////////////////////////////////////////////////////////////////////
 // WEAPON USAGE
@@ -908,6 +912,8 @@ void AFMCharacter::MoveRight(float Value){
 
 void AFMCharacter::OnStartJump(){
 	bPressedJump = true;
+	UseStamina(15.0f);
+	ResetStaminaCooldown();
 }
 
 void AFMCharacter::OnStopJump(){

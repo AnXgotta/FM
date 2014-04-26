@@ -36,11 +36,11 @@ struct FMWeaponData{
 
 	//  total uses (Combos/ammo) 
 	UPROPERTY(EditDefaultsOnly, Category = Usage)
-	int32 StaminaCost;
+	float StaminaCost;
 
 	//  total uses (Combos/ammo) 
 	UPROPERTY(EditDefaultsOnly, Category = Usage)
-		int32 StaminaCostCharging;
+		float StaminaCostCharging;
 
 	//  time between uses 
 	UPROPERTY(EditDefaultsOnly, Category = Usage)
@@ -57,26 +57,13 @@ struct FMWeaponData{
 	// defaults 
 	FMWeaponData(){
 		WeaponType = EWeaponType::Primary;
-		StaminaCost = 25;
-		StaminaCostCharging = 5;
+		StaminaCost = 25.0f;
+		StaminaCostCharging = 5.0f;
 		timeBetweenUses = 1.0f;
 		bIsChargable = false;
 		maxChargeValue = 3.0f;
 	}
 
-};
-
-USTRUCT()
-struct FWeaponAnim{
-	GENERATED_USTRUCT_BODY()
-
-	// animation played on pawn (1st person view) 
-	//UPROPERTY(EditDefaultsOnly, Category = Animation)
-	//UAnimMontage* Pawn1P;
-
-	// animation played on pawn (3rd person view) 
-	UPROPERTY(EditDefaultsOnly, Category = Animation)
-	UAnimMontage* Pawn3P;
 };
 
 
@@ -86,6 +73,17 @@ class AFMWeapon : public AActor
 {
 	GENERATED_UCLASS_BODY()
 
+	/////////////////////////////////////////////////////////////////
+	// SOCKET NAMES
+
+	const FName RIGHT_HAND_SOCKET = TEXT("RightHandSocket");
+	const FName LEFT_HAND_SOCKET = TEXT("LeftHandSocket");
+	const FName RIGHT_HIP_SOCKET = TEXT("RightHipSocket");
+	const FName LEFT_HIP_SOCKET = TEXT("LeftHipSocket");
+	const FName BACK_SOCKET_PRIMARY = TEXT("BackSocket0");
+	const FName BACK_SOCKET_SHIELD = TEXT("BackSocket1");
+
+	
 	///////////////////////////////////////////////////////////////
 	// OVERRIDEN CLASS FUNCTIONS
 
@@ -207,18 +205,6 @@ class AFMWeapon : public AActor
 	// [local + server] start weapon use
 	virtual void StartUseWeaponReleased();
 
-	// [local + server] stop weapon use 
-	//virtual void StopUseWeapon();
-
-	// [all] start weapon cooldown 
-	virtual void StartCooldown(bool bFromReplication = false);
-
-	// [local + server] interrupt weapon cooldown 
-	virtual void StopCooldown();
-
-	// [server] performs actual cooldown 
-	//virtual void CooldownWeapon();
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// INPUT - SERVER
@@ -247,8 +233,11 @@ class AFMWeapon : public AActor
 	/////////////////////////////////////////////////////////////////////////
 	// HANDLE USAGE
 
-	/** [local + server] weapon usage started */
+	// [local + server] weapon usage started
 	virtual void OnUseWeaponStarted();
+
+	// [local + server] weapon usage ended
+	virtual void OnUseWeaponEnded();
 
 	// is weapon charge active?
 	bool bWantsToCharge;
@@ -277,8 +266,10 @@ class AFMWeapon : public AActor
 	// STAMINA
 
 	// Use stamina for usage or charging 
-	void UseStamina(bool bIsCharging);
+	void UseStamina(bool bIsCharging, float DeltaSeconds);
 
+	// reset character cooldown for stamina regeneration
+	void BeginStaminaCooldown();
 
 	//////////////////////////////////////////////////////////////////////////
 	// NOT IMPLEMENTED

@@ -113,6 +113,9 @@ class AFMCharacter : public ACharacter
 	// start cooldown for stamina regeneration
 	void ResetStaminaCooldown();
 
+	// check if stamina greater than value
+	bool CheckIfStaminaGreaterThan(float Value);
+
 	// when low health effects should start
 	float LowHealthPercentage;
 
