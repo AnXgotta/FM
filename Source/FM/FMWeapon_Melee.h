@@ -59,21 +59,25 @@ class AFMWeapon_Melee : public AFMWeapon
 
 	///////////////////////////////////////////////////////////////
 	// SOCKET HANDLING [REFERENCES + NAMES]
-
+	//UPROPERTY()
 	const FName WEAPON_HILT_SOCKET = TEXT("WeaponHiltSocket");
+	//UPROPERTY()
 	const FName WEAPON_TIP_SOCKET = TEXT("WeaponTipSocket");
 
-	FTransform WeaponHiltSocketTransform;
-	FTransform WeaponTipSocketTransform;
+	UPROPERTY()
+	FVector WeaponHiltSocketLocation;
+	UPROPERTY()
+	FVector WeaponTipSocketLocation;
 
 	///////////////////////////////////////////////////////////////
 	// OVERRIDEN CLASS FUNCTIONS
 
 	//  Update the weapon
+	UFUNCTION()
 	virtual void Tick(float DeltaSeconds);
 
 	//virtual void Destroyed() OVERRIDE;
-
+	UFUNCTION()
 	virtual void OnUseWeaponEnded() OVERRIDE;
 
 	////////////////////////////////////////////////////////////////////
@@ -84,22 +88,57 @@ class AFMWeapon_Melee : public AFMWeapon
 
 	// animation set
 	UPROPERTY(EditDefaultsOnly, Category = _Animations_Melee)
-		FMeleeWeaponAnim MeleeAnimations;
+	FMeleeWeaponAnim MeleeAnimations;
 
 	//////////////////////////////////////////////////////////////////
 	// MELEE CONTROL
-
+	UFUNCTION()
 	virtual void UseWeapon() OVERRIDE;
-	
+
+	UFUNCTION()
 	void OnComboWindowStart();
 
 	//////////////////////////////////////////////////////////////////
 	// ANIMATIONS
 
 private:
-
+	UFUNCTION()
 	float PlayAnimation();
 
+	UFUNCTION()
 	UAnimMontage* GetAnimation(int32 swingType, int32 swingNumber);
+
+
+	//////////////////////////////////////////////////////////////////
+	// HIT DETECTIONS
+
+	UPROPERTY()
+		bool bDoLineTrace;
+
+	UPROPERTY(EditDefaultsOnly, Category = _Config_Melee)
+	int32 tracePoints;
+		
+	TArray<FVector*> CurrentFrameTracePoints;
+	
+	TArray<FVector*> PreviousFrameTracePoints;
+	
+	TArray<FVector*> TemporaryTracePoints;
+
+	UPROPERTY()
+	TArray<AActor*> ActorsToIgnore;
+
+	UFUNCTION()
+	void GetSocketLocations();
+
+	UFUNCTION()
+		void InitializeTracePositions();
+
+	UFUNCTION()
+	void GetNewFrameTracePositions();
+
+	UFUNCTION()
+	void HandleHitDetection();
+
+	void HandleHit(FHitResult* HitResult);
 
 };

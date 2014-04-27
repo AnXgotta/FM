@@ -7,14 +7,29 @@
 AFMWeapon_Melee::AFMWeapon_Melee(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP)
 {
+	bDoLineTrace = false;
+	tracePoints = 20;
 
+	for (int i = 0; i < tracePoints; i++){
+		FVector* t1 = new FVector(0.0f, 0.0f, 0.0f);
+		FVector* t2 = new FVector(0.0f, 0.0f, 0.0f);
+		FVector* t3 = new FVector(0.0f, 0.0f, 0.0f);
+		PreviousFrameTracePoints.Add(t1);
+		CurrentFrameTracePoints.Add(t2);
+		TemporaryTracePoints.Add(t3);
+	}
 }
 
 
 void AFMWeapon_Melee::Tick(float DeltaTime){
 	Super::Tick(DeltaTime);
 
+	if (bDoLineTrace){
+		HandleHitDetection();
+	}
+
 }
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // WEAPON USAGE
@@ -52,6 +67,8 @@ void AFMWeapon_Melee::UseWeapon(){
 	}
 	
 	// DEBUG
+	InitializeTracePositions();
+	bDoLineTrace = true;
 	GetWorldTimerManager().SetTimer(this, &AFMWeapon_Melee::OnComboWindowStart, 1.0f /*timerStartComboWindowOpen*/, false);
 	// END DEBUG
 
@@ -59,9 +76,8 @@ void AFMWeapon_Melee::UseWeapon(){
 	chargeValue = 0.0f;
 }
 
-
 void AFMWeapon_Melee::OnUseWeaponEnded(){
-	
+	bDoLineTrace = false;
 
 	if (Role == ROLE_Authority){
 		if (GEngine){
@@ -76,6 +92,7 @@ void AFMWeapon_Melee::OnUseWeaponEnded(){
 
 	Super::OnUseWeaponEnded();
 }
+
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // ANIMATION HELPERS
@@ -149,4 +166,70 @@ UAnimMontage* AFMWeapon_Melee::GetAnimation(int32 swingType, int32 swingNumber){
 
 void AFMWeapon_Melee::OnComboWindowStart(){
 	bIsInComboWindow = true;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+// HIT DETECTION
+
+void AFMWeapon_Melee::GetSocketLocations(){
+	if (Mesh3P){
+		WeaponHiltSocketLocation = Mesh3P->GetSocketLocation(WEAPON_HILT_SOCKET);
+		WeaponTipSocketLocation = Mesh3P->GetSocketLocation(WEAPON_TIP_SOCKET);
+	}
+}
+
+void AFMWeapon_Melee::InitializeTracePositions(){
+	GetSocketLocations();
+	FVector differenceVector = WeaponTipSocketLocation - WeaponHiltSocketLocation;
+	for (int i = 0; i < tracePoints; i++){
+		*TemporaryTracePoints[i] = WeaponHiltSocketLocation + ((differenceVector / (float)tracePoints) * (float)i);
+		*PreviousFrameTracePoints[i] = *TemporaryTracePoints[i];
+		*CurrentFrameTracePoints[i] = *TemporaryTracePoints[i];
+	}
+}
+
+void AFMWeapon_Melee::GetNewFrameTracePositions(){
+	FVector differenceVector = WeaponTipSocketLocation - WeaponHiltSocketLocation;
+	for (int i = 0; i < tracePoints; i++){
+		*TemporaryTracePoints[i] = WeaponHiltSocketLocation + ((differenceVector/(float)tracePoints) * (float)i);
+		*PreviousFrameTracePoints[i] = *CurrentFrameTracePoints[i];
+		*CurrentFrameTracePoints[i] = *TemporaryTracePoints[i];
+	}
+}
+
+void AFMWeapon_Melee::HandleHitDetection(){
+	FHitResult HitOut;
+	// need to set to our special channel we make
+	ECollisionChannel traceCollisionChannel = ECC_Pawn;
+	
+	FCollisionQueryParams traceParams(FName(TEXT("SomeName Trace")), true, NULL);
+
+	traceParams.bTraceComplex = true;
+	traceParams.bReturnPhysicalMaterial = true;
+	
+	GetSocketLocations();
+	GetNewFrameTracePositions();
+
+	for (int i = 0; i < tracePoints; i++){
+		HitOut = FHitResult(ForceInit);
+		traceParams.AddIgnoredActors(ActorsToIgnore);
+		if (i < tracePoints / 3){
+			DrawDebugLine(GetWorld(), *PreviousFrameTracePoints[i], *CurrentFrameTracePoints[i], FColor::Blue, true, 5.0f, 0, 1.0f);
+		}else if(i < tracePoints * 2/3){
+			DrawDebugLine(GetWorld(), *PreviousFrameTracePoints[i], *CurrentFrameTracePoints[i], FColor::Green, true, 5.0f, 0, 1.0f);
+		}else{
+			DrawDebugLine(GetWorld(), *PreviousFrameTracePoints[i], *CurrentFrameTracePoints[i], FColor::Red, true, 5.0f, 0, 1.0f);
+		}
+		
+		if (GetWorld()->LineTraceSingle(HitOut, *PreviousFrameTracePoints[i], *CurrentFrameTracePoints[i], traceCollisionChannel, traceParams)){
+			HandleHit(&HitOut);
+		}
+
+	}
+
+}
+
+void AFMWeapon_Melee::HandleHit(FHitResult* HitResult){
+	//HitResult->
 }
