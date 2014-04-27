@@ -911,31 +911,13 @@ bool AFMCharacter::IsRunning() const {
 void AFMCharacter::SetRunning(bool bNewSprint, bool bToggle){
 	
 	if (Role < ROLE_Authority){
-		if (bNewSprint){
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: CLIENT : StartSprint "));
-			}
-		}else{
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: CLIENT : StopSprint "));
-			}
-		}
-		
 		ServerSetRunning(bNewSprint, bToggle);
-	}else{
-		if (bNewSprint){
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: SERVER : StartSprint "));
-			}
-		}
-		else{
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Character: SERVER : StopSprint "));
-			}
-		}
 	}
 	bWantsToRun = bNewSprint;
-	//bWantsToSprintToggled = bNewSprint && bToggle;
+
+	if (!bWantsToRun){
+		ResetStaminaCooldown();
+	}
 
 	// UpdateRunningSounds(bNewSprint);
 }
