@@ -196,6 +196,15 @@ public:
 	UFUNCTION()
 		void OnFire3();
 
+	UFUNCTION()
+		void OnEquip1();
+
+	UFUNCTION()
+		void OnEquip2();
+
+	UFUNCTION()
+		void OnEquip3();
+
 
 	/////////////////////////////////////////////////////////////////////////
 	// INVENTORY

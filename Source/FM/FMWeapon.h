@@ -131,6 +131,13 @@ class AFMWeapon : public AActor
 	// determine current weapon state 
 	void DetermineWeaponState();
 
+	// a float value used to identify which swing and which combo number
+	// click lmb once ==> 1.1 = swing style 1, 1st swing in current set
+	// click lmb again to combo ==> 1.2 = swing style 1, 2nd swing in current set
+	// clock mwu to do third swing in combo ==> 3.3 = swing style 3, 3rd swing in combo
+	// will be used to select animations and for bookkeeping
+	float currentSwingID;
+
 	//////////////////////////////////////////////////////
 	// MESH
 
@@ -148,10 +155,6 @@ class AFMWeapon : public AActor
 	// how much time weapon needs to be equipped 
 	UPROPERTY(EditDefaultsOnly, Category = Inventory)
 	float EquipDuration;
-
-	// is reload animation playing? 
-	//UPROPERTY(Transient, ReplicatedUsing = OnRep_Cooldown)
-		uint32 bPendingCooldown : 1;
 
 	// is weapon currently equipped? 
 	uint32 bIsEquipped : 1;
@@ -205,6 +208,14 @@ class AFMWeapon : public AActor
 	// [local + server] start weapon use
 	virtual void StartUseWeaponReleased();
 
+	// [local + server]
+	virtual void StartUseWeaponPressedAlternates(int32 swingID);
+
+	// [local + server]
+	void SetSwingID(int32 newSwingID);
+
+	// [local + server]
+	int32 GetCurrentSwingMod();
 
 	//////////////////////////////////////////////////////////////////////////
 	// INPUT - SERVER
@@ -215,7 +226,8 @@ class AFMWeapon : public AActor
 	UFUNCTION(reliable, server, WithValidation)
 		void ServerStartUseWeaponReleased();
 
-
+	UFUNCTION(reliable, server, WithValidation)
+		void ServerStartUseWeaponPressedAlternates(int32 swingID);
 
 	//////////////////////////////////////////////////////////////////////////
 	// USAGE CONTROL
@@ -241,6 +253,9 @@ class AFMWeapon : public AActor
 
 	// is weapon charge active?
 	bool bWantsToCharge;
+
+	// is there potential for combo?
+	bool bWantsToCombo;
 
 	// do the charging
 	bool bIsCharging;

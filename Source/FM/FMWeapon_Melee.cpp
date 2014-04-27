@@ -19,18 +19,32 @@ void AFMWeapon_Melee::Tick(float DeltaTime){
 
 
 void AFMWeapon_Melee::UseWeapon(){
+	FString t = TEXT("BLANK");
+	switch (GetCurrentSwingMod()){
+	case 1:
+		t = TEXT("Weapon Swing 1");
+		break;
+	case 2:
+		t = TEXT("Weapon Swing 2");
+		break;
+	case 3:
+		t = TEXT("Weapon Swing 3");
+		break;
+	default:
+		t = TEXT("Weapon Swing Default");
+	}
 	if (Role == ROLE_Authority){
 		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("MeleeWeapon: SERVER : UseWeapon"));
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, t);
 		}
 	}
 	else{
 		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("MeleeWeapon: CLIENT : UseWeapon"));
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, t);
 		}
 	}
 
-	GetWorldTimerManager().SetTimer(this, &AFMWeapon_Melee::OnUseWeaponEnded, 1.0f, false);
+	GetWorldTimerManager().SetTimer(this, &AFMWeapon_Melee::OnUseWeaponEnded, 2.0f, false);
 	chargeValue = 0.0f;
 }
 

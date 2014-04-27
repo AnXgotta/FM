@@ -144,16 +144,6 @@ void AFMCharacter::Tick(float DeltaSeconds){
 	if (bWantsToRun && IsRunning()){
 		if (GetCurrentStamina() > 0.5f){
 			UseStamina(DeltaSeconds * RunningStaminaCostPerSecond);
-			if (Role == ROLE_Authority){
-				if (GEngine){
-					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("Character: SERVER : %s Stamina = %f"), *this->GetName(), currentStamina));
-				}
-			}
-			else{
-				if (GEngine){
-					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("Character: CLIENT : %s Stamina = %f"), *this->GetName(), currentStamina));
-				}
-			}
 		}else{
 			SetRunning(false, false);
 		}
@@ -163,16 +153,6 @@ void AFMCharacter::Tick(float DeltaSeconds){
 	if (bRegenerateStamina){
 		if (GetCurrentStamina() < 100.0f){
 			AddStamina(DeltaSeconds * staminaRegenerationPerSecond);
-			if (Role == ROLE_Authority){
-				if (GEngine){
-					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("Character: SERVER : %s Stamina = %f"), *this->GetName(), currentStamina));
-				}
-			}
-			else{
-				if (GEngine){
-					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, FString::Printf(TEXT("Character: CLIENT : %s Stamina = %f"), *this->GetName(), currentStamina));
-				}
-			}
 		}else{
 			StopRegenerateStamina();
 		}
@@ -864,18 +844,11 @@ bool AFMCharacter::IsUsingWeapon() const {
 // MESHES
 
 USkeletalMeshComponent* AFMCharacter::GetSpecifcPawnMesh(bool WantFirstPerson) const {
-	return WantFirstPerson == true ? Mesh : Mesh; //Mesh1P : Mesh;
+	return WantFirstPerson == true ? Mesh : Mesh;
 }
 
 
 void AFMCharacter::UpdatePawnMeshes(){
-	//bool const bFirstPerson = IsFirstPerson();
-
-	//Mesh1P->MeshComponentUpdateFlag = !bFirstPerson ? EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered : EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
-	//Mesh1P->SetOwnerNoSee(!bFirstPerson);
-
-	// SET UP FOR 3rd Person only
-
 	Mesh->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
 	Mesh->SetOwnerNoSee(false);
 	
@@ -912,8 +885,6 @@ void AFMCharacter::MoveRight(float Value){
 
 void AFMCharacter::OnStartJump(){
 	bPressedJump = true;
-	UseStamina(15.0f);
-	ResetStaminaCooldown();
 }
 
 void AFMCharacter::OnStopJump(){
@@ -1004,61 +975,57 @@ void AFMCharacter::SetupPlayerInputComponent(class UInputComponent* InputCompone
 	InputComponent->BindAction("Fire2", IE_Pressed, this, &AFMCharacter::OnFire2);
 	InputComponent->BindAction("Fire3", IE_Pressed, this, &AFMCharacter::OnFire3);
 
+	InputComponent->BindAction("Equip1", IE_Pressed, this, &AFMCharacter::OnEquip1);
+	InputComponent->BindAction("Equip2", IE_Pressed, this, &AFMCharacter::OnEquip2);
+	InputComponent->BindAction("Equip3", IE_Pressed, this, &AFMCharacter::OnEquip3);
+
 }
 
 void AFMCharacter::OnFire0Pressed(){	
 	if (CurrentWeapon){
 		CurrentWeapon->StartUseWeaponPressed();
 	}
-	
-	// startuseweaponpressed
-
-
 }
 
 void AFMCharacter::OnFire0Released(){
-
 	if (CurrentWeapon){
 		CurrentWeapon->StartUseWeaponReleased();
 	}
-
-	// startuseweaponreleased
-
-		// try and fire a projectile
-	//if (ProjectileClass){
-	//	
-	//	if (RootComponent && CameraBoom){
-	//		// get boom rotation and RootComponent Location in world coords 
-	//		FRotator MuzzleRotation = CameraBoom->GetComponentRotation();
-	//		FVector const MuzzleLocation = RootComponent->GetComponentLocation() + (RootComponent->GetForwardVector() * 100.0f);
-	//		// skew aim up a tiny bit
-	//		MuzzleRotation.Pitch += 10.0f;
-	//		UWorld* const World = GetWorld();
-	//		if (World){
-	//			FActorSpawnParameters SpawnParams;
-	//			SpawnParams.Owner = this;
-	//			SpawnParams.Instigator = Instigator;
-	//			// spawn projectile at the muzzle
-	//			AFMProjectile* const Projectile = World->SpawnActor<AFMProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
-	//			if (Projectile){
-	//				// find launch direction
-	//				FVector const LaunchDir = MuzzleRotation.Vector();
-	//				Projectile->InitVelocity(LaunchDir);
-	//			}
-	//		}
-	//	}		
-	//}
 }
 
 
 void AFMCharacter::OnFire1(){
-	EquipWeapon(Inventory[0]);
+	if (CurrentWeapon){
+		CurrentWeapon->StartUseWeaponPressedAlternates(2);
+	}
 }
 
 void AFMCharacter::OnFire2(){
-	EquipWeapon(Inventory[1]);
+	if (CurrentWeapon){
+		CurrentWeapon->StartUseWeaponPressedAlternates(3);
+	}
 }
 
 void AFMCharacter::OnFire3(){
-	EquipWeapon(Inventory[2]);
+	if (CurrentWeapon){
+		CurrentWeapon->StartUseWeaponPressedAlternates(4);
+	}
+}
+
+void AFMCharacter::OnEquip1(){
+	if (Inventory[0]){
+		EquipWeapon(Inventory[0]);
+	}
+}
+
+void AFMCharacter::OnEquip2(){
+	if (Inventory[1]){
+		EquipWeapon(Inventory[1]);
+	}
+}
+
+void AFMCharacter::OnEquip3(){
+	if (Inventory[2]){
+		EquipWeapon(Inventory[2]);
+	}
 }
