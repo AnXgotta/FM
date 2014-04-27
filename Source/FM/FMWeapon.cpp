@@ -119,6 +119,7 @@ AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 
 	bWantsToUse = false;
 	bWantsToCombo = false;
+	bIsInComboWindow = false;
 	bIsEquipped = false;
 	bPendingEquip = false;
 	bPendingUnEquip = false;
@@ -202,7 +203,7 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 	// release click to end charge and fire, combos handled here for charging weapons
 	if (PrevState == EWeaponState::Charging && NewState == EWeaponState::Using){
 		bIsCharging = false;
-		bWantsToCombo = false;
+		
 
 		if (Role == ROLE_Authority){
 			if (GEngine){
@@ -216,7 +217,16 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 		}
 
 		// Start using weapon
-		OnUseWeaponStarted();
+		if (!bWantsToCombo){
+			OnUseWeaponStarted();
+		}else if (bWantsToCombo){
+			bWantsToCombo = false;
+			if (bIsInComboWindow){
+				bIsInComboWindow = false;
+				OnUseWeaponStarted();
+			}
+		}
+		
 	}
 
 	// use weapon for non-charging weapons
@@ -268,14 +278,26 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon : Currently, swinging, try combo?"), chargeValue));
 		}
 		
-		OnUseWeaponStarted();
+		// Start using weapon
+		if (!bWantsToCombo){
+			OnUseWeaponStarted();
+		}else if (bWantsToCombo){
+			bWantsToCombo = false;
+			if (bIsInComboWindow){
+				bIsInComboWindow = false;
+				OnUseWeaponStarted();
+			}			
+		}
+		
 
 	}
 
-	// not enough stamina to swing
-	if (PrevState == EWeaponState::Idle && NewState == EWeaponState::Idle){
+	// not enough stamina to swing initial or combo
+	if ((PrevState == EWeaponState::Idle || PrevState == EWeaponState::Using) && NewState == EWeaponState::Idle){
 		bWantsToUse = false;
+		bWantsToCombo = false;
 	}
+
 
 
 	CurrentState = NewState;
@@ -403,6 +425,13 @@ void AFMWeapon::StartUseWeaponPressedAlternates(int32 swingID){
 	if (!bWantsToUse){
 		bWantsToUse = true;
 		SetSwingID(swingID);
+
+		// i hate doing this check here
+		if (CurrentState == EWeaponState::Using){
+			bWantsToCombo = true;
+		}
+
+		// never charge alternate swings
 		if (WeaponConfig.bIsChargable){
 			bWantsToCharge = false;
 		}
@@ -539,6 +568,7 @@ void AFMWeapon::OnUseWeaponStarted(){
 }
 
 void AFMWeapon::OnUseWeaponEnded(){
+	bIsInComboWindow = false;
 	currentSwingID = 0.0f;
 	BeginStaminaCooldown();
 	DetermineWeaponState();

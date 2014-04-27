@@ -101,7 +101,7 @@ class AFMWeapon : public AActor
 	// WEAPON CONFIG/OWNER PAWN
 
 	// weapon data 
-	UPROPERTY(EditDefaultsOnly, Category = Config)
+	UPROPERTY(EditDefaultsOnly, Category = _Config)
 		FMWeaponData WeaponConfig;
 
 	// pawn owner of this object
@@ -137,6 +137,8 @@ class AFMWeapon : public AActor
 	// clock mwu to do third swing in combo ==> 3.3 = swing style 3, 3rd swing in combo
 	// will be used to select animations and for bookkeeping
 	float currentSwingID;
+
+	bool bIsInComboWindow;
 
 	//////////////////////////////////////////////////////
 	// MESH

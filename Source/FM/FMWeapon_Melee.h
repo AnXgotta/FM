@@ -38,24 +38,18 @@ struct FMeleeWeaponAnim{
 
 	// animation played on pawn
 	UPROPERTY(EditDefaultsOnly, Category = Animation)
-	UAnimMontage* Swing_LeftToRight;
-
+	TArray<UAnimMontage*> Swing1Animations;
 	// animation played on pawn
 	UPROPERTY(EditDefaultsOnly, Category = Animation)
-	UAnimMontage* Swing_RightToLeft;
-
+		TArray<UAnimMontage*> Swing2Animations;
 	// animation played on pawn
 	UPROPERTY(EditDefaultsOnly, Category = Animation)
-	UAnimMontage* Swing_Overhead;
-
+		TArray<UAnimMontage*> Swing3Animations;
 	// animation played on pawn
 	UPROPERTY(EditDefaultsOnly, Category = Animation)
-	UAnimMontage* Swing_Stab;
+		TArray<UAnimMontage*> Swing4Animations;
 
-	// animation played on pawn
-	UPROPERTY(EditDefaultsOnly, Category = Animation)
-	UAnimMontage* Swing_Something;
-
+	FMeleeWeaponAnim(){}
 };
 
 UCLASS()
@@ -64,14 +58,19 @@ class AFMWeapon_Melee : public AFMWeapon
 	GENERATED_UCLASS_BODY()
 
 	///////////////////////////////////////////////////////////////
+	// SOCKET HANDLING [REFERENCES + NAMES]
+
+	const FName WEAPON_HILT_SOCKET = TEXT("WeaponHiltSocket");
+	const FName WEAPON_TIP_SOCKET = TEXT("WeaponTipSocket");
+
+	FTransform WeaponHiltSocketTransform;
+	FTransform WeaponTipSocketTransform;
+
+	///////////////////////////////////////////////////////////////
 	// OVERRIDEN CLASS FUNCTIONS
 
-	// perform initial setup 
-	// called after all components of object have been established
-	//virtual void PostInitializeComponents() OVERRIDE;
-
 	//  Update the weapon
-	virtual void Tick(float DeltaSeconds) OVERRIDE;
+	virtual void Tick(float DeltaSeconds);
 
 	//virtual void Destroyed() OVERRIDE;
 
@@ -83,12 +82,24 @@ class AFMWeapon_Melee : public AFMWeapon
 	UPROPERTY(EditDefaultsOnly, Category = _Config_Melee)
 	FMeleeWeaponData MeleeConfig;
 
+	// animation set
+	UPROPERTY(EditDefaultsOnly, Category = _Animations_Melee)
+		FMeleeWeaponAnim MeleeAnimations;
+
 	//////////////////////////////////////////////////////////////////
 	// MELEE CONTROL
 
-
-
 	virtual void UseWeapon() OVERRIDE;
 	
+	void OnComboWindowStart();
+
+	//////////////////////////////////////////////////////////////////
+	// ANIMATIONS
+
+private:
+
+	float PlayAnimation();
+
+	UAnimMontage* GetAnimation(int32 swingType, int32 swingNumber);
 
 };
