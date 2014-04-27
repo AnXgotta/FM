@@ -36,12 +36,12 @@ void AFMWeapon_Melee::UseWeapon(){
 	}
 	if (Role == ROLE_Authority){
 		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, t);
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, t);
 		}
 	}
 	else{
 		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, t);
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, t);
 		}
 	}
 
@@ -65,12 +65,12 @@ void AFMWeapon_Melee::OnUseWeaponEnded(){
 
 	if (Role == ROLE_Authority){
 		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("MeleeWeapon: SERVER : DoneUseWeapon"));
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, TEXT("MeleeWeapon: SERVER : DoneUseWeapon"));
 		}
 	}
 	else{
 		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("MeleeWeapon: CLIENT : DoneUseWeapon"));
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, TEXT("MeleeWeapon: CLIENT : DoneUseWeapon"));
 		}
 	}
 
@@ -89,12 +89,12 @@ float AFMWeapon_Melee::PlayAnimation(){
 		// Play animation
 		if (Role == ROLE_Authority){
 			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("MeleeWeapon: SERVER : Play Animation SwingType: %d SwingNumber: %d"), swingType, swingNumber));
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, FString::Printf(TEXT("MeleeWeapon: SERVER : Play Animation SwingType: %d SwingNumber: %d"), swingType, swingNumber));
 			}
 		}
 		else{
 			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("MeleeWeapon: CLIENT : Play Animation SwingType: %d SwingNumber: %d"), swingType, swingNumber));
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, FString::Printf(TEXT("MeleeWeapon: CLIENT : Play Animation SwingType: %d SwingNumber: %d"), swingType, swingNumber));
 			}
 		}
 		return currentAnimation->SequenceLength;
@@ -103,12 +103,12 @@ float AFMWeapon_Melee::PlayAnimation(){
 		// animation not exist
 		if (Role == ROLE_Authority){
 			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("MeleeWeapon: SERVER : Failed Animation SwingType: %d SwingNumber: %d"), swingType, swingNumber));
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, FString::Printf(TEXT("MeleeWeapon: SERVER : Failed Animation SwingType: %d SwingNumber: %d"), swingType, swingNumber));
 			}
 		}
 		else{
 			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("MeleeWeapon: CLIENT : Failed Animation SwingType: %d SwingNumber: %d"), swingType, swingNumber));
+				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, FString::Printf(TEXT("MeleeWeapon: CLIENT : Failed Animation SwingType: %d SwingNumber: %d"), swingType, swingNumber));
 			}
 		}
 		return -1.0f;

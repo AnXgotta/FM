@@ -124,6 +124,7 @@ AFMWeapon::AFMWeapon(const class FPostConstructInitializeProperties& PCIP)
 	bPendingEquip = false;
 	bPendingUnEquip = false;
 	bWantsToCharge = false;
+	bIsCharging = false;
 	chargeValue = 0.0f;
 
 	// XXX: END WEAPON CLASS VARIABLES #######################################
@@ -177,128 +178,80 @@ EWeaponState::Type AFMWeapon::GetCurrentState() const{
 }
 
 void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
-	// stamina is used in this function on the first swing of both types, charged or not charged..
-	// the combo stamina is taken in the 'OnUseWeaponStarted()' function
-
 
 	const EWeaponState::Type PrevState = CurrentState;
 
-	// initial click and start initial charge
+	// initial swing from LMB to begin charging
 	if (PrevState == EWeaponState::Idle && NewState == EWeaponState::Charging){
-		UseStamina(false, 0.0f);
 		bWantsToCharge = false;
 		bIsCharging = true;
-		if (Role == ROLE_Authority){
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: SERVER : Charging %f"), chargeValue));
-			}
-		}
-		else{
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: CLIENT : Charging %f"), chargeValue));
-			}
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, TEXT("Weapon | Idle -> Charging"));
 		}
 	}
 
-	// release click to end charge and fire, combos handled here for charging weapons
+	// use weapon after charging LMB
 	if (PrevState == EWeaponState::Charging && NewState == EWeaponState::Using){
-		bIsCharging = false;
-		
-
-		if (Role == ROLE_Authority){
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: SERVER : Using %f"), chargeValue));
-			}
-		}
-		else{
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: CLIENT : Using %f"), chargeValue));
-			}
-		}
-
-		// Start using weapon
-		if (!bWantsToCombo){
-			OnUseWeaponStarted();
-		}else if (bWantsToCombo){
-			bWantsToCombo = false;
-			if (bIsInComboWindow){
-				bIsInComboWindow = false;
-				OnUseWeaponStarted();
-			}
-		}
-		
-	}
-
-	// use weapon for non-charging weapons
-	if (PrevState == EWeaponState::Idle && NewState == EWeaponState::Using){
 		bWantsToUse = false;
-		UseStamina(false, 0.0f);
-
-		if (Role == ROLE_Authority){
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: SERVER : Using No CHarge %f"), chargeValue));
-			}
-		}
-		else{
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: CLIENT : Using no charge %f"), chargeValue));
-			}
+		bIsCharging = false;
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, TEXT("Weapon | Charging -> Using"));
 		}
 
-		// Start using weapon
 		OnUseWeaponStarted();
 	}
 
-
-
-	// NO combo for charging weapon -- cant just hold charge to get easy combo
-	if (PrevState == EWeaponState::Using && NewState == EWeaponState::Charging){
-		
-		bWantsToCombo = true;
-
-		if (Role == ROLE_Authority){
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: SERVER : No Combo, charging weapon %f"), chargeValue));
-			}
-		}
-		else{
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: CLIENT : No Combo, charging weapon %f"), chargeValue));
-			}
-		}
-
-		
-		
-	}
-
-	// non charge weapon try to use while currently using
-	if (PrevState == EWeaponState::Using && NewState == EWeaponState::Using){
+	// initial swing from not LMB... no charging
+	if (PrevState == EWeaponState::Idle && NewState == EWeaponState::Using){
 		bWantsToUse = false;
 		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon : Currently, swinging, try combo?"), chargeValue));
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, TEXT("Weapon | Idle -> Using"));
 		}
-		
-		// Start using weapon
-		if (!bWantsToCombo){
-			OnUseWeaponStarted();
-		}else if (bWantsToCombo){
-			bWantsToCombo = false;
-			if (bIsInComboWindow){
-				bIsInComboWindow = false;
-				OnUseWeaponStarted();
-			}			
-		}
-		
 
+		OnUseWeaponStarted();
 	}
 
-	// not enough stamina to swing initial or combo
-	if ((PrevState == EWeaponState::Idle || PrevState == EWeaponState::Using) && NewState == EWeaponState::Idle){
+	// combo handling
+	if (PrevState == EWeaponState::Using && NewState == EWeaponState::Using){
 		bWantsToUse = false;
+		bWantsToCharge = false; 
 		bWantsToCombo = false;
+
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, TEXT("Weapon | Using -> Using"));
+		}
+
+		if (bIsInComboWindow){
+			bIsInComboWindow = false;
+			OnUseWeaponStarted();
+		}
+		bIsInComboWindow = false;
+		
 	}
 
+	// back to idle from swing
+	if (PrevState == EWeaponState::Using && NewState != EWeaponState::Using){
+		bWantsToUse = false;
+		bWantsToCharge = false;
+		bIsCharging = false;
+		bWantsToCombo = false;
+		bIsInComboWindow = false;
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, TEXT("Weapon | Using -> Idle"));
+		}
+	}
 
+	// no stamina
+	if (PrevState == EWeaponState::Idle && NewState == EWeaponState::Idle){
+		bWantsToUse = false;
+		bWantsToCharge = false;
+		bIsCharging = false;
+		bWantsToCombo = false;
+		bIsInComboWindow = false;
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, TEXT("Weapon | Idle -> Idle"));
+		}
+	}
 
 	CurrentState = NewState;
 
@@ -307,58 +260,32 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 void AFMWeapon::DetermineWeaponState(){
 
 	EWeaponState::Type NewState = EWeaponState::Idle;
-	// if weapon is equipped
+
 	if (bIsEquipped){
-		// if is trying to use
 		if (bWantsToUse){
-			// is able(stamina)
 			if (CanUse()){
-				// if this is a chargable weapon
 				if (WeaponConfig.bIsChargable){
-					// if is trying to charge and is able (stamina), not sure if checking charge stamina is necessary
-					if (bWantsToCharge && CanCharge()){
-						NewState = EWeaponState::Charging;
-					}else if (bIsCharging) {
-						//run out of stamina while charging to force fire?
-						if (GEngine){
-							GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Wants to use and is charging"));
-						}
+					if (bWantsToCombo){
 						NewState = EWeaponState::Using;
 					}else{
-						if (GEngine){
-							GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Wants to use and is not charging"));
+						if (bWantsToCharge){
+							if (CanCharge()){
+								NewState = EWeaponState::Charging;
+							}else{
+								NewState = EWeaponState::Using;
+							}
+						}else{ // if (bIsCharging)... no other way to get here unless already charging
+							NewState = EWeaponState::Using;
 						}
-						NewState = EWeaponState::Using;
 					}
 				}else{
-					// not chargable
 					NewState = EWeaponState::Using;
 				}
-			}else{
-				// HANDLE not enough stamina to use weapon
-				if (GEngine){
-					GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Not Enough Stamina to USE"), chargeValue));
-				}
 			}
-		}else if(bIsCharging){
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Use during a charge"), chargeValue));
-			}
-			NewState = EWeaponState::Using;
 		}else if (bPendingUnEquip){
 			NewState = EWeaponState::UnEquipping;
-		}else if (bWantsToCombo){
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, TEXT("Wants to combo weapon."));
-			}
-			NewState = EWeaponState::Using;
-		}else{
-			if (GEngine){
-				GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Idle weapon."), chargeValue));
-			}
 		}
 	}else if (bPendingEquip){
-		// weapon is being equipped
 		NewState = EWeaponState::Equipping;
 	}
 
@@ -378,6 +305,14 @@ void AFMWeapon::StartUseWeaponPressed(){
 	if (!bWantsToUse){
 		bWantsToUse = true;
 		SetSwingID(1);
+
+		// i hate doing this check here
+		// used for combo control to skip state check and unneeded charging on combo
+		// saves us a lot of control probs later
+		if (CurrentState == EWeaponState::Using){
+			return;
+		}
+
 		if(WeaponConfig.bIsChargable){
 			bWantsToCharge = true;
 		}
@@ -392,11 +327,10 @@ void AFMWeapon::StartUseWeaponReleased(){
 	}
 
 	if (bWantsToUse){
-		bWantsToUse = false;		
-		if(WeaponConfig.bIsChargable){
-			bWantsToCharge = false;	
+		// i hate doing this check here
+		if (CurrentState == EWeaponState::Using){
+			bWantsToCombo = true;
 		}
-
 		DetermineWeaponState();
 	}
 }
@@ -425,12 +359,6 @@ void AFMWeapon::StartUseWeaponPressedAlternates(int32 swingID){
 	if (!bWantsToUse){
 		bWantsToUse = true;
 		SetSwingID(swingID);
-
-		// i hate doing this check here
-		if (CurrentState == EWeaponState::Using){
-			bWantsToCombo = true;
-		}
-
 		// never charge alternate swings
 		if (WeaponConfig.bIsChargable){
 			bWantsToCharge = false;
@@ -545,21 +473,18 @@ void AFMWeapon::OnUseWeaponStarted(){
 
 	if (Role == ROLE_Authority){
 		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: SERVER : UseStart cost %f, CurrentSwingID %f"), totalStaminaUse, currentSwingID));
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, FString::Printf(TEXT("Weapon: SERVER : UseStart cost %f, CurrentSwingID %f"), totalStaminaUse, currentSwingID));
 		}
 	}
 	else{
 		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Blue, FString::Printf(TEXT("Weapon: CLIENT : UseStart cost %f, CurrentSwingID %f"), totalStaminaUse, currentSwingID));
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, FString::Printf(TEXT("Weapon: CLIENT : UseStart cost %f, CurrentSwingID %f"), totalStaminaUse, currentSwingID));
 		}
 	}
 
+	// check if greater than max combo count for this swing type
 	if (GetCurrentSwingMod() < 4){
-		// already used stamina before charge on first swing
-		if (GetCurrentSwingMod() != 1){
-			// cant charge combo so use stamina now
-			UseStamina(false, 0.0f);
-		}		
+		UseStamina(false, 0.0f);
 		UseWeapon();
 	}else{
 		// outside of combo range... just end it here
@@ -568,6 +493,10 @@ void AFMWeapon::OnUseWeaponStarted(){
 }
 
 void AFMWeapon::OnUseWeaponEnded(){
+	bWantsToUse = false;
+	bWantsToCharge = false;
+	bIsCharging = false;
+	bWantsToCombo = false;
 	bIsInComboWindow = false;
 	currentSwingID = 0.0f;
 	BeginStaminaCooldown();
@@ -622,7 +551,12 @@ bool AFMWeapon::IsEquipped() const {
 void AFMWeapon::OnEquip(){
 
 	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("Weapon: OnEquip "));
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("Weapon: OnEquip"));
+	}
+
+	if (CurrentState != EWeaponState::Idle){
+		// play denied sound
+		return;
 	}
 
 	bPendingEquip = true;
@@ -658,7 +592,7 @@ void AFMWeapon::OnEquip(){
 void AFMWeapon::OnEquipFinished(){
 	
 	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("Weapon: OnEquipFinished "));
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("Weapon: OnEquip Finished "));
 	}
 
 	EquipForUse();
@@ -672,6 +606,11 @@ void AFMWeapon::OnUnEquip(){
 	
 	if (GEngine){
 		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("Weapon: OnUnEquip "));
+	}
+
+	if (CurrentState != EWeaponState::Idle){
+		// play denied sound
+		return;
 	}
 	
 	bPendingUnEquip = true;
@@ -724,7 +663,7 @@ void AFMWeapon::OnUnEquip(){
 void AFMWeapon::OnUnEquipFinished(){
 
 	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("Weapon: OnUnEquipFinished "));
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("Weapon: OnUnEquip Finished "));
 	}
 
 	UnequipFromUse();
@@ -844,3 +783,33 @@ ClientStartReload();
 return EquipStartedTime;
 }
 */
+
+void AFMWeapon::LogState(EWeaponState::Type NewState){
+	switch (NewState){
+	case EWeaponState::Idle:
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("State = Idle"));
+		}
+		break;
+	case EWeaponState::Charging:
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("State = Charging"));
+		}
+		break;
+	case EWeaponState::Using:
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("State = Using"));
+		}
+		break;
+	case EWeaponState::Equipping:
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("State = Equipping"));
+		}
+		break;
+	case EWeaponState::UnEquipping:
+		if (GEngine){
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("State = UnEquipping"));
+		}
+		break;
+	}
+}

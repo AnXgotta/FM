@@ -442,4 +442,6 @@ class AFMWeapon : public AActor
 	//FHitResult WeaponTrace(const FVector& TraceFrom, const FVector& TraceTo) const;
 	*/
 
+void LogState(EWeaponState::Type NewState);
+
 };
