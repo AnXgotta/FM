@@ -69,8 +69,12 @@ void AFMWeapon_Melee::UseWeapon(){
 	}
 	
 	// DEBUG
-	InitializeTracePositions();
-	bDoLineTrace = true;
+	if (Role == ROLE_Authority){
+		ActorsToIgnore.Empty();
+		ActorsToIgnore.Add(MyPawn);
+		InitializeTracePositions();
+		bDoLineTrace = true;
+	}
 	GetWorldTimerManager().SetTimer(this, &AFMWeapon_Melee::OnComboWindowStart, 1.0f /*timerStartComboWindowOpen*/, false);
 	// END DEBUG
 
@@ -238,7 +242,7 @@ void AFMWeapon_Melee::HandleHit(FHitResult* HitResult){
 	}
 	ActorsToIgnore.Add(HitResult->GetActor());
 	FPointDamageEvent DamageEvent;
-	DamageEvent.DamageTypeClass = NULL;
+	DamageEvent.DamageTypeClass = UDamageType::StaticClass();
 	DamageEvent.HitInfo = *HitResult;
 	DamageEvent.Damage = 15.0f;
 	HitResult->GetActor()->TakeDamage(DamageEvent.Damage, DamageEvent, MyPawn->Controller,this);

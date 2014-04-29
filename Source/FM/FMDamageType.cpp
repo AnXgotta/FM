@@ -4,4 +4,5 @@
 
 UFMDamageType::UFMDamageType(const class FPostConstructInitializeProperties& PCIP) : Super(PCIP)
 {
+
 }
