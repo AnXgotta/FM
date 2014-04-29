@@ -29,7 +29,7 @@ class AFMCharacter : public ACharacter
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// DAMAGE AND HEALTH AND STAMINA
+	// HEALTH AND STAMINA
 
 	// Current health of the Pawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Health)
@@ -118,6 +118,7 @@ class AFMCharacter : public ACharacter
 
 	// when low health effects should start
 	float LowHealthPercentage;
+
 
 public:
 	//////////////////////////////////////////////////////////////////////////
@@ -352,16 +353,16 @@ protected:
 
 	//////////////////////////////////////////////////////////////////////////
 	// DAMAGE AND DEATH
-	/*
+	
 	public:
-
+	/*
 	//  Identifies if pawn is in its dying state
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Health)
 	uint32 bIsDying : 1;
-
+	*/
 	//  Take damage, handle death
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) OVERRIDE;
-
+	/*
 	//  Pawn suicide
 	virtual void Suicide();
 
@@ -398,12 +399,12 @@ protected:
 	protected:
 	//  notification when killed, for both the server and client.
 	virtual void OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, class APawn* InstigatingPawn, class AActor* DamageCauser);
-
+	*/
 	//  play effects on hit
 	virtual void PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser);
 
 	//  switch to ragdoll
-	void SetRagdollPhysics();
+	//void SetRagdollPhysics();
 
 	//  sets up the replication for taking a hit
 	void ReplicateHit(float Damage, struct FDamageEvent const& DamageEvent, class APawn* InstigatingPawn, class AActor* DamageCauser, bool bKilled);
@@ -413,8 +414,8 @@ protected:
 	void OnRep_LastTakeHitInfo();
 
 	// check if pawn is still alive
-	bool IsAlive() const;
-	*/
+	//bool IsAlive() const;
+	
 public:
 
 	//////////////////////////////////////////////////////////////////////////

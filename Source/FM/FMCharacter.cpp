@@ -87,7 +87,7 @@ AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
 	RunningSpeedModifier = 1.5f;
 	bWantsToRun = false;
 
-
+	
 	LowHealthPercentage = 0.20f;
 	
 
@@ -287,23 +287,23 @@ void AFMCharacter::KilledBy(APawn* EventInstigator){
 		Die(currentHealth, FDamageEvent(UDamageType::StaticClass()), Killer, NULL);
 	}
 }
-
+*/
 float AFMCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser){
-	//AFMPlayerController* MyPC = Cast<AFMPlayerController>(Controller);
+	AFMPlayerController* MyPC = Cast<AFMPlayerController>(Controller);
 
 	if (currentHealth <= 0.f){
 		return 0.f;
 	}
 
 	// Modify based on game rules.
-	AFMGameMode* const Game = GetWorld()->GetAuthGameMode<AFMGameMode>();
-	Damage = Game ? Game->ModifyDamage(Damage, this, DamageEvent, EventInstigator, DamageCauser) : 0.f;
+	//AFMGameMode* const Game = GetWorld()->GetAuthGameMode<AFMGameMode>();
+	//Damage = Game ? Game->ModifyDamage(Damage, this, DamageEvent, EventInstigator, DamageCauser) : 0.f;
 
 	const float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
-	if (ActualDamage > 0.f)	{
-		currentHealth -= ActualDamage;
-		if (currentHealth <= 0)		{
-			Die(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
+	if (ActualDamage > 0.0)	{
+		currentHealth = FMath::Max(0.0f, currentHealth - ActualDamage);
+		if (currentHealth <= 0){
+			//Die(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
 		}else{
 			PlayHit(ActualDamage, DamageEvent, EventInstigator ? EventInstigator->GetPawn() : NULL, DamageCauser);
 		}
@@ -313,7 +313,7 @@ float AFMCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEv
 	
 	return ActualDamage;
 }
-
+/*
 bool AFMCharacter::CanDie(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser) const {
 	if (bIsDying										// already dying
 		|| IsPendingKill()								// already destroyed
@@ -416,13 +416,14 @@ void AFMCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& Damag
 	}
 	
 }
-
+*/
 void AFMCharacter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser){
 	
 	if (Role == ROLE_Authority){
 		ReplicateHit(DamageTaken, DamageEvent, PawnInstigator, DamageCauser, false);
 
 		// play the force feedback effect on the client player controller
+		/*
 		APlayerController* PC = Cast<APlayerController>(Controller);
 		if (PC && DamageEvent.DamageTypeClass){
 			UFMDamageType *DamageType = Cast<UFMDamageType>(DamageEvent.DamageTypeClass->GetDefaultObject());
@@ -430,9 +431,10 @@ void AFMCharacter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageE
 				PC->ClientPlayForceFeedback(DamageType->HitForceFeedback, false, "Damage");
 			}
 		}
+		*/
 	}
 
-	if (DamageTaken > 0.f){
+	if (DamageTaken > 0.0){
 		ApplyDamageMomentum(DamageTaken, DamageEvent, PawnInstigator, DamageCauser);
 	}
 
@@ -451,7 +453,7 @@ void AFMCharacter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageE
 	}
 	
 }
-
+/*
 void AFMCharacter::SetRagdollPhysics(){
 	
 	bool bInRagdoll = false;
@@ -484,7 +486,7 @@ void AFMCharacter::SetRagdollPhysics(){
 	}
 	
 }
-
+*/
 void AFMCharacter::ReplicateHit(float Damage, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser, bool bKilled){
 	
 	const float TimeoutTime = GetWorld()->GetTimeSeconds() + 0.5f;
@@ -515,13 +517,13 @@ void AFMCharacter::ReplicateHit(float Damage, struct FDamageEvent const& DamageE
 void AFMCharacter::OnRep_LastTakeHitInfo(){
 	
 	if (LastTakeHitInfo.bKilled){
-		OnDeath(LastTakeHitInfo.ActualDamage, LastTakeHitInfo.GetDamageEvent(), LastTakeHitInfo.PawnInstigator.Get(), LastTakeHitInfo.DamageCauser.Get());
+		//OnDeath(LastTakeHitInfo.ActualDamage, LastTakeHitInfo.GetDamageEvent(), LastTakeHitInfo.PawnInstigator.Get(), LastTakeHitInfo.DamageCauser.Get());
 	}else{
 		PlayHit(LastTakeHitInfo.ActualDamage, LastTakeHitInfo.GetDamageEvent(), LastTakeHitInfo.PawnInstigator.Get(), LastTakeHitInfo.DamageCauser.Get());
 	}
 	
 }
-
+/*
 //Pawn::PlayDying sets this lifespan, but when that function is called on client, dead pawn's role is still SimulatedProxy despite bTearOff being true. 
 void AFMCharacter::TornOff(){
 	SetLifeSpan(25.f);
@@ -703,7 +705,7 @@ void AFMCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutL
 	//DOREPLIFETIME_CONDITION(AFMCharacter, bIsTargeting, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(AFMCharacter, bWantsToRun, COND_SkipOwner);
 
-	//DOREPLIFETIME_CONDITION(AFMCharacter, LastTakeHitInfo, COND_Custom);
+	DOREPLIFETIME_CONDITION(AFMCharacter, LastTakeHitInfo, COND_Custom);
 
 	// everyone
 	DOREPLIFETIME(AFMCharacter, CurrentWeapon);
