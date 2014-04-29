@@ -1,142 +1,165 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<ItemGroup>
-		<None Include="..\..\FM.uproject" />
-		<Filter Include="Source">
-			<UniqueIdentifier>{EB0C91AE-BA11-46CD-8D18-67E776D053C6}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Source\FM.Target.cs">
-			<Filter>Source</Filter>
-		</None >
-		<None Include="..\..\Source\FMEditor.Target.cs">
-			<Filter>Source</Filter>
-		</None >
-		<Filter Include="Config">
-			<UniqueIdentifier>{8C57C257-2340-4B0E-87F4-F8CFC3F25D0F}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Config\DefaultEditorUserSettings.ini">
-			<Filter>Config</Filter>
-		</None >
-		<None Include="..\..\Config\DefaultEngine.ini">
-			<Filter>Config</Filter>
-		</None >
-		<None Include="..\..\Config\DefaultGame.ini">
-			<Filter>Config</Filter>
-		</None >
-		<None Include="..\..\Config\DefaultInput.ini">
-			<Filter>Config</Filter>
-		</None >
-		<Filter Include="Source\FM">
-			<UniqueIdentifier>{A81F3EA3-18BB-4BE5-9125-E8840FE57365}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Source\FM\FM.Build.cs">
-			<Filter>Source\FM</Filter>
-		</None >
-		<ClCompile Include="..\..\Source\FM\FM.cpp">
-			<Filter>Source\FM</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\FM\FM.h">
-			<Filter>Source\FM</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Source\FM\FMCharacter.cpp">
-			<Filter>Source\FM</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\FM\FMCharacter.h">
-			<Filter>Source\FM</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Source\FM\FMCharacterMovementComponent.cpp">
-			<Filter>Source\FM</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\FM\FMCharacterMovementComponent.h">
-			<Filter>Source\FM</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Source\FM\FMDamageType.cpp">
-			<Filter>Source\FM</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\FM\FMDamageType.h">
-			<Filter>Source\FM</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Source\FM\FMGameMode.cpp">
-			<Filter>Source\FM</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\FM\FMGameMode.h">
-			<Filter>Source\FM</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Source\FM\FMGameMode_FreeForAll.cpp">
-			<Filter>Source\FM</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\FM\FMGameMode_FreeForAll.h">
-			<Filter>Source\FM</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Source\FM\FMGameSession.cpp">
-			<Filter>Source\FM</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\FM\FMGameSession.h">
-			<Filter>Source\FM</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Source\FM\FMGameState.cpp">
-			<Filter>Source\FM</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\FM\FMGameState.h">
-			<Filter>Source\FM</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Source\FM\FMHUD.cpp">
-			<Filter>Source\FM</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\FM\FMHUD.h">
-			<Filter>Source\FM</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Source\FM\FMOnlineGameSettings.cpp">
-			<Filter>Source\FM</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\FM\FMOnlineGameSettings.h">
-			<Filter>Source\FM</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Source\FM\FMPlayerController.cpp">
-			<Filter>Source\FM</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\FM\FMPlayerController.h">
-			<Filter>Source\FM</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Source\FM\FMPlayerState.cpp">
-			<Filter>Source\FM</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\FM\FMPlayerState.h">
-			<Filter>Source\FM</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Source\FM\FMProjectile.cpp">
-			<Filter>Source\FM</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\FM\FMProjectile.h">
-			<Filter>Source\FM</Filter>
-		</ClInclude >
-		<ClInclude Include="..\..\Source\FM\FMTypes.h">
-			<Filter>Source\FM</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Source\FM\FMWeapon.cpp">
-			<Filter>Source\FM</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\FM\FMWeapon.h">
-			<Filter>Source\FM</Filter>
-		</ClInclude >
-		<ClCompile Include="..\..\Source\FM\FMWeapon_Melee.cpp">
-			<Filter>Source\FM</Filter>
-		</ClCompile >
-		<ClInclude Include="..\..\Source\FM\FMWeapon_Melee.h">
-			<Filter>Source\FM</Filter>
-		</ClInclude >
-		<Filter Include="Source\FM\Resources">
-			<UniqueIdentifier>{0525DE98-9E13-49D6-B531-2F02ED3F4603}</UniqueIdentifier>
-		</Filter>
-		<Filter Include="Source\FM\Resources\Windows">
-			<UniqueIdentifier>{F18D1F59-8AE8-464E-A314-BE9097564B94}</UniqueIdentifier>
-		</Filter>
-		<None Include="..\..\Source\FM\Resources\Windows\FM.ico">
-			<Filter>Source\FM\Resources\Windows</Filter>
-		</None >
-		<ResourceCompile Include="..\..\Source\FM\Resources\Windows\FM.rc">
-			<Filter>Source\FM\Resources\Windows</Filter>
-		</ResourceCompile >
-	</ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\FM.uproject" />
+    <Filter Include="Source">
+      <UniqueIdentifier>{EB0C91AE-BA11-46CD-8D18-67E776D053C6}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\FM.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\..\Source\FMEditor.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <Filter Include="Config">
+      <UniqueIdentifier>{8C57C257-2340-4B0E-87F4-F8CFC3F25D0F}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Config\DefaultEditorUserSettings.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultEngine.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultGame.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultInput.ini">
+      <Filter>Config</Filter>
+    </None>
+    <Filter Include="Source\FM">
+      <UniqueIdentifier>{A81F3EA3-18BB-4BE5-9125-E8840FE57365}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\FM\FM.Build.cs">
+      <Filter>Source\FM</Filter>
+    </None>
+    <ClCompile Include="..\..\Source\FM\FM.cpp">
+      <Filter>Source\FM</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\FM\FM.h">
+      <Filter>Source\FM</Filter>
+    </ClInclude>
+    <Filter Include="Source\FM\Resources">
+      <UniqueIdentifier>{0525DE98-9E13-49D6-B531-2F02ED3F4603}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\FM\Resources\Windows">
+      <UniqueIdentifier>{F18D1F59-8AE8-464E-A314-BE9097564B94}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\FM\Resources\Windows\FM.ico">
+      <Filter>Source\FM\Resources\Windows</Filter>
+    </None>
+    <ResourceCompile Include="..\..\Source\FM\Resources\Windows\FM.rc">
+      <Filter>Source\FM\Resources\Windows</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source\FM\Player">
+      <UniqueIdentifier>{f5303574-d798-45a5-8c6c-3abfb0234723}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\FM\Game">
+      <UniqueIdentifier>{5ebb790a-40b7-4820-81a6-20097dab95c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\FM\Online">
+      <UniqueIdentifier>{390aae31-ee02-488c-9870-79f4a9792fa3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\FM\Weapon">
+      <UniqueIdentifier>{10b4845f-7677-4394-bcb0-fc268e505cab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\FM\UI">
+      <UniqueIdentifier>{0a077cee-5b7d-43eb-aacd-758c750bf0ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\FM\GameTypes">
+      <UniqueIdentifier>{6aafbe71-62ef-4b02-af4f-7b1fc0affbab}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Source\FM\FMCharacterMovementComponent.cpp">
+      <Filter>Source\FM\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\FM\FMCharacter.cpp">
+      <Filter>Source\FM\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\FM\FMPlayerController.cpp">
+      <Filter>Source\FM\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\FM\FMGameMode.cpp">
+      <Filter>Source\FM\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\FM\FMGameMode_FreeForAll.cpp">
+      <Filter>Source\FM\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\FM\FMPlayerState.cpp">
+      <Filter>Source\FM\Online</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\FM\FMOnlineGameSettings.cpp">
+      <Filter>Source\FM\Online</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\FM\FMGameSession.cpp">
+      <Filter>Source\FM\Online</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\FM\FMGameState.cpp">
+      <Filter>Source\FM\Online</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\FM\FMWeapon.cpp">
+      <Filter>Source\FM\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\FM\FMWeapon_Melee.cpp">
+      <Filter>Source\FM\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\FM\FMProjectile.cpp">
+      <Filter>Source\FM\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\FM\FMHUD.cpp">
+      <Filter>Source\FM\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\FM\FMDamageType.cpp">
+      <Filter>Source\FM\GameTypes</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Source\FM\FMCharacterMovementComponent.h">
+      <Filter>Source\FM\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\FM\FMCharacter.h">
+      <Filter>Source\FM\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\FM\FMPlayerController.h">
+      <Filter>Source\FM\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\FM\FMGameMode.h">
+      <Filter>Source\FM\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\FM\FMGameMode_FreeForAll.h">
+      <Filter>Source\FM\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\FM\FMPlayerState.h">
+      <Filter>Source\FM\Online</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\FM\FMOnlineGameSettings.h">
+      <Filter>Source\FM\Online</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\FM\FMGameSession.h">
+      <Filter>Source\FM\Online</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\FM\FMGameState.h">
+      <Filter>Source\FM\Online</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\FM\FMWeapon.h">
+      <Filter>Source\FM\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\FM\FMWeapon_Melee.h">
+      <Filter>Source\FM\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\FM\FMProjectile.h">
+      <Filter>Source\FM\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\FM\FMHUD.h">
+      <Filter>Source\FM\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\FM\FMTypes.h">
+      <Filter>Source\FM\GameTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\FM\FMDamageType.h">
+      <Filter>Source\FM\GameTypes</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>
