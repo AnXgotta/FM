@@ -342,8 +342,8 @@ protected:
 	float LastTakeHitTimeTimeout;
 
 	//  Replicate where this pawn was last hit and damaged
-	//UPROPERTY(Transient, ReplicatedUsing = OnRep_LastTakeHitInfo)
-	//struct FTakeHitInfo LastTakeHitInfo;
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_LastTakeHitInfo)
+	struct FTakeHitInfo LastTakeHitInfo;
 
 	//  Responsible for cleaning up bodies on clients.
 	//virtual void TornOff();

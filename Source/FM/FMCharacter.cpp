@@ -8,9 +8,6 @@
 #include "FMDamageType.h"
 #include "FMCharacterMovementComponent.h"
 
-// temp include while goofing around with projetcile
-#include "FMProjectile.h"
-
 
 AFMCharacter::AFMCharacter(const class FPostConstructInitializeProperties& PCIP)
 	: Super(PCIP.SetDefaultSubobjectClass<UFMCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
