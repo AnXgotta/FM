@@ -231,5 +231,14 @@ void AFMWeapon_Melee::HandleHitDetection(){
 }
 
 void AFMWeapon_Melee::HandleHit(FHitResult* HitResult){
-	//HitResult->
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("Weapon: HandleHit "));
+	}
+	ActorsToIgnore.Add(HitResult->GetActor());
+	FPointDamageEvent DamageEvent;
+	DamageEvent.DamageTypeClass = NULL;
+	DamageEvent.HitInfo = *HitResult;
+	DamageEvent.Damage = 15.0f;
+	HitResult->GetActor()->TakeDamage(DamageEvent.Damage, DamageEvent, MyPawn->Controller,this);
+
 }

@@ -288,8 +288,11 @@ void AFMCharacter::KilledBy(APawn* EventInstigator){
 float AFMCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser){
 	AFMPlayerController* MyPC = Cast<AFMPlayerController>(Controller);
 
-	if (currentHealth <= 0.f){
+	if (currentHealth <= 0.0f){
 		return 0.f;
+	}
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("Character: TakeDamage "));
 	}
 
 	// Modify based on game rules.
@@ -297,9 +300,9 @@ float AFMCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEv
 	//Damage = Game ? Game->ModifyDamage(Damage, this, DamageEvent, EventInstigator, DamageCauser) : 0.f;
 
 	const float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
-	if (ActualDamage > 0.0)	{
+	if (ActualDamage > 0.0f)	{
 		currentHealth = FMath::Max(0.0f, currentHealth - ActualDamage);
-		if (currentHealth <= 0){
+		if (currentHealth <= 0.0f){
 			//Die(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
 		}else{
 			PlayHit(ActualDamage, DamageEvent, EventInstigator ? EventInstigator->GetPawn() : NULL, DamageCauser);
