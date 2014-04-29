@@ -238,7 +238,7 @@ void AFMWeapon_Melee::HandleHit(FHitResult* HitResult){
 	}
 	ActorsToIgnore.Add(HitResult->GetActor());
 	FPointDamageEvent DamageEvent;
-	DamageEvent.DamageTypeClass = NULL;
+	DamageEvent.DamageTypeClass = UDamageType::StaticClass();
 	DamageEvent.HitInfo = *HitResult;
 	DamageEvent.Damage = 15.0f;
 	HitResult->GetActor()->TakeDamage(DamageEvent.Damage, DamageEvent, MyPawn->Controller,this);
