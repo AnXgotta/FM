@@ -20,10 +20,6 @@ class AFMCharacter : public ACharacter
 	UPROPERTY(VisibleDefaultsOnly, Category = FollowCamera)
 		TSubobjectPtr<UCameraComponent> FollowCamera;
 
-	// projectile class to spawn
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		TSubclassOf<class AFMProjectile> ProjectileClass;
-
 	//  spawn inventory, setup initial variables
 	virtual void PostInitializeComponents() OVERRIDE;
 

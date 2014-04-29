@@ -67,7 +67,7 @@
     <Filter Include="Source\FM\UI">
       <UniqueIdentifier>{0a077cee-5b7d-43eb-aacd-758c750bf0ca}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\FM\GameTypes">
+    <Filter Include="Source\FM\Types">
       <UniqueIdentifier>{6aafbe71-62ef-4b02-af4f-7b1fc0affbab}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -112,7 +112,7 @@
       <Filter>Source\FM\UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\FM\FMDamageType.cpp">
-      <Filter>Source\FM\GameTypes</Filter>
+      <Filter>Source\FM\Types</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -156,10 +156,10 @@
       <Filter>Source\FM\UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\FM\FMTypes.h">
-      <Filter>Source\FM\GameTypes</Filter>
+      <Filter>Source\FM\Types</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\FM\FMDamageType.h">
-      <Filter>Source\FM\GameTypes</Filter>
+      <Filter>Source\FM\Types</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

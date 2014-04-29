@@ -54,6 +54,12 @@ struct FMWeaponData{
 	UPROPERTY(EditDefaultsOnly, Category = Charging)
 		float maxChargeValue;
 
+	UPROPERTY(EditDefaultsOnly, Category = Damage)
+		float DamageAmount;
+
+	UPROPERTY(EditDefaultsOnly, Category = Damage)
+		TSubclassOf<UDamageType> DamageType;
+
 	// defaults 
 	FMWeaponData(){
 		WeaponType = EWeaponType::Primary;
@@ -62,6 +68,8 @@ struct FMWeaponData{
 		timeBetweenUses = 1.0f;
 		bIsChargable = false;
 		maxChargeValue = 3.0f;
+		DamageAmount = 20.0f;
+		DamageType = UDamageType::StaticClass();
 	}
 
 };

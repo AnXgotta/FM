@@ -423,15 +423,18 @@ void AFMCharacter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageE
 		ReplicateHit(DamageTaken, DamageEvent, PawnInstigator, DamageCauser, false);
 
 		// play the force feedback effect on the client player controller
-		/*
+		
 		APlayerController* PC = Cast<APlayerController>(Controller);
 		if (PC && DamageEvent.DamageTypeClass){
 			UFMDamageType *DamageType = Cast<UFMDamageType>(DamageEvent.DamageTypeClass->GetDefaultObject());
 			if (DamageType && DamageType->HitForceFeedback)	{
+				if (GEngine){
+					GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("Character: ClientPlayForceFeedback"));
+				}
 				PC->ClientPlayForceFeedback(DamageType->HitForceFeedback, false, "Damage");
 			}
 		}
-		*/
+		
 	}
 
 	if (DamageTaken > 0.0){

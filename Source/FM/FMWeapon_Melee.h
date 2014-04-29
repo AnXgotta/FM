@@ -9,22 +9,12 @@ struct FMeleeWeaponData{
 
 	GENERATED_USTRUCT_BODY()
 
-	// can do combos?
-	UPROPERTY(EditDefaultsOnly, Category = Usage)
-	bool bCanCombo;
-
-	// is in combo range
-	UPROPERTY(EditDefaultsOnly, Category = Usage)
-	bool bIsInComboRange;
-
 	// amount of time for combo
 	UPROPERTY(EditDefaultsOnly, Category = Usage)
 	float comboWindowTime;
 
 	// defaults 
 	FMeleeWeaponData(){
-		bCanCombo = true;
-		bIsInComboRange = false;
 		comboWindowTime = 0.25f;
 
 	}
