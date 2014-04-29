@@ -1,7 +1,9 @@
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
 
 #include "FM.h"
+#include "FMCharacter.h"
 #include "FMWeapon_Melee.h"
+
 
 
 AFMWeapon_Melee::AFMWeapon_Melee(const class FPostConstructInitializeProperties& PCIP)
