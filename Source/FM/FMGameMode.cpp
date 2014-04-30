@@ -23,8 +23,7 @@ AFMGameMode::AFMGameMode(const class FPostConstructInitializeProperties& PCIP)
 	//PlayerStateClass = AFMPlayerState::StaticClass();
 	GameStateClass = AFMGameState::StaticClass();
 
-
-	WarmupTime = 0;
+	MinRespawnDelay = 5.0f;
 
 	RoundTime = 240;
 
