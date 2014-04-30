@@ -22,5 +22,7 @@
 
 
 #define COLLISION_PROJECTILE ECC_GameTraceChannel1
+#define COLLISION_SHIELD ECC_GameTraceChannel2
+#define COLLISION_WEAPON_MELEE ECC_GameTraceChannel3
 
 #endif // __FM_H__

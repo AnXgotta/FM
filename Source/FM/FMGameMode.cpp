@@ -118,22 +118,24 @@ bool AFMGameMode::PlayerCanRestart(APlayerController* Player){
 	AFMGameState const* const MyGameState = Cast<AFMGameState>(GameState);
 	return MyGameState && MyGameState->bMatchHasBegun && !MyGameState->bMatchIsOver;
 }
+*/
 
 void AFMGameMode::Killed(AController* Killer, AController* KilledPlayer, APawn* KilledPawn, const UDamageType* DamageType){
 	AFMPlayerState* KillerPlayerState = Killer ? Cast<AFMPlayerState>(Killer->PlayerState) : NULL;
 	AFMPlayerState* VictimPlayerState = KilledPlayer ? Cast<AFMPlayerState>(KilledPlayer->PlayerState) : NULL;
 
 	if (KillerPlayerState && KillerPlayerState != VictimPlayerState){
-		KillerPlayerState->ScoreKill(VictimPlayerState, KillScore);
-		KillerPlayerState->InformAboutKill();
+		//KillerPlayerState->ScoreKill(VictimPlayerState, KillScore);
+		//KillerPlayerState->InformAboutKill();
 	}
 
 	if (VictimPlayerState){
-		VictimPlayerState->ScoreDeath(KillerPlayerState, DeathScore);
-		VictimPlayerState->BroadcastDeath(KillerPlayerState, DamageType);
+		//VictimPlayerState->ScoreDeath(KillerPlayerState, DeathScore);
+		//VictimPlayerState->BroadcastDeath(KillerPlayerState, DamageType);
 	}
 }
 
+/*
 float AFMGameMode::ModifyDamage(float Damage, AActor* DamagedActor, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) const {
 	float ActualDamage = Damage;
 

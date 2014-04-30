@@ -303,7 +303,7 @@ float AFMCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEv
 	if (ActualDamage > 0.0f)	{
 		currentHealth = FMath::Max(0.0f, currentHealth - ActualDamage);
 		if (currentHealth <= 0.0f){
-			//Die(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
+			Die(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
 		}else{
 			PlayHit(ActualDamage, DamageEvent, EventInstigator ? EventInstigator->GetPawn() : NULL, DamageCauser);
 		}
@@ -313,7 +313,7 @@ float AFMCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEv
 	
 	return ActualDamage;
 }
-/*
+
 bool AFMCharacter::CanDie(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser) const {
 	if (bIsDying										// already dying
 		|| IsPendingKill()								// already destroyed
@@ -324,13 +324,23 @@ bool AFMCharacter::CanDie(float KillingDamage, FDamageEvent const& DamageEvent, 
 		return false;
 	}
 
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("Character: Can Die True "));
+	}
+
 	return true;
 }
+
+
 
 bool AFMCharacter::Die(float KillingDamage, FDamageEvent const& DamageEvent, AController* Killer, AActor* DamageCauser){
 	
 	if (!CanDie(KillingDamage, DamageEvent, Killer, DamageCauser)){
 		return false;
+	}
+
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("Character: Die "));
 	}
 
 	currentHealth = FMath::Max(0.0f, currentHealth);
@@ -350,10 +360,17 @@ bool AFMCharacter::Die(float KillingDamage, FDamageEvent const& DamageEvent, ACo
 	return true;
 }
 
+
+
+
 void AFMCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser){
 	
 	if (bIsDying){
 		return;
+	}
+
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("Character: OnDeath "));
 	}
 
 	bReplicateMovement = false;
@@ -409,14 +426,16 @@ void AFMCharacter::OnDeath(float KillingDamage, struct FDamageEvent const& Damag
 	//float DeathAnimDuration = PlayAnimMontage(DeathAnim);
 	
 	// Ragdoll
-	if (DeathAnimDuration > 0.f){
-		GetWorldTimerManager().SetTimer(this, &AShooterCharacter::SetRagdollPhysics, FMath::Min(0.1f, DeathAnimDuration), false);
-	}else{
+	
+	//if (DeathAnimDuration > 0.f){
+//		GetWorldTimerManager().SetTimer(this, &AFMCharacter::SetRagdollPhysics, FMath::Min(0.1f, DeathAnimDuration), false);
+//	}else{
 		SetRagdollPhysics();
-	}
+	//}
 	
 }
-*/
+
+
 void AFMCharacter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser){
 	
 	if (Role == ROLE_Authority){
@@ -456,7 +475,7 @@ void AFMCharacter::PlayHit(float DamageTaken, struct FDamageEvent const& DamageE
 	}
 	
 }
-/*
+
 void AFMCharacter::SetRagdollPhysics(){
 	
 	bool bInRagdoll = false;
@@ -471,6 +490,8 @@ void AFMCharacter::SetRagdollPhysics(){
 		Mesh->SetSimulatePhysics(true);
 		Mesh->WakeAllRigidBodies();
 		Mesh->bBlendPhysics = true;
+
+		Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
 		bInRagdoll = true;
 	}
@@ -489,7 +510,8 @@ void AFMCharacter::SetRagdollPhysics(){
 	}
 	
 }
-*/
+
+
 void AFMCharacter::ReplicateHit(float Damage, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser, bool bKilled){
 	
 	const float TimeoutTime = GetWorld()->GetTimeSeconds() + 0.5f;
@@ -520,13 +542,13 @@ void AFMCharacter::ReplicateHit(float Damage, struct FDamageEvent const& DamageE
 void AFMCharacter::OnRep_LastTakeHitInfo(){
 	
 	if (LastTakeHitInfo.bKilled){
-		//OnDeath(LastTakeHitInfo.ActualDamage, LastTakeHitInfo.GetDamageEvent(), LastTakeHitInfo.PawnInstigator.Get(), LastTakeHitInfo.DamageCauser.Get());
+		OnDeath(LastTakeHitInfo.ActualDamage, LastTakeHitInfo.GetDamageEvent(), LastTakeHitInfo.PawnInstigator.Get(), LastTakeHitInfo.DamageCauser.Get());
 	}else{
 		PlayHit(LastTakeHitInfo.ActualDamage, LastTakeHitInfo.GetDamageEvent(), LastTakeHitInfo.PawnInstigator.Get(), LastTakeHitInfo.DamageCauser.Get());
 	}
 	
 }
-/*
+
 //Pawn::PlayDying sets this lifespan, but when that function is called on client, dead pawn's role is still SimulatedProxy despite bTearOff being true. 
 void AFMCharacter::TornOff(){
 	SetLifeSpan(25.f);
@@ -535,7 +557,7 @@ void AFMCharacter::TornOff(){
 bool AFMCharacter::IsAlive() const{
 	return currentHealth > 0;
 }
-*/
+
 //////////////////////////////////////////////////////////////////////////
 // INVENTORY (WEAPON MANAGEMENT (Adding to default inventory ) HANDLED IN BLUEPRINT!)
 

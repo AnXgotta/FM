@@ -683,11 +683,11 @@ void AFMWeapon::OnLeaveInventory(){
 	if (Role == ROLE_Authority){
 		SetOwningPawn(NULL);
 	}
-
+	/*
 	if (IsAttachedToPawn()){
 		OnUnEquip();
 	}
-
+	*/
 }
 
 void AFMWeapon::EquipForUse(){

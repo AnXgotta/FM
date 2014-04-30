@@ -37,10 +37,12 @@ class AFMGameMode : public AGameMode
 
 	// prevents friendly fire 
 	virtual float ModifyDamage(float Damage, AActor* DamagedActor, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) const;
+	*/
 
 	// notify about kills 
 	virtual void Killed(AController* Killer, AController* KilledPlayer, APawn* KilledPawn, const UDamageType* DamageType);
 
+	/*
 	// can players damage each other? 
 	virtual bool CanDealDamage(class AFMPlayerState* DamageInstigator, class AFMPlayerState* DamagedPlayer) const;
 
