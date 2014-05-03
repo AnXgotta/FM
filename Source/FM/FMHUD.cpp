@@ -23,6 +23,7 @@ AFMHUD::AFMHUD(const class FPostConstructInitializeProperties& PCIP)
 void AFMHUD::DrawHUD(){
 	Super::DrawHUD();
 
+	DrawDebugClientHealth();
 	DrawDebugHealthStamina();
 
 	DrawDebugTimer();
@@ -71,6 +72,27 @@ void AFMHUD::DrawDebugInfoString(const FString& Text, float PosX, float PosY, bo
 	//TextItem.FontRenderInfo = ShadowedFont;
 	TextItem.Scale = FVector2D(ScaleUI, ScaleUI);
 	Canvas->DrawItem(TextItem);
+}
+
+void AFMHUD::DrawDebugClientHealth(){
+
+	for (FConstPawnIterator iter = GetWorld()->GetPawnIterator(); iter; iter++){
+
+		AFMCharacter* FMC = Cast<AFMCharacter>(*iter);
+		if (FMC && FMC->GetCurrentHealth() > 0.0f){
+			
+			FBox BB = FMC->GetComponentsBoundingBox();
+			FVector Center = BB.GetCenter();
+			FVector Extent = BB.GetExtent();
+			FVector2D Center2D = FVector2D(Canvas->Project(FVector(Center.X, Center.Y, Center.Z + Extent.Z)));
+
+			const FString displayText = FString::Printf(TEXT("%f"), FMC->GetCurrentHealth() / FMC->GetCurrentMaxHealth());
+
+			DrawDebugInfoString(displayText, Center2D.X, Center2D.Y, true, false, HUDLight);
+			
+		}
+	}
+
 }
 
 

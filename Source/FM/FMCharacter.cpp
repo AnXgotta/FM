@@ -526,6 +526,7 @@ void AFMCharacter::ReplicateHit(float Damage, struct FDamageEvent const& DamageE
 
 		// otherwise, accumulate damage done this frame
 		Damage += LastTakeHitInfo.ActualDamage;
+		
 	}
 
 	LastTakeHitInfo.ActualDamage = Damage;

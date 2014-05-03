@@ -123,6 +123,9 @@ public:
 	//UPROPERTY()
 	//	FCanvasIcon HealthBar;
 
+	UFUNCTION()
+		void DrawDebugClientHealth();
+
 	///////////////////////////////////////////////////////////////////////////
 	// GENREAL UI SHIT
 
