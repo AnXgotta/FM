@@ -237,6 +237,7 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 		bIsCharging = false;
 		bWantsToCombo = false;
 		bIsInComboWindow = false;
+		currentSwingID = 0.0f;
 		if (GEngine){
 			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, TEXT("Weapon | Using -> Idle"));
 		}
@@ -249,6 +250,7 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 		bIsCharging = false;
 		bWantsToCombo = false;
 		bIsInComboWindow = false;
+		currentSwingID = 0.0f;
 		if (GEngine){
 			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, TEXT("Weapon | Idle -> Idle"));
 		}

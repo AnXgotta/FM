@@ -46,7 +46,7 @@ class AFMProjectile : public AActor
 	virtual void PostInitializeComponents() OVERRIDE;
 
 	// setup velocity
-	void InitVelocity(FVector& Direction);
+	void InitVelocity(float SpeedMultiplier);
 
 	// handle impact
 	void OnImpact(const FHitResult& HitResult);

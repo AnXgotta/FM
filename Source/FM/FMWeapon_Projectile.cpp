@@ -46,12 +46,11 @@ void AFMWeapon_Projectile::OnUseWeaponStarted(){
 	}
 
 	// check if greater than max combo count for this swing type
-	if (GetCurrentSwingMod() < 2){
+	if (currentSwingID < 1.2f){
 		UseStamina(false, 0.0f);
 		UseWeapon();
 	}else{
-		// outside of combo range... just end it here
-		bWantsToUse = false;
+		Super::OnUseWeaponEnded();
 	}
 }
 
@@ -74,15 +73,12 @@ void AFMWeapon_Projectile::UseWeapon(){
 
 				AFMProjectile* projectile = World->SpawnActor<AFMProjectile>(ProjectileConfig.ProjectileClass, MyLoc, MyRot, SpawnParams);
 				if (projectile){
-					FVector shootDirection = MyPawn->FollowCamera->GetForwardVector() * FMath::Max(1.0f, chargeValue)s;
-					projectile->InitVelocity(shootDirection);
+					projectile->InitVelocity(FMath::Max(1.0f, chargeValue));
 				}
 			}
 			
 		}
 	}
-
-	
 
 	Super::OnUseWeaponEnded();
 

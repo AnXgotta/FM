@@ -53,9 +53,9 @@ void AFMProjectile::PostInitializeComponents(){
 	MyController = GetInstigatorController();
 }
 
-void AFMProjectile::InitVelocity(FVector& ShootDirection){
+void AFMProjectile::InitVelocity(float SpeedMultiplier){
 	if (MovementComp){
-		MovementComp->Velocity = ShootDirection * MovementComp->InitialSpeed;
+		MovementComp->Velocity = this->GetActorForwardVector() * MovementComp->InitialSpeed * SpeedMultiplier;
 	}
 }
 
