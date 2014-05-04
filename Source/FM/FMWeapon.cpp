@@ -493,6 +493,9 @@ void AFMWeapon::OnUseWeaponStarted(){
 }
 
 void AFMWeapon::OnUseWeaponEnded(){
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("Weapon: OnUseWeaponEnded 1"));
+	}
 	bWantsToUse = false;
 	bWantsToCharge = false;
 	bIsCharging = false;
@@ -501,6 +504,9 @@ void AFMWeapon::OnUseWeaponEnded(){
 	currentSwingID = 0.0f;
 	BeginStaminaCooldown();
 	DetermineWeaponState();
+	if (GEngine){
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("Weapon: OnUseWeaponEnded 2 "));
+	}
 }
 
 void AFMWeapon::SetOwningPawn(AFMCharacter* NewOwner){

@@ -6,25 +6,85 @@
 #include "FMProjectile.generated.h"
 
 
-UCLASS()
+USTRUCT()
+struct FProjectileData{
+
+	GENERATED_USTRUCT_BODY()
+
+	// life time
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+		float ProjectileLife;
+
+	// impact damage amount
+	UPROPERTY(EditDefaultsOnly, Category = WeaponStat)
+		float ImpactDamage;
+
+	// AOE damage radius
+	UPROPERTY(EditDefaultsOnly, Category = WeaponStat)
+		float AOERadius;
+
+	// Damage type
+	UPROPERTY(EditDefaultsOnly, Category = WeaponStat)
+		TSubclassOf<UDamageType> DamageType;
+
+
+
+	FProjectileData(){
+		ProjectileLife = 10.0f;
+		ImpactDamage = 20.0f;
+		AOERadius = 300.0f;
+		DamageType = UDamageType::StaticClass();
+	}
+};
+
+UCLASS(Abstract, Blueprintable, DependsOn = FMWeapon_Projectile)
 class AFMProjectile : public AActor
 {
 	GENERATED_UCLASS_BODY()
 
-public:
-	// projectile collision component
+	// initial setup
+	virtual void PostInitializeComponents() OVERRIDE;
+
+	// setup velocity
+	void InitVelocity(FVector& Direction);
+
+	// handle impact
+	void OnImpact(const FHitResult& HitResult);
+
+protected:
+
+	// movement component
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
-	TSubobjectPtr<USphereComponent> CollisionComp;
+		TSubobjectPtr<UProjectileMovementComponent> MovementComp;
 
-	// projectile movement component
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement)
-	TSubobjectPtr<class UProjectileMovementComponent> ProjectileMovement;
+	// collisions
+	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
+		TSubobjectPtr<USphereComponent> CollisionComp;
 
-	// called on projectile hit
+	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
+		TSubobjectPtr<UParticleSystemComponent> ParticleComp;
+
+	// hit effect
+
+	// controller that fired this projectile
+	TWeakObjectPtr<AController> MyController;
+
+	// Projectile Data
+	UPROPERTY(EditDefaultsOnly, Category=Config)
+	struct FProjectileData WeaponConfig;
+
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_HandleImpact)
+		bool bDidHit;
+
+
 	UFUNCTION()
-	void OnHit(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+		void OnRep_HandleImpact();
 
+	void HandleImpact(const FHitResult& Impact);
 
-	void InitVelocity(const FVector& ShootDirection);
+	void DisableAndDestroy();
+
+	// update velocity on client
+	virtual void PostNetReceiveVelocity(const FVector& NewVelocity) OVERRIDE;
 	
 };
