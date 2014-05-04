@@ -180,6 +180,7 @@ EWeaponState::Type AFMWeapon::GetCurrentState() const{
 void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 
 	const EWeaponState::Type PrevState = CurrentState;
+	CurrentState = NewState;
 
 	// initial swing from LMB to begin charging
 	if (PrevState == EWeaponState::Idle && NewState == EWeaponState::Charging){
@@ -252,9 +253,6 @@ void AFMWeapon::SetWeaponState(EWeaponState::Type NewState){
 			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Yellow, TEXT("Weapon | Idle -> Idle"));
 		}
 	}
-
-	CurrentState = NewState;
-
 }
 
 void AFMWeapon::DetermineWeaponState(){
@@ -493,9 +491,6 @@ void AFMWeapon::OnUseWeaponStarted(){
 }
 
 void AFMWeapon::OnUseWeaponEnded(){
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("Weapon: OnUseWeaponEnded 1"));
-	}
 	bWantsToUse = false;
 	bWantsToCharge = false;
 	bIsCharging = false;
@@ -504,9 +499,6 @@ void AFMWeapon::OnUseWeaponEnded(){
 	currentSwingID = 0.0f;
 	BeginStaminaCooldown();
 	DetermineWeaponState();
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("Weapon: OnUseWeaponEnded 2 "));
-	}
 }
 
 void AFMWeapon::SetOwningPawn(AFMCharacter* NewOwner){
@@ -791,30 +783,31 @@ return EquipStartedTime;
 */
 
 void AFMWeapon::LogState(EWeaponState::Type NewState){
+
 	switch (NewState){
 	case EWeaponState::Idle:
 		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("State = Idle"));
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("Idle"));
 		}
 		break;
 	case EWeaponState::Charging:
 		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("State = Charging"));
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("Charging"));
 		}
 		break;
 	case EWeaponState::Using:
 		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("State = Using"));
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("Using"));
 		}
 		break;
 	case EWeaponState::Equipping:
 		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("State = Equipping"));
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("Equipping"));
 		}
 		break;
 	case EWeaponState::UnEquipping:
 		if (GEngine){
-			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("State = UnEquipping"));
+			GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::White, TEXT("UnEquipping"));
 		}
 		break;
 	}

@@ -32,6 +32,9 @@ class AFMWeapon_Projectile : public AFMWeapon
 	// apply config on projectile
 	void ApplyWeaponConfig(FProjectileWeaponData& Data);
 
+	virtual void Tick(float DeltaSeconds) OVERRIDE;
+
+
 protected:
 
 	// weapon config
@@ -43,7 +46,10 @@ protected:
 
 	// [local + server] use weapon implementation
 	virtual void UseWeapon() OVERRIDE;
-	
+
+	UFUNCTION()
+		virtual void OnUseWeaponStarted() OVERRIDE;
+
 	///////////////////////////////////////////////////////////////////////////////
 	// AIM HELPER
 	FVector GetAim() const;
