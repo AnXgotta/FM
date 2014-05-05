@@ -40,6 +40,9 @@ void AFMGameMode::BeginPlay(){
 
 }
 
+
+*/
+
 void AFMGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage){
 	Super::InitGame(MapName, Options, ErrorMessage);
 	if (GEngine){
@@ -50,7 +53,7 @@ void AFMGameMode::InitGame(const FString& MapName, const FString& Options, FStri
 
 
 
-
+/*
 
 void AFMGameMode::DetermineMatchWinner(){
 	// nothing to do here
@@ -60,22 +63,19 @@ bool AFMGameMode::IsWinner(class AFMPlayerState* PlayerState) const {
 	return false;
 }
 
+*/
+
 void AFMGameMode::PreLogin(const FString& Options, const FString& Address, const TSharedPtr<FUniqueNetId>& UniqueId, FString& ErrorMessage){
 	Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
 	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: START PreLogin 0 "));
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: PreLogin"));
 	}
 
 	AFMGameState* const MyGameState = Cast<AFMGameState>(GameState);
 	const bool bMatchIsOver = MyGameState && MyGameState->bMatchIsOver;
 	const FString EndGameError = TEXT("Match is over!");
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: START PreLogin 1"));
-	}
+
 	ErrorMessage = bMatchIsOver ? *EndGameError : GameSession->ApproveLogin(Options);
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: START PreLogin 2"));
-	}
 }
 
 
@@ -83,13 +83,13 @@ void AFMGameMode::PostLogin(APlayerController* NewPlayer){
 	Super::PostLogin(NewPlayer);
 
 	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: PostLogin START"));
+		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: PostLogin"));
 	}
 
 	// update spectator location for client
 	AFMPlayerController* NewPC = Cast<AFMPlayerController>(NewPlayer);
 	if (NewPC && NewPC->GetPawn() == NULL){
-		//NewPC->ClientSetSpectatorCamera(NewPC->GetSpawnLocation(), NewPC->GetControlRotation());
+		NewPC->ClientSetSpectatorCamera(NewPC->GetSpawnLocation(), NewPC->GetControlRotation());
 	}
 
 	// start warmup if needed
@@ -108,11 +108,10 @@ void AFMGameMode::PostLogin(APlayerController* NewPlayer){
 		//NewPC->ClientGameStarted();
 		//NewPC->ClientStartOnlineGame();
 	}
-	if (GEngine){
-		GEngine->AddOnScreenDebugMessage(-1, DEBUG_MSG_TIME, FColor::Red, TEXT("GameMode: PostLogin END"));
-	}
+
 }
 
+/*
 bool AFMGameMode::PlayerCanRestart(APlayerController* Player){
 	AFMGameState const* const MyGameState = Cast<AFMGameState>(GameState);
 	return MyGameState && MyGameState->bMatchHasBegun && !MyGameState->bMatchIsOver;

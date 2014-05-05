@@ -15,6 +15,7 @@ class AFMGameMode : public AGameMode
 	virtual void BeginPlay() OVERRIDE;
 
 
+	*/
 	// Initialize the game. This is called before actors' PreInitializeComponents.
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) OVERRIDE;
 
@@ -24,6 +25,7 @@ class AFMGameMode : public AGameMode
 	// starts match warmup 
 	virtual void PostLogin(APlayerController* NewPlayer) OVERRIDE;
 
+	/*
 	// disable respawns outside current match 
 	virtual bool PlayerCanRestart(APlayerController* Player) OVERRIDE;
 
